@@ -4,57 +4,54 @@
 >
 > **私有项目 - 仅供内部使用**
 
-Nexlyn 是一个现代化的可视化管理平台，专为 LynxGraph 逻辑引擎设计，采用前后端分离架构，提供视频管理、算法管理、物联网管理和可视化规则引擎等核心功能。
+Nexlyn 是一个现代化的可视化管理平台，专为 LynxGraph 逻辑引擎设计，采用前后端分离架构，提供视频管理、物联网管理、流程引擎和可视化规则引擎等核心功能。
 
-## ✨ 特性
+## 特性
 
-- 🎥 **视频管理** - 支持设备接入、分屏监控、媒体管理、录像管理
-- 🤖 **算法管理** - 云边端 AI 算法统一管理平台（开发中）
-- 🌐 **物联管理** - 物联网设备全生命周期管理（开发中）
-- ⚡ **逻辑引擎** - 基于 LynxGraph 的可视化规则引擎（开发中）
-- 👥 **系统管理** - 用户权限、租户管理、组织架构等
-- 📱 **响应式设计** - 基于 Ant Design Pro 的现代化 UI
-- 🔐 **权限管理** - 基于 CasbinX 的灵活权限控制
-- 📺 **GB28181** - 完整的视频监控协议支持
+- **视频管理** - GB28181 视频接入、分屏监控、媒体管理、录像管理
+- **物联管理** - IoT 设备全生命周期管理、MQTT 接入、多平台数据分发
+- **流程引擎** - 基于 Skylark V2 的事件驱动流程引擎
+- **逻辑引擎** - 基于 LynxGraph 的可视化规则引擎
+- **系统管理** - 用户权限、租户管理、组织架构
+- **权限控制** - 基于 CasbinX 的 RBAC 权限管理
 
-## 🏗️ 架构
+## 技术栈
 
-### 技术栈
+| 层级 | 技术 |
+|-----|------|
+| **后端** | Go 1.25.1 + go-zero + sqlx + CasbinX |
+| **前端** | React 18 + TypeScript + Ant Design Pro + UmiJS |
+| **数据库** | PostgreSQL + ClickHouse + Redis + MongoDB + Etcd |
+| **物联网** | MQTT (Paho) + Skylark 流程引擎 (go-skylark/v2) |
+| **媒体** | m7s.live v5 + GB28181 |
 
-**后端**
-- Go 1.25.1
-- go-zero 框架
-- sqlx 数据库操作（go-zero内置）
-- CasbinX 权限管理
-- m7s.live v5 媒体服务
-- GB28181 协议支持
-
-**前端**
-- React 18
-- TypeScript
-- Ant Design Pro
-- UmiJS
-
-**数据库**
-- PostgreSQL (主数据库)
-- Redis (缓存和会话)
-- MongoDB (文档存储)
-- Etcd (配置中心)
-
-### 核心组件
+## 项目结构
 
 ```
 nexlyn/
-├── frontend/           # React 前端应用
-├── restful/           # 后端服务
-│   ├── backend/       # RESTful API 服务
-│   └── mediahandler/  # 媒体服务
-├── pkg/nexlyn/        # 核心插件包
-├── internal/          # 内部包
-└── nexlyn-deploy/     # Docker 部署配置
+├── frontend/              # React 前端应用
+├── restful/               # REST 服务
+│   ├── backend/           # 用户、权限、租户、组织管理
+│   ├── iotmanager/        # IoT 平台配置 CRUD
+│   ├── eventhandler/      # Skylark 流程操作
+│   ├── mediahandler/      # GB28181 视频接入
+│   └── lynxmanager/       # LynxGraph 管理
+├── service/               # gRPC 服务
+│   ├── lynxengine/        # LynxGraph 逻辑引擎
+│   ├── iotquery/          # ClickHouse 时序查询
+│   └── eventsync/         # Skylark 用户/组织同步
+├── pkg/                   # 核心包
+│   ├── lynxiot/           # IoT 引擎
+│   ├── lynxgraph/         # LynxGraph 逻辑引擎
+│   ├── nexlyn/            # m7s 媒体服务插件
+│   ├── imageutil/         # 图像处理工具
+│   └── ossutil/           # OSS 工具
+├── internal/              # 内部包
+│   └── auth/              # JWT 认证、组织权限验证
+└── nexlyn-deploy/         # Docker 部署配置
 ```
 
-## 🚀 快速开始
+## 快速开始
 
 ### 环境要求
 
@@ -64,7 +61,7 @@ nexlyn/
 - Redis 6+
 - Docker & Docker Compose (可选)
 
-### 安装依赖
+### 安装
 
 ```bash
 # 克隆项目
@@ -75,26 +72,28 @@ cd nexlyn
 go mod download
 
 # 安装前端依赖
-cd frontend
-npm install
+cd frontend && npm install
 ```
 
 ### 开发模式
 
-**启动后端服务**
+**后端服务**
 
 ```bash
-# 启动后端 API 服务
-go run restful/backend/backend.go -f restful/backend/etc/backend.yaml
+# 后端 API 服务
+go run restful/backend/backend.go -f restful/backend/etc/config.yaml
 
-# 启动媒体服务
+# IoT 管理服务
+go run restful/iotmanager/iotmanager.go -f restful/iotmanager/etc/config.yaml
+
+# 媒体服务
 go run restful/mediahandler/mediahandler.go -f restful/mediahandler/etc/mediahandler.yaml
 
-# 启动主程序（LynxGraph 引擎演示）
-go run main.go
+# 流程服务
+go run restful/eventhandler/eventhandler.go -f restful/eventhandler/etc/config.yaml
 ```
 
-**启动前端**
+**前端**
 
 ```bash
 cd frontend
@@ -108,66 +107,68 @@ npm run start:dev
 ```bash
 cd nexlyn-deploy
 
-# 使用推荐脚本构建所有服务
+# 构建所有服务
 ./build-with-env.ps1
-
-# 或者构建单个服务
-./build-with-env.ps1 mediahandler
 
 # 启动服务
 docker-compose up -d
-
-# 查看服务状态
-docker-compose ps
-
-# 查看日志
-docker-compose logs -f
 ```
 
-## 📖 API 文档
+## 常用命令
 
-启动后端服务后，访问以下地址查看 API 文档：
-
-- 后端 API: `http://localhost:8888/swagger/`
-- 媒体服务 API: `http://localhost:8080/api/docs`
-
-## 🔧 配置
-
-### 数据库配置
-
-```yaml
-# restful/backend/etc/backend.yaml
-Database:
-  Host: localhost
-  Port: 5432
-  User: nexlyn
-  Password: your_password
-  DBName: nexlyn
-
-Redis:
-  Host: localhost:6379
-  Password: your_redis_password
-```
-
-### 权限配置
-
-权限模型配置文件位于 `pkg/nexlyn/etc/casbin_model.conf`，基于 RBAC 模型实现。
-
-## 🧪 测试
+### 后端
 
 ```bash
-# 运行后端测试
+# 编译检查
+go build ./...
+
+# 运行测试
 go test ./...
 
-# 运行前端测试
-cd frontend
-npm test
+# API 代码生成
+goctl api go -api restful/iotmanager/iot.api -dir restful/iotmanager
 
-# 代码覆盖率
-npm run test:coverage
+# gRPC 代码生成
+goctl rpc protoc service/{service}/{service}.proto --go_out=. --go-grpc_out=. --zrpc_out=service/{service}
 ```
 
-## 🛠️ 开发指南
+### 前端
+
+```bash
+cd frontend
+npm run lint      # 代码检查
+npm run tsc       # TypeScript 类型检查
+npm test          # 运行测试
+```
+
+## 核心模块
+
+### IoT 引擎 (pkg/lynxiot)
+
+采用三层架构：**core/** -> **engine/** -> **internal/**
+
+- **Template Manager**: 传感器模板（PostgreSQL + Etcd）
+- **Device Manager**: 设备绑定（PostgreSQL + Redis 在线状态）
+- **MQTT Manager**: 订阅、在线检测、业务数据提取
+- **Platform Manager**: 平台配置（Skylark/Webhook/Kafka）
+- **Dispatcher Manager**: 异步多平台分发
+
+### LynxGraph 引擎 (pkg/lynxgraph)
+
+事件驱动型逻辑图执行引擎：
+
+- **信息原子 (InfoAtom)**: 事件数据单元
+- **逻辑图 (LogicGraph)**: 节点 + 边组成的有向图
+- **逻辑块 (LogicBlock)**: 8 种类型（filter/state_machine/action 等）
+
+## 开发协作
+
+### 分支策略
+
+1. 从 `dev` 分支创建功能分支 (`git checkout -b feature/功能名称`)
+2. 完成开发后提交更改 (`git commit -m '功能描述'`)
+3. 推送到远程分支 (`git push origin feature/功能名称`)
+4. 在阿里云 Code 平台创建合并请求
 
 ### 代码规范
 
@@ -175,65 +176,20 @@ npm run test:coverage
 - 前端遵循 Ant Design Pro 约定
 - 提交信息遵循 Conventional Commits 规范
 
-### 分支管理
+## 参考文档
 
-- `master` - 生产环境分支
-- `develop` - 开发环境分支
-- `feature/*` - 功能开发分支
-- `bugfix/*` - 错误修复分支
+- `pkg/lynxiot/DEVELOPMENT.md` - IoT 引擎详细设计
+- `pkg/lynxgraph/DEVELOPMENT.md` - LynxGraph 引擎设计
+- `frontend/前端编码规范与最佳实践.md` - 前端规范
+- `nexlyn-deploy/postgres-init-scripts/*.sql` - 数据库 Schema
 
-### CI/CD
+## 许可证
 
-项目使用 GitLab CI/CD 进行自动化构建和部署：
+本项目为私有软件，所有权利保留。
 
-- **测试阶段**: 自动运行单元测试和代码检查
-- **构建阶段**: 构建 Go 二进制文件和前端资源
-- **部署阶段**: 自动部署到开发/生产环境
+## 致谢
 
-## 📋 路由
-
-### 主要页面
-
-- `/welcome` - 欢迎页面
-- `/video-management` - 视频管理
-  - `/video-management/device` - 设备管理
-  - `/video-management/screen` - 分屏监控
-  - `/video-management/media` - 媒体管理
-  - `/video-management/record` - 录像管理
-- `/algorithm-management` - 算法管理（开发中）
-- `/iot-management` - 物联管理（开发中）
-- `/logic-engine` - 逻辑引擎（开发中）
-- `/system` - 系统管理
-- `/visualization-dashboard` - 可视化大屏
-
-## 🛠️ 开发协作
-
-### 分支策略
-
-1. 从 `dev` 分支创建功能分支 (`git checkout -b feature/功能名称`)
-2. 完成开发后提交更改 (`git commit -m '功能描述'`)
-3. 推送到远程分支 (`git push origin feature/功能名称`)
-4. 在阿里云Code平台创建合并请求（Merge Request）
-
-## 📝 变更日志
-
-查看 [CHANGELOG.md](CHANGELOG.md) 了解版本更新详情。
-
-## 📄 许可证
-
-本项目为私有软件，所有权利保留 - 查看 [LICENSE](LICENSE) 文件了解详情。
-
-## 🙋‍♂️ 内部支持
-
-如果在开发过程中遇到问题，请联系项目负责人或通过内部渠道沟通。
-
-## 🏆 致谢
-
-- [go-zero](https://github.com/zeromicro/go-zero) - 优秀的 Go 微服务框架
+- [go-zero](https://github.com/zeromicro/go-zero) - Go 微服务框架
 - [Ant Design Pro](https://pro.ant.design/) - 企业级 UI 设计语言
-- [m7s.live](https://github.com/langhuihui/monibuca) - 强大的流媒体服务器
+- [m7s.live](https://github.com/langhuihui/monibuca) - 流媒体服务器
 - [CasbinX](https://github.com/rezeropoint/casbinx) - 权限管理解决方案
-
----
-
-**Nexlyn** - 让视频管理和逻辑引擎可视化变得简单高效 🚀
