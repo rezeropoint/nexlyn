@@ -1,0 +1,98 @@
+syntax = "v1"
+
+// ===== 信息原子类型相关定义 =====
+type (
+	// 字段配置
+	FieldConfig {
+		FieldKey  string `json:"fieldKey"` // 字段键
+		FieldPath string `json:"fieldPath"` // 字段路径（支持JSONPath）
+		FieldType string `json:"fieldType"` // 字段类型：string/int/float/bool
+	}
+	// 数据格式定义
+	DataFormat {
+		DataPlural bool          `json:"dataPlural"` // 数据是否为数组
+		FieldStart string        `json:"fieldStart,optional"` // 数组数据的起始字段路径
+		Fields     []FieldConfig `json:"fields"` // 字段列表
+	}
+	// 信息原子类型
+	InfoAtomType {
+		Id         string           `json:"id"` // 信息原子类型ID（UUID）
+		TenantId   string           `json:"tenantId"` // 租户ID
+		Name       string           `json:"name"` // 类型名称（如 sensor.temperature）
+		Version    string           `json:"version"` // 版本号（如 v1）
+		Tags       []LynxTagSummary `json:"tags,optional"` // 标签列表（Phase 2.5: 完整对象）
+		DataFormat DataFormat       `json:"dataFormat"` // 数据格式定义
+		CreatedAt  int64            `json:"createdAt,optional"` // 创建时间（Unix毫秒）
+		UpdatedAt  int64            `json:"updatedAt,optional"` // 更新时间（Unix毫秒）
+		CreatedBy  string           `json:"createdBy,optional"` // 创建人ID
+		UpdatedBy  string           `json:"updatedBy,optional"` // 更新人ID
+	}
+)
+
+type (
+	// 创建信息原子类型请求
+	CreateInfoAtomTypeRequest {
+		TenantId   string     `json:"tenantId"` // 租户ID
+		Name       string     `json:"name"` // 类型名称
+		Version    string     `json:"version"` // 版本号
+		TagIds     []string   `json:"tagIds,optional"` // 标签ID列表
+		DataFormat DataFormat `json:"dataFormat"` // 数据格式定义
+	}
+	// 创建信息原子类型响应数据
+	CreateInfoAtomTypeData {
+		Id string `json:"id"` // 创建的信息原子类型ID
+	}
+	// 创建信息原子类型响应
+	CreateInfoAtomTypeResponse {
+		BaseResponse
+		Data CreateInfoAtomTypeData `json:"data,omitempty"`
+	}
+	// 查询信息原子类型列表请求
+	GetInfoAtomTypeListRequest {
+		Page     int      `form:"page,default=1"`
+		PageSize int      `form:"pageSize,default=10"`
+		TenantId string   `form:"tenantId"` // 租户ID（必填）
+		Name     string   `form:"name,optional"` // 类型名称筛选（模糊匹配）
+		Tags     []string `form:"tags,optional"` // 标签筛选
+	}
+	// 查询信息原子类型列表响应数据
+	GetInfoAtomTypeListData {
+		List []InfoAtomType `json:"list"` // 信息原子类型列表
+	}
+	// 查询信息原子类型列表响应
+	GetInfoAtomTypeListResponse {
+		BaseResponse
+		PageParams
+		Data GetInfoAtomTypeListData `json:"data,omitempty"`
+	}
+	// 获取信息原子类型详情请求
+	GetInfoAtomTypeRequest {
+		Id string `path:"id"` // 信息原子类型ID
+	}
+	// 获取信息原子类型详情响应
+	GetInfoAtomTypeResponse {
+		BaseResponse
+		Data InfoAtomType `json:"data,omitempty"` // 信息原子类型详情
+	}
+	// 更新信息原子类型请求
+	UpdateInfoAtomTypeRequest {
+		Id         string     `path:"id"` // 信息原子类型ID
+		TenantId   string     `json:"tenantId"` // 租户ID
+		Name       string     `json:"name"` // 类型名称
+		Version    string     `json:"version"` // 版本号
+		TagIds     []string   `json:"tagIds,optional"` // 标签ID列表
+		DataFormat DataFormat `json:"dataFormat"` // 数据格式定义
+	}
+	// 更新信息原子类型响应
+	UpdateInfoAtomTypeResponse {
+		BaseResponse
+	}
+	// 删除信息原子类型请求
+	DeleteInfoAtomTypeRequest {
+		Id string `path:"id"` // 信息原子类型ID
+	}
+	// 删除信息原子类型响应
+	DeleteInfoAtomTypeResponse {
+		BaseResponse
+	}
+)

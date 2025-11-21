@@ -1,0 +1,45 @@
+global:
+  loglevel: debug  # debug, info, warn, error
+  http:
+    listenaddr: :8080
+  admin:
+    enablelogin: false  # 启用/禁用管理员登录
+  db:
+    dsn: "host=postgres user=nexlyn password=Quanmate.2025 dbname=mediahandler port=5432 sslmode=disable TimeZone=Asia/Shanghai"
+    dbtype: "postgres"
+  publish:
+    buffertime: 0s # 缓冲时长，0代表取最近关键帧
+    delayclosetimeout: 3s # 延迟自动关闭（无订阅时）
+gb28181:
+  enable: true  # 是否启用GB28181协议
+  autoinvite: false #建议使用false，开启后会自动邀请设备推流
+  mediaip: 192.168.2.232  #流媒体收流IP,外网情况下使用公网IP,内网情况下使用网卡IP,不要用127.0.0.1
+  sipip: 192.168.2.232  #SIP通讯IP,不管公网还是内网都使用本机网卡IP,不要用127.0.0.1
+  # mediaip: 47.108.14.42  #流媒体收流IP,外网情况下使用公网IP,内网情况下使用网卡IP,不要用127.0.0.1
+  # sipip: 47.108.14.42  #SIP通讯IP,不管公网还是内网都使用本机网卡IP,不要用127.0.0.1
+  mediaport: "10001-10042"   #默认收流端口范围,可选
+  serial: "34020000002000000001"   #服务器serverid,可选
+  realm: "3402000000"    #服务器域,可选
+  password: "123456"     #设备验证密码,可选
+  nexlyndbdsn: "host=postgres user=nexlyn password=Quanmate.2025 dbname=nexlyn port=5432 sslmode=disable TimeZone=Asia/Shanghai"  # Nexlyn独立数据库连接字符串，支持postgres
+  sip:
+    listenaddr:
+          - udp::5060    #SIP通讯端口,必填
+  onsub:
+    pull:
+      ^\d{20}/\d{20}$: $0
+      ^gb_\d+/(.+)$: $1
+  
+nexlyn:
+  auth:
+    accesssecret: "Rezeropoint"  # JWT签名密钥
+    accessexpire: 86400  # Token过期时间（秒），24小时
+  casbinxdsn: "host=postgres user=nexlyn password=Quanmate.2025 dbname=nexlyn port=5432 sslmode=disable"
+  watcherconfig:
+    redis:
+      network: "tcp"
+      addr: "redis:6379"
+      password: "Quanmate.2025"
+      db: 0
+      channel: "casbinx"
+      ignoreself: true

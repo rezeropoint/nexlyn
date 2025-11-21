@@ -1,0 +1,252 @@
+.flowDrawer {
+  :global(.ant-drawer-body) {
+    padding: 24px 32px;
+    background: var(--ant-color-bg-layout);
+  }
+
+  :global(.ant-drawer-footer) {
+    padding: 16px 24px;
+    border-top: 1px solid var(--ant-color-border-secondary);
+  }
+}
+
+.drawerFooter {
+  padding: 0;
+}
+
+.approvalForm {
+  width: 100%;
+
+  :global(.ant-form-item-label) {
+    padding-bottom: 4px;
+  }
+}
+
+.drawerContent {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.hero {
+  background: var(--ant-color-bg-container);
+  border-radius: 16px;
+  padding: 20px 24px;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.snRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sn {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.metaRow {
+  display: flex;
+  gap: 16px;
+  color: var(--ant-color-text-tertiary);
+  font-size: 13px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+
+.heroTimes {
+  display: flex;
+  gap: 16px;
+
+  div {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 120px;
+
+    span {
+      color: var(--ant-color-text-tertiary);
+      font-size: 12px;
+    }
+
+    strong {
+      font-size: 16px;
+    }
+  }
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+.infoCard {
+  border-radius: 12px;
+  background: var(--ant-color-bg-container);
+  padding: 12px 16px;
+  border: 1px solid var(--ant-color-border-secondary);
+
+  span {
+    font-size: 12px;
+    color: var(--ant-color-text-tertiary);
+  }
+
+  strong {
+    display: block;
+    margin-top: 4px;
+    font-size: 16px;
+  }
+}
+
+.block {
+  background: var(--ant-color-bg-container);
+  border-radius: 16px;
+  padding: 20px;
+  border: 1px solid var(--ant-color-border-secondary);
+}
+
+.blockHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.userGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.userCard {
+  border: 1px solid var(--ant-color-border);
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.userAvatar {
+  background: var(--ant-color-primary-bg);
+}
+
+.userName {
+  font-weight: 600;
+}
+
+.userMeta {
+  display: flex;
+  gap: 12px;
+  color: var(--ant-color-text-tertiary);
+  font-size: 12px;
+  flex-wrap: wrap;
+}
+
+.businessDescriptions {
+  background: transparent;
+}
+
+.timeline {
+  padding-left: 6px;
+}
+
+.timelineTitle {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.timelineOperator {
+  font-weight: 600;
+}
+
+.timelineAction {
+  border-radius: 999px;
+  background: var(--ant-color-primary-bg);
+  color: var(--ant-color-primary);
+}
+
+.timelineTime {
+  font-size: 12px;
+  color: var(--ant-color-text-tertiary);
+}
+
+.timelineComment {
+  margin-top: 8px;
+  background: var(--ant-color-fill-quaternary);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.timelineDuration {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--ant-color-text-tertiary);
+}
+
+.attachmentList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.attachmentItem {
+  display: flex;
+  gap: 12px;
+  border: 1px solid var(--ant-color-border);
+  border-radius: 12px;
+  padding: 12px;
+  text-decoration: none;
+  color: inherit;
+
+  &:hover {
+    border-color: var(--ant-color-primary);
+  }
+}
+
+.attachmentIcon {
+  font-size: 20px;
+  color: var(--ant-color-primary);
+}
+
+.attachmentName {
+  font-weight: 600;
+}
+
+.attachmentMeta {
+  font-size: 12px;
+  color: var(--ant-color-text-tertiary);
+}
+
+.statusTagProcessing {
+  background: var(--ant-color-info-bg);
+  color: var(--ant-color-info);
+}
+
+.statusTagCompleted {
+  background: var(--ant-color-success-bg);
+  color: var(--ant-color-success);
+}
+
+.statusTagAborted {
+  background: var(--ant-color-error-bg);
+  color: var(--ant-color-error);
+}
+
+.statusTagDraft {
+  background: var(--ant-color-warning-bg);
+  color: var(--ant-color-warning);
+}
+
+.approvalFormWrapper {
+  &.hidden {
+    display: none;
+  }
+}
+

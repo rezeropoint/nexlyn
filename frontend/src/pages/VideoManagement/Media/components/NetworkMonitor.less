@@ -1,0 +1,53 @@
+// 网络监控组件样式
+
+// Alert 间距
+.alertSpacing {
+  margin-bottom: 16px;
+}
+
+// Space 容器
+.spaceContainer {
+  width: 100%;
+}
+
+// 统计数据容器
+.statisticsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: space-around;
+}
+
+// 统计数据值样式
+.statisticValuePrimary {
+  :global(.ant-statistic-content-value) {
+    font-size: var(--ant-font-size-lg) !important;
+  }
+}
+
+.statisticValueSuccess {
+  :global(.ant-statistic-content-value) {
+    font-size: var(--ant-font-size-lg) !important;
+  }
+}
+
+.statisticValueNormal {
+  :global(.ant-statistic-content-value) {
+    font-size: var(--ant-font-size) !important;
+  }
+}
+
+// 图表容器
+.chartContainer {
+  width: 100%;
+  height: 150px;
+}
+
+// 空数据提示容器
+.emptyDataContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 150px;
+  color: var(--ant-color-text-tertiary);
+}

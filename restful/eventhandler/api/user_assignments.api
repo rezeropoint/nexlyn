@@ -1,0 +1,57 @@
+syntax = "v1"
+
+// ===== 用户任务相关类型定义 =====
+
+type (
+	// Assignment 任务
+	Assignment {
+		Id         int64  `json:"id"`                  // Assignment ID
+		AssigneeId string `json:"assigneeId"`          // 处理人UUID（SDK中的远程用户ID）
+		Status     string `json:"status"`              // 状态：processing/completed
+		Category   string `json:"category"`            // 类别：processed（待我处理）/proposed（我发起的）/cc（抄送我的）
+		VertexId   int64  `json:"vertexId"`            // 节点ID
+		JourneyId  int64  `json:"journeyId"`           // Journey ID
+		CreatedAt  string `json:"createdAt"`           // 创建时间
+		UpdatedAt  string `json:"updatedAt"`           // 更新时间
+		FlowId     int64  `json:"flowId,optional"`     // 流程ID（SDK自动补充）
+		FlowTitle  string `json:"flowTitle,optional"`  // 流程标题（SDK自动补充）
+	}
+
+	// AssignmentListData 任务列表响应数据
+	AssignmentListData {
+		List  []Assignment `json:"list"`  // 任务列表
+		Total int          `json:"total"` // 总数
+	}
+
+	// JourneyListData 流程列表响应数据
+	JourneyListData {
+		List  []Journey `json:"list"`  // 流程列表
+		Total int       `json:"total"` // 总数
+	}
+
+	// 获取用户任务列表请求
+	GetUserAssignmentsRequest {
+		Category string `form:"category"`           // 类别：processed（待我处理）/proposed（我发起的）/cc（抄送我的）
+		Page     int    `form:"page"`               // 页码
+		PageSize int    `form:"pageSize"`           // 每页数量
+	}
+
+	// 获取用户任务列表响应
+	GetUserAssignmentsResponse {
+		BaseResponse
+		Data AssignmentListData `json:"data"`
+	}
+
+	// 获取用户发起的流程请求
+	GetProposedJourneysRequest {
+		FlowId   int64 `form:"flowId"`             // 流程ID
+		Page     int   `form:"page"`               // 页码
+		PageSize int   `form:"pageSize"`           // 每页数量
+	}
+
+	// 获取用户发起的流程响应
+	GetProposedJourneysResponse {
+		BaseResponse
+		Data JourneyListData `json:"data"`
+	}
+)

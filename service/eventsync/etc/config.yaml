@@ -1,0 +1,41 @@
+Name: eventsync-service
+Mode: pro
+
+# gRPC服务监听地址
+ListenOn: 0.0.0.0:9999
+
+# PostgreSQL配置（连接本地数据库查询用户/组织数据）
+DataSource:
+  Driver: "postgres"
+  Host: "postgres"
+  Port: 5432
+  Database: "nexlyn"
+  Username: "nexlyn"
+  Password: "Quanmate.2025"
+
+# Redis配置（用于Skylark缓存）
+RedisConf:
+  Host: "redis:6379"
+  Pass: "Quanmate.2025"
+  Type: "node"
+
+# AdminEngine配置（go-skylark/v2）
+AdminConfig:
+  Cache:
+    # API 模块缓存配置
+    FieldMappingsCacheExpiry: 3600        # 字段映射缓存1小时（秒）
+    # 分布式锁配置
+    FlowLockExpiry: 30                    # 流程锁过期时间（秒）
+    FlowLockRetryCount: 3                 # 获取锁重试次数
+    FlowLockRetryInterval: 100            # 重试间隔（毫秒）
+    # Query 模块缓存配置
+    FlowListCacheTTL: 3600                # Flow列表缓存TTL（秒）
+    FlowFieldsCacheTTL: 3600              # Flow字段缓存TTL（秒）
+    UserNameCacheTTL: 3600                # 用户名缓存TTL（秒）
+    # Mapping 模块缓存配置
+    OrgMappingCacheTTL: 3600              # 单个组织映射缓存TTL（秒）
+    OrgMappingListCacheTTL: 3600          # 组织映射列表缓存TTL（秒）
+    # Stats 模块缓存配置
+    StatsCacheTTL: 300                    # 统计结果缓存TTL（秒）
+  Platform:
+    PlatformConfigCacheTTL: 1800s         # 平台配置缓存30分钟

@@ -1,0 +1,19 @@
+.tagTable {
+  :global {
+    .ant-table {
+      font-size: 14px;
+    }
+
+    .ant-table-thead > tr > th {
+      background: var(--ant-color-bg-container);
+    }
+
+    .ant-table-tbody > tr {
+      transition: background-color 0.3s ease;
+
+      &:hover {
+        background-color: var(--ant-color-bg-container);
+      }
+    }
+  }
+}

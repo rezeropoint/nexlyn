@@ -1,0 +1,30 @@
+syntax = "v1"
+
+// ===== Block 共用类型定义 =====
+type (
+	// 逻辑块类型
+	LogicBlockType {
+		Value string `json:"value"` // 逻辑块类型值，如 filter, state_machine, action 等
+	}
+	// 逻辑块键
+	BlockKey {
+		BlockType LogicBlockType `json:"blockType"` // 逻辑块类型
+		Version   string         `json:"version"` // 版本，允许为空表示默认版本
+	}
+)
+
+// ===== Block 管理相关类型 =====
+type (
+	// 获取所有逻辑块键请求（无参数）
+	GetBlockKeyAllRequest  {}
+	// 逻辑块键列表数据
+	BlockKeyListData {
+		List []BlockKey `json:"list"` // 逻辑块键列表
+	}
+	// 获取所有逻辑块键响应
+	GetBlockKeyAllResponse {
+		BaseResponse // 基础响应
+		Data BlockKeyListData `json:"data,omitempty"` // 逻辑块键列表数据
+	}
+)
+

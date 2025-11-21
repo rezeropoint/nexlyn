@@ -1,0 +1,174 @@
+// Login/index.less - 登录页面样式文件
+// 登录页面背景为黑色半透明，所有文字和图标固定为白色/浅色
+
+// 页面外层容器（全屏背景）
+.pageContainer {
+  height: 100vh;
+
+  // 策略：只给最外层容器设置背景色，内部所有元素透明
+
+  // 1. 用户名输入框（.ant-input-affix-wrapper 是最外层）
+  :global(.ant-input-affix-wrapper) {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    border-color: rgba(255, 255, 255, 0.3) !important;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.15) !important;
+      border-color: rgba(255, 255, 255, 0.4) !important;
+    }
+
+    &:focus,
+    &:focus-within {
+      background-color: rgba(255, 255, 255, 0.15) !important;
+      border-color: var(--ant-color-primary) !important;
+      box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2) !important;
+    }
+
+    // 内部的 input 透明
+    :global(.ant-input) {
+      background-color: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      color: rgba(255, 255, 255, 0.85) !important;
+
+      &::placeholder {
+        color: rgba(255, 255, 255, 0.45) !important;
+      }
+
+      // 覆盖浏览器自动填充的背景色
+      &:-webkit-autofill,
+      &:-webkit-autofill:hover,
+      &:-webkit-autofill:focus {
+        -webkit-text-fill-color: rgba(255, 255, 255, 0.85) !important;
+        -webkit-box-shadow: 0 0 0 1000px transparent inset !important;
+        box-shadow: 0 0 0 1000px transparent inset !important;
+        background-color: transparent !important;
+        transition: background-color 5000s ease-in-out 0s;
+      }
+    }
+  }
+
+  // 2. 密码输入框（.ant-input-password 是最外层）
+  :global(.ant-input-password) {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    border-color: rgba(255, 255, 255, 0.3) !important;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.15) !important;
+      border-color: rgba(255, 255, 255, 0.4) !important;
+    }
+
+    &:focus,
+    &:focus-within {
+      background-color: rgba(255, 255, 255, 0.15) !important;
+      border-color: var(--ant-color-primary) !important;
+      box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2) !important;
+    }
+
+    // 内部的 affix-wrapper 透明（避免双层背景）
+    :global(.ant-input-affix-wrapper) {
+      background-color: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+
+      &:hover,
+      &:focus,
+      &:focus-within {
+        background-color: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+      }
+    }
+
+    // 内部的 input 透明
+    :global(.ant-input) {
+      background-color: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      color: rgba(255, 255, 255, 0.85) !important;
+
+      &::placeholder {
+        color: rgba(255, 255, 255, 0.45) !important;
+      }
+
+      // 覆盖浏览器自动填充的背景色
+      &:-webkit-autofill,
+      &:-webkit-autofill:hover,
+      &:-webkit-autofill:focus {
+        -webkit-text-fill-color: rgba(255, 255, 255, 0.85) !important;
+        -webkit-box-shadow: 0 0 0 1000px transparent inset !important;
+        box-shadow: 0 0 0 1000px transparent inset !important;
+        background-color: transparent !important;
+        transition: background-color 5000s ease-in-out 0s;
+      }
+    }
+  }
+
+  // 强制输入框后缀图标为白色（密码可见性切换按钮）
+  :global(.ant-input-suffix),
+  :global(.ant-input-password-icon) {
+    color: rgba(255, 255, 255, 0.45) !important;
+
+    &:hover {
+      color: rgba(255, 255, 255, 0.85) !important;
+    }
+  }
+
+  // 确保 Tabs 标签文字为白色
+  :global(.ant-tabs) {
+    :global(.ant-tabs-tab) {
+      color: rgba(255, 255, 255, 0.65) !important;
+
+      &:global(.ant-tabs-tab-active) {
+        color: var(--ant-color-primary) !important;
+      }
+
+      &:global(.ant-tabs-tab-disabled) {
+        color: rgba(255, 255, 255, 0.25) !important;
+      }
+    }
+
+    :global(.ant-tabs-tab-btn) {
+      color: inherit !important;
+    }
+  }
+
+  // 确保表单验证错误提示可见
+  :global(.ant-form-item-explain-error) {
+    color: var(--ant-color-error) !important;
+  }
+}
+
+// 登录错误提示消息
+.loginMessage {
+  margin-bottom: 24px;
+}
+
+// 表单图标（输入框前缀图标固定为白色）
+.formIcon {
+  color: rgba(255, 255, 255, 0.65) !important;
+}
+
+// 记住密码区域容器
+.rememberContainer {
+  margin-bottom: 24px;
+
+  // 复选框文字为白色
+  :global(.ant-checkbox-wrapper) {
+    color: rgba(255, 255, 255, 0.85) !important;
+
+    span {
+      color: rgba(255, 255, 255, 0.85) !important;
+    }
+  }
+}
+
+// 忘记密码链接
+.forgotPasswordLink {
+  float: right;
+  color: var(--ant-color-primary);
+
+  &:hover {
+    color: var(--ant-color-primary-hover);
+  }
+}

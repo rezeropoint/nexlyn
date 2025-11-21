@@ -1,0 +1,70 @@
+.deviceTree {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
+  .controls {
+    width: 100%;
+    margin-bottom: 8px;
+  }
+
+  .treeContainer {
+    flex: 1;
+    max-height: calc(100vh - 260px);
+    overflow: auto;
+  }
+
+  .treeNodeWrapper {
+    width: 100%;
+  }
+
+  .channelNode {
+    padding: 2px 4px;
+    border-radius: 4px;
+    cursor: grab;
+    transition: background-color 0.2s;
+
+    &:hover {
+      background-color: var(--ant-color-fill-alter);
+    }
+
+    &.offline {
+      cursor: default;
+    }
+  }
+
+  .dragIcon {
+    color: var(--ant-color-primary);
+    font-size: var(--ant-font-size-sm);
+  }
+
+  .deviceIcon {
+    &.online {
+      color: var(--ant-color-success);
+    }
+
+    &.offline {
+      color: var(--ant-color-text-tertiary);
+    }
+  }
+
+  .channelIcon {
+    &.online {
+      color: var(--ant-color-primary);
+    }
+
+    &.offline {
+      color: var(--ant-color-text-tertiary);
+    }
+  }
+
+  .pagination {
+    padding: 8px 0;
+    text-align: center;
+    border-top: 1px solid var(--ant-color-border-secondary);
+  }
+
+  .refreshBtn {
+    width: 100%;
+  }
+}

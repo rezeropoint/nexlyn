@@ -1,0 +1,269 @@
+.ptz-control-container {
+  width: 240px;
+  color: #fff;
+  font-size: 12px;
+  background: rgba(0, 0, 0, 0.9); // 云台控制器特殊需求：深色背景
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  -webkit-user-select: none; /* Safari 3+ */
+  user-select: none;
+
+  .ptz-control-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    font-weight: 500;
+    font-size: 13px;
+    background: rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px 8px 0 0;
+
+    .ant-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      padding: 0;
+      color: #fff;
+      font-size: 16px;
+      background: transparent;
+      border: none;
+
+      &:hover {
+        color: var(--ant-color-primary);
+        background: rgba(255, 255, 255, 0.1);
+      }
+    }
+  }
+
+  .ptz-control-content {
+    padding: 12px;
+
+    // 方向控制
+    .direction-control {
+      margin-bottom: 12px;
+
+      .direction-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        align-items: center;
+
+        .direction-row {
+          display: flex;
+          gap: 4px;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .direction-btn,
+        .stop-btn {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 32px;
+          height: 32px;
+          padding: 0;
+          color: #fff;
+          font-size: 14px;
+          background: rgba(255, 255, 255, 0.1);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          border-radius: 4px;
+          transition: all 0.2s;
+
+          &:hover:not(:disabled) {
+            color: #fff;
+            background: var(--ant-color-primary);
+            border-color: var(--ant-color-primary);
+            transform: scale(1.05);
+          }
+
+          &.active {
+            color: #fff;
+            background: var(--ant-color-primary);
+            border-color: var(--ant-color-primary);
+            box-shadow: 0 0 8px var(--ant-color-primary-bg);
+          }
+
+          &:disabled {
+            color: rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.1);
+            cursor: not-allowed;
+          }
+
+          // 斜角方向图标
+          .diagonal-icon {
+            font-weight: bold;
+            font-size: 16px;
+            line-height: 1;
+          }
+        }
+
+        .stop-btn {
+          background: var(--ant-color-error-bg);
+          border-color: var(--ant-color-error);
+
+          &:hover:not(:disabled) {
+            background: var(--ant-color-error);
+            border-color: var(--ant-color-error);
+          }
+        }
+      }
+    }
+
+    // 镜头控制
+    .lens-control {
+      display: flex;
+      gap: 8px;
+      justify-content: space-between;
+      margin-bottom: 12px;
+
+      .control-group {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        gap: 4px;
+        align-items: center;
+
+        span {
+          color: rgba(255, 255, 255, 0.7);
+          font-size: 11px;
+        }
+
+        .ant-btn {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 24px;
+          height: 24px;
+          padding: 0;
+          color: #fff;
+          font-size: 12px;
+          background: rgba(255, 255, 255, 0.1);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          border-radius: 3px;
+
+          &:hover {
+            color: #fff;
+            background: var(--ant-color-primary);
+            border-color: var(--ant-color-primary);
+          }
+        }
+      }
+    }
+
+    // 选项卡样式
+    .ant-tabs {
+      .ant-tabs-nav {
+        margin-bottom: 8px;
+
+        .ant-tabs-tab {
+          margin: 0 2px;
+          padding: 4px 8px;
+          color: rgba(255, 255, 255, 0.7);
+          font-size: 12px;
+
+          &.ant-tabs-tab-active {
+            color: var(--ant-color-primary);
+          }
+        }
+
+        .ant-tabs-ink-bar {
+          background: var(--ant-color-primary);
+        }
+
+        &::before {
+          border-color: rgba(255, 255, 255, 0.1);
+        }
+      }
+
+      .ant-tabs-content-holder {
+        .ant-tabs-content {
+          padding: 0;
+
+          .ant-radio-group {
+            .ant-radio-wrapper {
+              margin-right: 12px;
+              color: #fff;
+              font-size: 12px;
+
+              .ant-radio {
+                .ant-radio-inner {
+                  background-color: rgba(255, 255, 255, 0.1);
+                  border-color: rgba(255, 255, 255, 0.2);
+
+                  &:hover {
+                    border-color: var(--ant-color-primary);
+                  }
+                }
+
+                &.ant-radio-checked {
+                  .ant-radio-inner {
+                    background-color: var(--ant-color-primary);
+                    border-color: var(--ant-color-primary);
+                  }
+                }
+              }
+
+              &:hover .ant-radio .ant-radio-inner {
+                border-color: var(--ant-color-primary);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // 雨刷控制
+    .wiper-control {
+      .ant-btn {
+        height: 24px;
+        color: #fff;
+        font-size: 11px;
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.2);
+
+        &:hover {
+          color: #fff;
+          background: var(--ant-color-primary);
+          border-color: var(--ant-color-primary);
+        }
+      }
+    }
+  }
+}
+
+// 响应式适配
+@media (max-width: 768px) {
+  .ptz-control-container {
+    width: 200px;
+    font-size: 11px;
+
+    .ptz-control-content {
+      padding: 8px;
+
+      .direction-grid {
+        .direction-btn,
+        .stop-btn {
+          width: 28px;
+          height: 28px;
+          font-size: 12px;
+        }
+      }
+
+      .lens-control {
+        .control-group {
+          .ant-btn {
+            width: 20px;
+            height: 20px;
+            font-size: 10px;
+          }
+        }
+      }
+    }
+  }
+}

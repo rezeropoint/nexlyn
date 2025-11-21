@@ -1,0 +1,95 @@
+syntax = "v1"
+
+// ===== 标签定义与查询类型 =====
+type (
+	// 标签定义（区分用户与租户）
+	TagDefinition {
+		Id          string `json:"id"`
+		Scope       string `json:"scope"` // tenant | user
+		Label       string `json:"label"` // 标签名称
+		Description string `json:"description"` // 描述
+		CreatedAt   int64  `json:"createdAt"`
+		UpdatedAt   int64  `json:"updatedAt"`
+	}
+	// 标签简项（用于下拉等）
+	TagOption {
+		Id    string `json:"id"`
+		Label string `json:"label"`
+		Count int64  `json:"count"`
+	}
+)
+
+// ===== 路径参数 =====
+type (
+	TagIdPathRequest {
+		Id string `path:"id"`
+	}
+)
+
+// ===== CRUD 与列表 =====
+type (
+	// 创建
+	CreateTagRequest {
+		Scope       string `json:"scope"` // tenant | user（必填）
+		Label       string `json:"label"` // 必填
+		Description string `json:"description,optional"` // 可选
+	}
+	CreateTagResponse {
+		BaseResponse
+		Data {
+			Id string `json:"id"`
+		} `json:"data,omitempty"`
+	}
+	// 更新
+	UpdateTagRequest {
+		TagIdPathRequest
+		Scope       string `json:"scope,optional"`
+		Label       string `json:"label,optional"`
+		Description string `json:"description,optional"`
+	}
+	UpdateTagResponse {
+		BaseResponse
+	}
+	// 删除
+	DeleteTagRequest {
+		TagIdPathRequest
+	}
+	DeleteTagResponse {
+		BaseResponse
+	}
+	// 获取单个
+	GetTagRequest {
+		TagIdPathRequest
+	}
+	GetTagResponse {
+		BaseResponse
+		Data TagDefinition `json:"data,omitempty"`
+	}
+	// 列表
+	GetTagListRequest {
+		PageParamsRequest
+		Scope   string `form:"scope" db:"scope"` // 必填：tenant | user
+		Keyword string `form:"keyword,optional"` // 模糊搜索
+	}
+	TagListData {
+		List []TagDefinition `json:"list"`
+	}
+	GetTagListResponse {
+		BaseResponse
+		PageParams
+		Data TagListData `json:"data,omitempty"`
+	}
+	// 供前端下拉的选项接口
+	GetTagOptionsRequest {
+		Scope   string `form:"scope"`
+		Keyword string `form:"keyword,optional"`
+		Limit   int64  `form:"limit,optional"`
+	}
+	GetTagOptionsResponse {
+		BaseResponse
+		Data {
+			List []TagOption `json:"list"`
+		} `json:"data,omitempty"`
+	}
+)
+

@@ -1,0 +1,53 @@
+// 逻辑图配置卡片视图容器样式
+.cardViewContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.searchCard {
+  margin-bottom: 0;
+
+  :global {
+    .ant-pro-card-body {
+      padding: 16px 20px;
+    }
+
+    .ant-pro-form {
+      margin: 0;
+    }
+
+    .ant-form-item {
+      margin-bottom: 0;
+    }
+
+    .ant-pro-form-submitter {
+      .ant-btn {
+        margin-left: 8px;
+      }
+    }
+  }
+}
+
+.searchFormWrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+
+  :global {
+    .ant-pro-form {
+      flex: 1;
+      margin-right: 16px;
+    }
+  }
+}
+
+.extraActions {
+  flex-shrink: 0;
+}
+
+// 分页容器
+.paginationRow {
+  margin-top: 16px;
+}

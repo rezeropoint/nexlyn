@@ -1,0 +1,112 @@
+syntax = "v1"
+
+import "api/base.api"
+import "api/infoatomtype.api"
+import "api/graphconfig.api"
+import "api/block.api"
+import "api/tag.api"
+
+info (
+	title:   "LynxGraph Manager API"
+	desc:    "LynxGraph逻辑引擎配置管理服务"
+	author:  "Nexlyn Team"
+	version: "v1.0"
+)
+
+// ===== API路由定义 =====
+@server (
+	prefix: /api/lynxmanager
+	group:  infoatomtype
+	jwt:    Auth
+)
+service lynxmanager {
+	@doc "创建信息原子类型"
+	@handler createInfoAtomType
+	post /infoatom-type/create (CreateInfoAtomTypeRequest) returns (CreateInfoAtomTypeResponse)
+
+	@doc "查询信息原子类型列表"
+	@handler getInfoAtomTypeList
+	get /infoatom-type/list (GetInfoAtomTypeListRequest) returns (GetInfoAtomTypeListResponse)
+
+	@doc "获取信息原子类型详情"
+	@handler getInfoAtomType
+	get /infoatom-type/get/:id (GetInfoAtomTypeRequest) returns (GetInfoAtomTypeResponse)
+
+	@doc "更新信息原子类型"
+	@handler updateInfoAtomType
+	put /infoatom-type/update/:id (UpdateInfoAtomTypeRequest) returns (UpdateInfoAtomTypeResponse)
+
+	@doc "删除信息原子类型"
+	@handler deleteInfoAtomType
+	delete /infoatom-type/delete/:id (DeleteInfoAtomTypeRequest) returns (DeleteInfoAtomTypeResponse)
+}
+
+@server (
+	prefix: /api/lynxmanager
+	group:  graphconfig
+	jwt:    Auth
+)
+service lynxmanager {
+	@doc "创建逻辑图配置"
+	@handler createGraphConfig
+	post /graph/create (CreateGraphConfigRequest) returns (CreateGraphConfigResponse)
+
+	@doc "查询逻辑图配置列表"
+	@handler getGraphConfigList
+	get /graph/list (GetGraphConfigListRequest) returns (GetGraphConfigListResponse)
+
+	@doc "获取逻辑图配置详情"
+	@handler getGraphConfig
+	get /graph/get/:id (GetGraphConfigRequest) returns (GetGraphConfigResponse)
+
+	@doc "更新逻辑图配置"
+	@handler updateGraphConfig
+	put /graph/update/:id (UpdateGraphConfigRequest) returns (UpdateGraphConfigResponse)
+
+	@doc "删除逻辑图配置"
+	@handler deleteGraphConfig
+	delete /graph/delete/:id (DeleteGraphConfigRequest) returns (DeleteGraphConfigResponse)
+}
+
+@server (
+	prefix: /api/lynxmanager
+	group:  block
+	jwt:    Auth
+)
+service lynxmanager {
+	@doc "查询逻辑块规格列表"
+	@handler getBlockSpecs
+	get /block/specs (GetBlockSpecsRequest) returns (GetBlockSpecsResponse)
+}
+
+@server (
+	prefix: /api/lynxmanager
+	group:  tag
+	jwt:    Auth
+)
+service lynxmanager {
+	@doc "创建标签"
+	@handler createTag
+	post /tags (CreateTagRequest) returns (CreateTagResponse)
+
+	@doc "获取标签详情"
+	@handler getTag
+	get /tags/:id (GetTagRequest) returns (GetTagResponse)
+
+	@doc "查询标签列表"
+	@handler listTags
+	get /tags (ListTagsRequest) returns (ListTagsResponse)
+
+	@doc "更新标签"
+	@handler updateTag
+	put /tags/:id (UpdateTagRequest) returns (UpdateTagResponse)
+
+	@doc "删除标签"
+	@handler deleteTag
+	delete /tags/:id (DeleteTagRequest) returns (DeleteTagResponse)
+
+	@doc "批量查询标签（用于自动补全）"
+	@handler batchQueryTags
+	post /tags/batch-query (BatchQueryTagsRequest) returns (BatchQueryTagsResponse)
+}
+

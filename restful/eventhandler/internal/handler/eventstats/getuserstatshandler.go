@@ -1,0 +1,29 @@
+package eventstats
+
+import (
+	"net/http"
+
+	"github.com/rezeropoint/nexlyn/restful/eventhandler/internal/logic/eventstats"
+	"github.com/rezeropoint/nexlyn/restful/eventhandler/internal/svc"
+	"github.com/rezeropoint/nexlyn/restful/eventhandler/internal/types"
+	"github.com/zeromicro/go-zero/rest/httpx"
+)
+
+// 获取处理人统计
+func GetUserStatsHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var req types.GetUserStatsRequest
+		if err := httpx.Parse(r, &req); err != nil {
+			httpx.ErrorCtx(r.Context(), w, err)
+			return
+		}
+
+		l := eventstats.NewGetUserStatsLogic(r.Context(), svcCtx)
+		resp, err := l.GetUserStats(&req)
+		if err != nil {
+			httpx.ErrorCtx(r.Context(), w, err)
+		} else {
+			httpx.OkJsonCtx(r.Context(), w, resp)
+		}
+	}
+}

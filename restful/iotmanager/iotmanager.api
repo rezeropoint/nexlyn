@@ -1,0 +1,198 @@
+syntax = "v1"
+
+import "api/base.api"
+import "api/sensor_template.api"
+import "api/device_category.api"
+import "api/device_binding.api"
+import "api/device_tag.api"
+import "api/platform.api"
+import "api/query.api"
+import "api/device_control.api"
+
+info (
+	title:   "Nexlyn IoT 设备管理 API"
+	desc:    "IoT设备模板管理、设备绑定、MQTT消息处理等接口"
+	author:  "Nexlyn Team"
+	email:   "dev@nexlyn.com"
+	version: "v1.0"
+)
+
+// ===== 设备类别和标准字段查询接口组 =====
+@server (
+	prefix:  /api/v1
+	jwt:     Auth
+	group:   metadata
+	timeout: 10s
+)
+service Iot {
+	@doc "获取所有设备类别"
+	@handler getDeviceCategories
+	get /device-categories (GetDeviceCategoriesRequest) returns (GetDeviceCategoriesResponse)
+
+	@doc "获取指定类别的标准字段列表"
+	@handler getStandardFields
+	get /device-categories/:category/standard-fields (GetStandardFieldsRequest) returns (GetStandardFieldsResponse)
+}
+
+// ===== 设备模板管理接口组 =====
+@server (
+	prefix:  /api/v1
+	jwt:     Auth
+	group:   template
+	timeout: 10s
+)
+service Iot {
+	@doc "获取设备模板列表"
+	@handler getSensorTemplateList
+	get /sensor-template/list (GetSensorTemplateListRequest) returns (GetSensorTemplateListResponse)
+
+	@doc "获取设备模板详情"
+	@handler getSensorTemplate
+	get /sensor-template/:id (GetSensorTemplateRequest) returns (GetSensorTemplateResponse)
+
+	@doc "创建设备模板"
+	@handler createSensorTemplate
+	post /sensor-template (CreateSensorTemplateRequest) returns (CreateSensorTemplateResponse)
+
+	@doc "更新设备模板"
+	@handler updateSensorTemplate
+	put /sensor-template/:id (UpdateSensorTemplateRequest) returns (UpdateSensorTemplateResponse)
+
+	@doc "删除设备模板"
+	@handler deleteSensorTemplate
+	delete /sensor-template/:id (DeleteSensorTemplateRequest) returns (DeleteSensorTemplateResponse)
+}
+
+// ===== 设备绑定管理接口组 =====
+@server (
+	prefix:  /api/v1
+	jwt:     Auth
+	group:   device
+	timeout: 10s
+)
+service Iot {
+	@doc "绑定设备"
+	@handler bindDevice
+	post /device-bindings (BindDeviceRequest) returns (BindDeviceResponse)
+
+	@doc "获取设备详情"
+	@handler getDevice
+	get /device-bindings/:deviceId (GetDeviceRequest) returns (GetDeviceResponse)
+
+	@doc "获取设备列表"
+	@handler listDevices
+	get /device-bindings/list (ListDevicesRequest) returns (ListDevicesResponse)
+
+	@doc "获取未绑定设备列表"
+	@handler listUnboundDevices
+	get /device-bindings/unbound (ListUnboundDevicesRequest) returns (ListUnboundDevicesResponse)
+
+	@doc "更新设备信息"
+	@handler updateDevice
+	put /device-bindings/:deviceId (UpdateDeviceRequest) returns (UpdateDeviceResponse)
+
+	@doc "解绑设备"
+	@handler unbindDevice
+	delete /device-bindings/:deviceId (UnbindDeviceRequest) returns (UnbindDeviceResponse)
+}
+
+// ===== 设备标签管理接口组 =====
+@server (
+	prefix:  /api/v1
+	jwt:     Auth
+	group:   tag
+	timeout: 10s
+)
+service Iot {
+	@doc "创建标签"
+	@handler createTag
+	post /device-tags (CreateTagRequest) returns (CreateTagResponse)
+
+	@doc "获取标签详情"
+	@handler getTag
+	get /device-tags/:tagId (GetTagRequest) returns (GetTagResponse)
+
+	@doc "获取标签列表"
+	@handler listTags
+	get /device-tags/list (ListTagsRequest) returns (ListTagsResponse)
+
+	@doc "更新标签"
+	@handler updateTag
+	put /device-tags/:tagId (UpdateTagRequest) returns (UpdateTagResponse)
+
+	@doc "删除标签"
+	@handler deleteTag
+	delete /device-tags/:tagId (DeleteTagRequest) returns (DeleteTagResponse)
+}
+
+// ===== 平台配置管理接口组 =====
+@server (
+	prefix:  /api/v1
+	jwt:     Auth
+	group:   platform
+	timeout: 10s
+)
+service Iot {
+	@doc "获取平台配置列表"
+	@handler getPlatformList
+	get /platforms/list (GetPlatformListRequest) returns (GetPlatformListResponse)
+
+	@doc "获取平台配置详情"
+	@handler getPlatform
+	get /platforms/:id (GetPlatformRequest) returns (GetPlatformResponse)
+
+	@doc "创建平台配置"
+	@handler createPlatform
+	post /platforms (CreatePlatformRequest) returns (CreatePlatformResponse)
+
+	@doc "更新平台配置"
+	@handler updatePlatform
+	put /platforms/:id (UpdatePlatformRequest) returns (UpdatePlatformResponse)
+
+	@doc "删除平台配置"
+	@handler deletePlatform
+	delete /platforms/:id (DeletePlatformRequest) returns (DeletePlatformResponse)
+}
+
+// ===== 时序数据查询接口组 =====
+@server (
+	prefix:  /api/v1
+	jwt:     Auth
+	group:   query
+	timeout: 10s
+)
+service Iot {
+	@doc "查询时序数据"
+	@handler queryTimeSeries
+	post /timeseries/query (QueryTimeSeriesRequest) returns (QueryTimeSeriesResponse)
+
+	@doc "获取设备字段最新值"
+	@handler getLatestValues
+	post /timeseries/latest-values (GetLatestValuesRequest) returns (GetLatestValuesResponse)
+
+	@doc "获取设备统计信息"
+	@handler getDeviceStatistics
+	post /timeseries/statistics (GetDeviceStatisticsRequest) returns (GetDeviceStatisticsResponse)
+}
+
+// ===== 设备控制接口组 =====
+@server (
+	prefix:  /api/v1
+	jwt:     Auth
+	group:   control
+	timeout: 10s
+)
+service Iot {
+	@doc "查询AI Box任务列表"
+	@handler listAIBoxTasks
+	get /device-control/aibox/:deviceId/tasks (ListAIBoxTasksRequest) returns (ListAIBoxTasksResponse)
+
+	@doc "获取AI Box算法能力"
+	@handler getAIBoxCapabilities
+	get /device-control/aibox/:deviceId/capabilities (GetAIBoxCapabilitiesRequest) returns (GetAIBoxCapabilitiesResponse)
+
+	@doc "控制AI Box任务（启动/停止）"
+	@handler controlAIBoxTask
+	post /device-control/aibox/:deviceId/tasks/:taskId/control (ControlAIBoxTaskRequest) returns (ControlAIBoxTaskResponse)
+}
+

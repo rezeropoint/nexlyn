@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package lynxengine;
+option go_package = "github.com/rezeropoint/nexlyn/service/lynxengine/pb";
+
+// LynxEngine gRPC服务
+service LynxEngine {
+  // 接收信息原子
+  rpc ReceiveInfoAtom(InfoAtomRequest) returns (InfoAtomResponse);
+
+  // 健康检查
+  rpc HealthCheck(HealthCheckRequest) returns (HealthCheckResponse);
+}
+
+// 信息原子请求
+message InfoAtomRequest {
+  string tenant_id = 1;           // 租户ID
+  string info_atom_type_id = 2;   // 信息原子类型ID
+  string source = 3;              // 数据来源（如设备ID）
+  bytes raw_data = 4;             // 原始JSON数据
+  repeated string tags = 5;       // 标签列表
+  int64 timestamp = 6;            // 时间戳（Unix毫秒）
+}
+
+// 信息原子响应
+message InfoAtomResponse {
+  bool success = 1;               // 是否成功
+  string message = 2;             // 响应消息
+  string info_atom_id = 3;        // 生成的信息原子ID
+  string error_code = 4;          // 错误码（可选）
+}
+
+// 健康检查请求
+message HealthCheckRequest {}
+
+// 健康检查响应
+message HealthCheckResponse {
+  bool healthy = 1;               // 是否健康
+}

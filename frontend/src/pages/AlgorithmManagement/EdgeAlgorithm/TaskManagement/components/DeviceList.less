@@ -1,0 +1,121 @@
+/**
+ * AI Box 设备列表组件样式
+ */
+
+// 主容器
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+// 加载中容器
+.loadingContainer {
+  padding: 40px 0;
+  text-align: center;
+}
+
+// 搜索区域
+.searchContainer {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--ant-color-border-secondary);
+}
+
+.searchStats {
+  margin-top: 8px;
+  text-align: right;
+}
+
+.searchStatsText {
+  color: var(--ant-color-text-secondary);
+  font-size: var(--ant-font-size-sm);
+}
+
+// 列表容器
+.listContainer {
+  flex: 1;
+  overflow: auto;
+}
+
+.emptyContainer {
+  margin-top: 40px;
+}
+
+// 列表项
+.listItem {
+  padding: 14px 16px;
+  background-color: transparent;
+  border-left: 3px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  // 选中状态
+  &.selected {
+    background-color: var(--ant-color-primary-bg);
+    border-left-color: var(--ant-color-primary);
+  }
+
+  // 悬停状态（非选中）
+  &:hover:not(.selected) {
+    background-color: var(--ant-color-fill-quaternary);
+  }
+}
+
+.listItemContent {
+  width: 100%;
+  padding-right: 4px;
+  padding-left: 4px;
+}
+
+// 设备信息行
+.deviceHeader {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.deviceName {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--ant-font-size);
+}
+
+.deviceNameSelected {
+  font-weight: bold;
+}
+
+// 在线状态图标
+.statusIconOnline {
+  flex-shrink: 0;
+  color: var(--ant-color-success);
+  font-size: 16px;
+}
+
+.statusIconOffline {
+  flex-shrink: 0;
+  color: var(--ant-color-text-tertiary);
+  font-size: 16px;
+}
+
+// 设备ID行
+.deviceIdRow {
+  margin-bottom: 6px;
+}
+
+.deviceIdText {
+  color: var(--ant-color-text-secondary);
+  font-size: var(--ant-font-size-sm);
+}
+
+// 位置图标
+.locationIcon {
+  color: var(--ant-color-primary);
+  font-size: var(--ant-font-size-sm);
+}
+
+.locationText {
+  color: var(--ant-color-text-secondary);
+  font-size: var(--ant-font-size-sm);
+}

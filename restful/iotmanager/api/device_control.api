@@ -1,0 +1,136 @@
+syntax = "v1"
+
+// ===== AI Box 控制相关类型定义 =====
+
+// ===== AI Box 任务状态 =====
+type AIBoxTaskStatus {
+	Type  int    `json:"type"`  // 状态级别标识（1/2/3/4）
+	Style string `json:"style"` // 状态级别（normal/warning/danger/success）
+	Label string `json:"label"` // 状态描述
+}
+
+// ===== AI Box 算法任务 =====
+type AIBoxAlgorithmTask {
+	AlgTaskSession string                 `json:"alg_task_session"` // 任务会话ID
+	TaskDesc       string                 `json:"task_desc"`        // 任务描述
+	MediaName      string                 `json:"media_name"`       // 媒体名称
+	AlgInfo        []int                  `json:"alg_info"`         // 算法信息列表
+	AlgTaskStatus  AIBoxTaskStatus        `json:"alg_task_status"`  // 任务运行状态
+	AlarmBody      int                    `json:"alarm_body"`       // 告警主体
+	AlarmProtocol  int                    `json:"alarm_protocol"`   // 告警协议
+	MetadataUrl    interface{}            `json:"metadata_url"`     // 元数据URL（可能是string或[]string）
+	UserData       map[string]interface{} `json:"user_data,omitempty"` // 用户自定义数据
+}
+
+// ===== AI Box 算法能力相关类型 =====
+
+// 算法参数选项（SELECTOR类型使用）
+type AIBoxParameterOption {
+	Enable bool        `json:"enable"` // 当前选项是否可选
+	Key    string      `json:"key"`    // 选项标识
+	Value  interface{} `json:"value"`  // 选项序号（可能是int或空字符串""）
+	Name   string      `json:"name"`   // 选项名称
+}
+
+// 算法可设置的配置项
+type AIBoxParameter {
+	Class    string                 `json:"class"`             // 设置项数据类型描述（FLOAT/BOOLEAN/SELECTOR/INTEGER）
+	Type     int                    `json:"type"`              // 设置项数据类型编号（FLOAT=>2, BOOLEAN=>4, SELECTOR=>5, INTEGER=>0）
+	Max      interface{}            `json:"max,omitempty"`     // 可设置最大值（FLOAT/INTEGER时存在）
+	Min      interface{}            `json:"min,omitempty"`     // 可设置最小值（FLOAT/INTEGER时存在）
+	Default  interface{}            `json:"default"`           // 设置项默认值
+	Key      string                 `json:"key"`               // 设置项标识
+	Name     string                 `json:"name"`              // 设置项名称
+	Required bool                   `json:"required"`          // 是否必填
+	Value    interface{}            `json:"value"`             // 设置值
+	Options  []AIBoxParameterOption `json:"options,omitempty"` // SELECTOR待选列表
+}
+
+// 算法属性配置
+type AIBoxAttribute {
+	LineRequired bool   `json:"lineRequired"` // 是否必须配置辅助线
+	LineDesc     string `json:"lineDesc"`     // 配置辅助线的描述文字
+	ZoneRequired bool   `json:"zoneRequired"` // 是否必须配置算法专用区域
+	ZoneDesc     string `json:"zoneDesc"`     // 配置算法专用区域的描述文字
+}
+
+// 算法报警规则
+type AIBoxPolicy {
+	Property string `json:"property"` // 违规的属性名（告警类型）
+	Name     string `json:"name"`     // 属性名描述（告警类型的中文描述）
+}
+
+// 单个算法能力
+type AIBoxAbility {
+	Attribute  AIBoxAttribute   `json:"attribute"`  // 算法属性
+	Parameters []AIBoxParameter `json:"parameters"` // 算法可设置的配置项
+	Permitted  bool             `json:"permitted"`  // 算法是否已授权
+	Code       int              `json:"code"`       // 主算法编号
+	Sub        bool             `json:"sub"`        // 是否是子算法
+	Name       string           `json:"name"`       // 算法名称
+	Desc       string           `json:"desc"`       // 算法描述
+	Item       int              `json:"item"`       // 子算法编号
+	Policy     []AIBoxPolicy    `json:"policy"`     // 报警规则
+}
+
+// AI Box 算法能力
+type AIBoxCapabilities {
+	BoardId   string         `json:"board_id"`  // 盒子ID
+	Abilities []AIBoxAbility `json:"abilities"` // 完整算法能力列表
+}
+
+// ===== 路径参数相关类型 =====
+type (
+	DeviceIdControlPathRequest {
+		DeviceId string `path:"deviceId"` // 设备ID
+	}
+)
+
+// ===== AI Box 控制接口请求和响应 =====
+
+// 查询AI Box任务列表请求
+type ListAIBoxTasksRequest {
+	DeviceIdControlPathRequest
+	OrgId string `form:"orgId"` // 组织ID（必填）
+}
+
+// 查询AI Box任务列表响应
+type ListAIBoxTasksResponse {
+	BaseResponse
+	Data {
+		List []AIBoxAlgorithmTask `json:"list"` // 任务列表
+	} `json:"data,omitempty"`
+}
+
+// 获取AI Box算法能力请求
+type GetAIBoxCapabilitiesRequest {
+	DeviceIdControlPathRequest
+	OrgId string `form:"orgId"` // 组织ID（必填）
+}
+
+// 获取AI Box算法能力响应
+type GetAIBoxCapabilitiesResponse {
+	BaseResponse
+	Data AIBoxCapabilities `json:"data,omitempty"` // 算法能力
+}
+
+// 控制AI Box任务请求
+type ControlAIBoxTaskRequest {
+	DeviceIdControlPathRequest
+	TaskIdPathRequest
+	OrgId          string `form:"orgId"`          // 组织ID（必填）
+	ControlCommand int    `json:"controlCommand"` // 启停标识（0停止, 1启动）
+}
+
+// 任务ID路径参数
+type TaskIdPathRequest {
+	TaskId string `path:"taskId"` // 任务ID
+}
+
+// 控制AI Box任务响应
+type ControlAIBoxTaskResponse {
+	BaseResponse
+	Data {
+		Message string `json:"message"` // 执行结果描述
+	} `json:"data,omitempty"`
+}

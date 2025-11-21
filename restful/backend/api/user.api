@@ -1,0 +1,271 @@
+syntax = "v1"
+
+// ===== 多租户基础类型 =====
+type (
+	// 租户信息
+	TenantInfo {
+		TenantKey  string `json:"tenantKey"`  // 租户业务标识符
+		TenantId   string `json:"tenantId"`   // 租户ID
+		TenantName string `json:"tenantName"` // 租户名称
+	}
+)
+
+// ===== 用户组织关联基础类型 =====
+type (
+	// 用户组织关联简化信息（用于用户详情显示）
+	UserOrgBrief {
+		OrgId         string `json:"orgId"`         // 组织ID
+		OrgCode       string `json:"orgCode"`       // 组织代码
+		OrgName       string `json:"orgName"`       // 组织名称
+		OrgType       string `json:"orgType"`       // 组织类型
+		RelationType  string `json:"relationType"`  // 关系类型：manager, member, deputy, consultant
+		PositionTitle string `json:"positionTitle"` // 职位名称
+		IsPrimary     bool   `json:"isPrimary"`     // 是否为主属组织
+	}
+)
+
+// ===== 用户相关基础类型 =====
+type (
+	// 用户标签
+	UserTag {
+		Id    string `json:"id,omitempty"` // 标签ID
+		Label string `json:"label,omitempty"` // 标签显示名称
+	}
+	// 用户地理位置
+	UserLocation {
+		Label string `json:"label,omitempty"` // 地理位置显示名称
+		Key   string `json:"key,omitempty"` // 地理位置键
+	}
+	// 用户地理信息
+	UserGeographic {
+		Province UserLocation `json:"province,omitempty"` // 省份
+		City     UserLocation `json:"city,omitempty"` // 城市
+	}
+	// 用户完整信息
+	User {
+		// 基础身份信息
+		Id       string `json:"id"` // 用户ID
+		UserKey  string `json:"userKey"` // 用户Key
+		UserName string `json:"userName"` // 用户名
+		Email    string `json:"email"` // 电子邮件
+		Phone    string `json:"phone"` // 电话号码
+		// 个人信息
+		Name      string `json:"name"` // 用户姓名
+		Avatar    string `json:"avatar"` // 用户头像 URL
+		Signature string `json:"signature"` // 个人签名
+		Title     string `json:"title"` // 职位
+		// 多租户信息
+		TenantInfo TenantInfo `json:"tenantInfo"` // 租户信息
+		// 组织架构信息
+		OrganizationIds []string `json:"organizationIds"` // 用户关联的组织ID列表
+		// 标签和地理信息
+		Tags       []UserTag      `json:"tags"` // 标签列表
+		Geographic UserGeographic `json:"geographic"` // 地理信息
+		Country    string         `json:"country"` // 国家
+		Address    string         `json:"address"` // 地址
+		// 状态和时间戳
+		Status      string `json:"status"` // 用户状态：'active'-活跃，'inactive'-禁用，'deleted'-删除
+		CreatedAt   string `json:"createdAt"` // 创建时间
+		UpdatedAt   string `json:"updatedAt"` // 更新时间
+		LastLoginAt string `json:"lastLoginAt"` // 最后登录时间
+	}
+	// 简化用户信息（用于列表显示）
+	UserBrief {
+		Id          string     `json:"id"` // 用户ID
+		UserKey     string     `json:"userKey"` // 用户Key
+		UserName    string     `json:"userName"` // 用户名
+		Name        string     `json:"name"` // 用户姓名
+		Email       string     `json:"email"` // 电子邮件
+		Avatar      string     `json:"avatar"` // 用户头像 URL
+		Status      string     `json:"status"` // 用户状态
+		TenantInfo  TenantInfo `json:"tenantInfo"` // 租户信息
+		IsActive    bool       `json:"isActive"` // 用户是否活跃
+		Tags        []UserTag  `json:"tags"` // 用户标签
+		CreatedAt   int64      `json:"createdAt"` // 创建时间（Unix时间戳）
+		UpdatedAt   int64      `json:"updatedAt"` // 更新时间（Unix时间戳）
+		LastLoginAt int64      `json:"lastLoginAt"` // 最后登录时间（Unix时间戳）
+	}
+)
+
+// ===== 路径参数相关类型 =====
+type (
+	// 用户ID路径参数
+	UserIdPathRequest {
+		Id string `path:"id"` // 用户ID
+	}
+)
+
+// ===== 用户管理相关类型 =====
+type (
+	// 用户选项（用于下拉框等）
+	UserOption {
+		UserKey   string `json:"userKey"`   // 用户Key
+		UserName  string `json:"userName"`  // 用户名
+		Name      string `json:"name"`      // 用户姓名
+		Email     string `json:"email"`     // 邮箱
+		TenantId  string `json:"tenantId"`  // 所属租户ID
+		TenantKey string `json:"tenantKey"` // 所属租户Key
+	}
+	// 获取用户选项请求
+	GetUserOptionsRequest {
+		TenantId string `form:"tenantId,optional"` // 租户ID过滤
+		Keyword  string `form:"keyword,optional"` // 关键字搜索（用户名、姓名、邮箱）
+		Limit    int64  `form:"limit,optional"` // 限制数量（默认20）
+	}
+	// 获取用户选项响应
+	GetUserOptionsResponse {
+		BaseResponse // 基础响应
+		Data {
+			List []UserOption `json:"list"` // 用户选项列表
+		} `json:"data,omitempty"`
+	}
+	// 获取当前用户响应
+	GetCurrentUserResponse {
+		BaseResponse // 基础响应
+		Data User `json:"data,omitempty"` // 完整用户数据
+	}
+	// 用户列表查询请求
+	GetUserListRequest {
+		PageParamsRequest // 分页请求参数
+		// 搜索条件
+		Name     string `form:"name,optional" db:"name"` // 用户姓名
+		Email    string `form:"email,optional" db:"email"` // 电子邮件
+		UserName string `form:"userName,optional" db:"user_name"` // 用户名
+		Status   string `form:"status,optional" db:"status"` // 用户状态
+		// 多租户过滤
+		TenantId string `form:"tenantId,optional" db:"tenant_id"` // 租户ID
+		// 标签过滤（使用标签ID，包含任一）
+		TagIds []string `form:"tagIds,optional"`
+	}
+	// 用户列表数据
+	UserListData {
+		List []UserBrief `json:"list"` // 用户简要信息列表
+	}
+	// 用户列表响应
+	GetUserListResponse {
+		BaseResponse // 基础响应
+		PageParams // 分页参数
+		Data UserListData `json:"data,omitempty"` // 用户列表数据
+	}
+	// 根据ID获取用户请求
+	GetUserByIdRequest {
+		UserIdPathRequest // 路径参数
+	}
+	// 根据ID获取用户响应
+	GetUserByIdResponse {
+		BaseResponse // 基础响应
+		Data User `json:"data,omitempty"` // 完整用户数据
+	}
+	// 创建用户请求
+	CreateUserRequest {
+		// 基础信息（必需）
+		UserName string `json:"userName"` // 用户名
+		Email    string `json:"email"` // 电子邮件
+		Name     string `json:"name"` // 用户姓名
+		// 租户信息（可选，默认继承当前用户租户）
+		TenantId string `json:"tenantId"` // 租户ID
+		// 个人信息（可选）
+		Phone     string `json:"phone,optional"` // 电话号码
+		Title     string `json:"title,optional"` // 职位
+		Avatar    string `json:"avatar,optional"` // 用户头像 URL
+		Signature string `json:"signature,optional"` // 签名
+		Country   string `json:"country,optional"` // 国家
+		Address   string `json:"address,optional"` // 地址
+		// 扩展信息（使用标签ID）
+		TagIds     []string       `json:"tagIds,optional"` // 标签ID列表
+		Geographic UserGeographic `json:"geographic,optional"` // 地理信息
+	}
+	// 创建用户响应
+	CreateUserResponse {
+		BaseResponse // 基础响应
+		Data CreateUserData `json:"data,omitempty"` // 创建结果数据
+	}
+	// 创建用户响应数据
+	CreateUserData {
+		UserKey  string `json:"userKey"` // 新创建的用户Key
+		UserName string `json:"userName"` // 用户名
+		Password string `json:"password"` // 临时密码
+	}
+	// 更新用户请求
+	UpdateUserRequest {
+		UserIdPathRequest // 路径参数
+		// 基础信息
+		Name     string `json:"name,optional"` // 用户姓名
+		Email    string `json:"email,optional"` // 电子邮件
+		UserName string `json:"userName,optional"` // 用户名
+		Phone    string `json:"phone,optional"` // 电话号码
+		// 个人信息
+		Title     string `json:"title,optional"` // 职位
+		Avatar    string `json:"avatar,optional"` // 用户头像 URL
+		Signature string `json:"signature,optional"` // 签名
+		Country   string `json:"country,optional"` // 国家
+		Address   string `json:"address,optional"` // 地址
+		// 扩展信息（使用标签ID，覆盖式更新）
+		TagIds     []string       `json:"tagIds,optional"` // 标签ID列表
+		Geographic UserGeographic `json:"geographic,optional"` // 地理信息
+	}
+	// 更新用户响应
+	UpdateUserResponse {
+		BaseResponse // 基础响应
+	}
+	// 删除用户请求
+	DeleteUserRequest {
+		UserIdPathRequest // 路径参数
+	}
+	// 删除用户响应
+	DeleteUserResponse {
+		BaseResponse // 基础响应
+	}
+	// 重置密码请求
+	ResetPasswordRequest {
+		UserIdPathRequest // 路径参数
+		Password string `json:"password"` // 新密码
+	}
+	// 重置密码响应
+	ResetPasswordResponse {
+		BaseResponse // 基础响应
+	}
+	// 修改当前用户密码请求
+	ChangePasswordRequest {
+		OldPassword string `json:"oldPassword"` // 旧密码
+		NewPassword string `json:"newPassword"` // 新密码
+	}
+	// 修改当前用户密码响应
+	ChangePasswordResponse {
+		BaseResponse // 基础响应
+	}
+	// 更新用户状态请求
+	UpdateUserStatusRequest {
+		UserIdPathRequest // 路径参数
+		Status string `json:"status,optional"` // 用户状态：'active'-活跃，'inactive'-禁用，'deleted'-删除
+	}
+	// 更新用户状态响应
+	UpdateUserStatusResponse {
+		BaseResponse // 基础响应
+	}
+	// 上传头像响应数据
+	UploadAvatarData {
+		AvatarUrl string `json:"avatarUrl"` // 头像URL
+	}
+	// 上传头像响应
+	UploadAvatarResponse {
+		BaseResponse // 基础响应
+		Data UploadAvatarData `json:"data,omitempty"` // 上传结果数据
+	}
+	// 更新当前用户信息请求（用户修改自己的资料，无需user:write权限）
+	UpdateCurrentUserRequest {
+		// 基础信息
+		Name     string `json:"name,optional"` // 用户姓名
+		Email    string `json:"email,optional"` // 电子邮件
+		Phone    string `json:"phone,optional"` // 电话号码
+		// 个人信息
+		Title     string `json:"title,optional"` // 职位
+		Avatar    string `json:"avatar,optional"` // 用户头像 URL
+		Signature string `json:"signature,optional"` // 签名
+	}
+	// 更新当前用户信息响应
+	UpdateCurrentUserResponse {
+		BaseResponse // 基础响应
+	}
+)
+

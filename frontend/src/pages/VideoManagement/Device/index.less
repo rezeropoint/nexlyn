@@ -1,0 +1,36 @@
+.nl-device-center {
+  padding: 50px;
+  text-align: center;
+}
+
+.splitterContainer {
+  height: calc(100vh - 200px);
+  min-height: 600px;
+
+  // 面板样式
+  .leftPanel,
+  .middlePanel,
+  .rightPanel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+
+    // ProCard 填充整个面板
+    :global(.ant-pro-card) {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      border: none;
+
+      :global(.ant-pro-card-body) {
+        flex: 1;
+        overflow: auto;
+      }
+    }
+  }
+
+  // 内部嵌套的 Splitter
+  .innerSplitter {
+    height: 100%;
+  }
+}

@@ -1,0 +1,101 @@
+# LynxGraph Manager REST API服务配置
+
+# go-zero REST服务配置
+Name: lynxmanager-service
+Host: 0.0.0.0
+Port: 8888
+MaxConns: 10000
+MaxBytes: 1048576
+Timeout: 30000
+CpuThreshold: 900
+
+# 日志配置
+Log:
+  ServiceName: "lynxmanager-service"
+  Mode: "console"
+  Encoding: "json"
+  Path: "./logs"
+  Level: "info"
+  MaxContentLength: 4096
+  Compress: true
+  Stat: true
+  KeepDays: 7
+  StackCooldownMillis: 100
+  MaxBackups: 5
+  MaxSize: 100
+  Rotation: "size"
+
+# 运行模式
+Mode: "dev"
+
+# 链路追踪配置
+Telemetry:
+  Name: "lynxmanager-service"
+  Endpoint: "http://jaeger:14268/api/traces"
+  Sampler: 1.0
+  Batcher: "jaeger"
+
+# 开发服务器配置
+DevServer:
+  Enabled: true
+  Port: 6063
+  HealthPath: "/healthz"
+  MetricsPath: "/metrics"
+
+# JWT认证配置
+Auth:
+  AccessSecret: "Rezeropoint"
+  AccessExpire: 86400  # 24小时，单位：秒
+
+# PostgreSQL数据库配置（顶层配置，在ServiceContext中创建连接）
+DataSource:
+  Driver: "postgres"
+  Host: "postgres"
+  Port: 5432
+  Database: "nexlyn"
+  Username: "nexlyn"
+  Password: "Quanmate.2025"
+
+# MongoDB配置（顶层配置，在ServiceContext中创建连接）
+MongoDBConf:
+  URI: "mongodb://nexlyn:Quanmate.2025@mongodb:27017"
+  DB: "nexlyn"
+  Collection: "graph_details"
+  CacheConf:
+    - Host: "redis:6379"
+      Pass: "Quanmate.2025"
+      Type: "node"
+
+# Casbin权限管理配置（Watcher用于权限策略热更新）
+WatcherConfig:
+  # Redis 配置
+  Redis:
+    network: "tcp"
+    # Redis 服务器地址
+    Addr: "redis:6379"
+    # Redis 密码
+    Password: "Quanmate.2025"
+    # 数据库索引
+    DB: 0
+    channel: "casbinx"
+    ignoreself: true
+
+# LynxGraph管理器配置（使用pkg/lynxgraph/manager.Config）
+LynxManager:
+  # 运行模式
+  RunMode: "manager"
+
+  # Redis缓存配置（用于InfoAtom类型缓存）
+  CacheConf:
+    - Host: "redis:6379"
+      Pass: "Quanmate.2025"
+      Type: "node"
+
+  # Etcd配置（用于通知Engine热更新）
+  EtcdConfig:
+    Key: "/nexlyn/lynxgraph"
+    endpoints:
+      - "etcd:2379"
+    dial_timeout: 5s
+    username: ""
+    password: ""

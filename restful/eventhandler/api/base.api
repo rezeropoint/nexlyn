@@ -1,0 +1,21 @@
+syntax = "v1"
+
+// ===== 共用类型定义 =====
+type (
+	// 基础响应
+	BaseResponse {
+		Code int64  `json:"code"` // 响应码
+		Msg  string `json:"msg,omitempty"` // 响应消息
+	}
+	// 分页参数
+	PageParams {
+		Current  int64 `json:"current,omitempty"` // 当前页码
+		PageSize int64 `json:"pageSize,omitempty"` // 每页大小
+		Total    int64 `json:"total,omitempty"` // 总记录数
+	}
+	// 分页请求参数
+	PageParamsRequest {
+		Current  int64 `form:"current,optional"` // 当前页码
+		PageSize int64 `form:"pageSize,optional"` // 每页大小
+	}
+)

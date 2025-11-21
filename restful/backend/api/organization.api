@@ -1,0 +1,306 @@
+syntax = "v1"
+
+// ===== 组织管理相关基础类型 =====
+type (
+	// 组织实体
+	Organization {
+		Id           string  `json:"id"` // 组织UUID（内部标识）
+		Code         string  `json:"code"` // 组织代码（业务标识）
+		Name         string  `json:"name"` // 组织名称
+		Type         string  `json:"type"` // 组织类型（company/department/team等）
+		Description  *string `json:"description,omitempty"` // 描述（可为空）
+		Path         string  `json:"path"` // 路径编码（/root/parent_id/current_id/）
+		ParentId     *string `json:"parentId,omitempty"` // 父组织ID（可为空）
+		Level        int     `json:"level"` // 层级（1-10）
+		SortOrder    int     `json:"sortOrder"` // 排序
+		ManagerId    *string `json:"managerId,omitempty"` // 负责人ID（可为空）
+		ManagerName  *string `json:"managerName,omitempty"` // 负责人姓名（可为空）
+		MemberCount  int     `json:"memberCount"` // 成员数量
+		Status       string  `json:"status"` // 状态（active/inactive/deleted）
+		TenantId     string  `json:"tenantId"` // 租户ID
+		CreatedBy    *string `json:"createdBy,omitempty"` // 创建者（可为空）
+		UpdatedBy    *string `json:"updatedBy,omitempty"` // 更新者（可为空）
+		CreatedAt    string  `json:"createdAt"` // 创建时间
+		UpdatedAt    string  `json:"updatedAt"` // 更新时间
+	}
+
+	// 组织树结构
+	OrganizationTree {
+		Organization
+		Children []OrganizationTree `json:"children"` // 子组织
+	}
+
+	// 简化组织信息（用于选项和列表）
+	OrganizationBrief {
+		Id          string  `json:"id"` // 组织UUID
+		Code        string  `json:"code"` // 组织代码
+		Name        string  `json:"name"` // 组织名称
+		Type        string  `json:"type"` // 组织类型
+		Path        string  `json:"path"` // 路径编码
+		ParentId    *string `json:"parentId,omitempty"` // 父组织ID（可为空）
+		Level       int     `json:"level"` // 层级
+		ManagerName *string `json:"managerName,omitempty"` // 负责人姓名（可为空）
+		MemberCount int     `json:"memberCount"` // 成员数量
+		Status      string  `json:"status"` // 状态
+	}
+
+	// 组织选项（用于下拉框）
+	OrganizationOption {
+		Id      string `json:"id"` // 组织UUID
+		Code    string `json:"code"` // 组织代码
+		Name    string `json:"name"` // 组织名称
+		Path    string `json:"path"` // 路径编码
+		Level   int    `json:"level"` // 层级
+		Status  string `json:"status"` // 状态
+	}
+
+	// 用户组织关系
+	UserOrgRelation {
+		Id            string `json:"id"` // 关系ID
+		UserId        string `json:"userId"` // 用户ID
+		UserKey       string `json:"userKey"` // 用户Key
+		UserName      string `json:"userName"` // 用户名
+		Name          string `json:"name"` // 用户姓名
+		Email         string `json:"email"` // 用户邮箱
+		OrgId         string `json:"orgId"` // 组织ID
+		OrgCode       string `json:"orgCode"` // 组织代码
+		OrgName       string `json:"orgName"` // 组织名称
+		RelationType  string `json:"relationType"` // 关系类型（manager/member）
+		PositionTitle string `json:"positionTitle"` // 职位标题
+		IsPrimary     bool   `json:"isPrimary"` // 是否主要关系
+		Status        string `json:"status"` // 关系状态
+		JoinedAt      string `json:"joinedAt"` // 加入时间
+	}
+)
+
+// ===== 路径参数相关类型 =====
+type (
+	// 组织ID路径参数
+	OrganizationIdPathRequest {
+		Id string `path:"id"` // 组织ID
+	}
+
+	// 组织成员管理路径参数
+	OrganizationMemberPathRequest {
+		Id string `path:"id"` // 组织ID
+	}
+
+	// 用户ID路径参数（用于组织成员管理）
+	UserOrgPathRequest {
+		OrgId  string `path:"orgId"` // 组织ID
+		UserId string `path:"userId"` // 用户ID
+	}
+)
+
+// ===== 组织管理相关类型 =====
+type (
+	// 获取组织树请求
+	GetOrganizationTreeRequest {
+		TenantId string `form:"tenantId,optional"` // 租户ID过滤（超级管理员可指定）
+		RootId   string `form:"rootId,optional"` // 根节点ID（默认为租户根组织）
+	}
+
+	// 获取组织树响应
+	GetOrganizationTreeResponse {
+		BaseResponse // 基础响应
+		Data []OrganizationTree `json:"data,omitempty"` // 组织树数据
+	}
+
+	// 获取组织详情请求
+	GetOrganizationRequest {
+		OrganizationIdPathRequest // 路径参数
+	}
+
+	// 获取组织详情响应
+	GetOrganizationResponse {
+		BaseResponse // 基础响应
+		Data Organization `json:"data,omitempty"` // 组织详情数据
+	}
+
+	// 组织列表查询请求
+	GetOrganizationListRequest {
+		PageParamsRequest // 分页请求参数
+		// 搜索条件
+		Code     string `form:"code,optional" db:"code"` // 组织代码
+		Name     string `form:"name,optional" db:"name"` // 组织名称模糊查询
+		Type     string `form:"type,optional" db:"type"` // 组织类型
+		Status   string `form:"status,optional" db:"status"` // 状态过滤
+		ParentId string `form:"parentId,optional" db:"parent_id"` // 父组织ID
+		Level    int    `form:"level,optional" db:"level"` // 层级过滤
+		// 租户过滤（超级管理员可指定）
+		TenantId string `form:"tenantId,optional" db:"tenant_id"` // 租户ID
+	}
+
+	// 组织列表数据
+	OrganizationListData {
+		List []OrganizationBrief `json:"list"` // 组织简要信息列表
+	}
+
+	// 组织列表响应
+	GetOrganizationListResponse {
+		BaseResponse // 基础响应
+		PageParams // 分页参数
+		Data OrganizationListData `json:"data,omitempty"` // 组织列表数据
+	}
+
+	// 获取组织选项请求
+	GetOrganizationOptionsRequest {
+		TenantId string `form:"tenantId,optional"` // 租户ID过滤（超级管理员可指定）
+		Keyword  string `form:"keyword,optional"` // 关键字搜索（组织名称、代码）
+		ParentId string `form:"parentId,optional"` // 父组织ID过滤
+		Type     string `form:"type,optional"` // 组织类型过滤
+		Limit    int64  `form:"limit,optional"` // 限制数量（默认50）
+	}
+
+	// 获取组织选项响应
+	GetOrganizationOptionsResponse {
+		BaseResponse // 基础响应
+		Data {
+			List []OrganizationOption `json:"list"` // 组织选项列表
+		} `json:"data,omitempty"`
+	}
+
+	// 创建组织请求
+	CreateOrganizationRequest {
+		Code        string `json:"code"` // 组织代码（必填）
+		Name        string `json:"name"` // 组织名称（必填）
+		Type        string `json:"type,optional"` // 组织类型（默认department）
+		Description string `json:"description,optional"` // 描述
+		ParentId    string `json:"parentId,optional"` // 父组织ID（为空则创建为根组织）
+		SortOrder   int    `json:"sortOrder,optional"` // 排序（默认0）
+		ManagerId   string `json:"managerId,optional"` // 负责人ID
+		Status      string `json:"status,optional"` // 状态（默认active）
+	}
+
+	// 创建组织响应
+	CreateOrganizationResponse {
+		BaseResponse // 基础响应
+		Data {
+			Id   string `json:"id"` // 新创建的组织ID
+			Code string `json:"code"` // 组织代码
+			Path string `json:"path"` // 路径编码
+		} `json:"data,omitempty"`
+	}
+
+	// 更新组织请求
+	UpdateOrganizationRequest {
+		OrganizationIdPathRequest // 路径参数
+		Name        string `json:"name,optional"` // 组织名称
+		Type        string `json:"type,optional"` // 组织类型
+		Description string `json:"description,optional"` // 描述
+		SortOrder   int    `json:"sortOrder,optional"` // 排序
+		ManagerId   string `json:"managerId,optional"` // 负责人ID
+		Status      string `json:"status,optional"` // 状态
+	}
+
+	// 更新组织响应
+	UpdateOrganizationResponse {
+		BaseResponse // 基础响应
+	}
+
+	// 删除组织请求
+	DeleteOrganizationRequest {
+		OrganizationIdPathRequest // 路径参数
+		ForceDelete bool `json:"forceDelete,optional"` // 强制删除（级联删除子组织，默认false）
+	}
+
+	// 删除组织响应
+	DeleteOrganizationResponse {
+		BaseResponse // 基础响应
+		Data {
+			DeletedCount int `json:"deletedCount"` // 删除的组织数量（包含子组织）
+		} `json:"data,omitempty"`
+	}
+
+	// 移动组织请求
+	MoveOrganizationRequest {
+		OrganizationIdPathRequest // 路径参数
+		NewParentId string `json:"newParentId"` // 新父组织ID（null表示移动到根级）
+		NewSortOrder int   `json:"newSortOrder,optional"` // 新排序（可选）
+	}
+
+	// 移动组织响应
+	MoveOrganizationResponse {
+		BaseResponse // 基础响应
+		Data {
+			NewPath string `json:"newPath"` // 新路径编码
+		} `json:"data,omitempty"`
+	}
+)
+
+// ===== 组织成员管理相关类型 =====
+type (
+	// 获取组织成员请求
+	GetOrganizationMembersRequest {
+		OrganizationMemberPathRequest // 路径参数
+		PageParamsRequest // 分页请求参数
+		// 搜索条件
+		Keyword      string `form:"keyword,optional"` // 关键字搜索（用户名、姓名、邮箱）
+		RelationType string `form:"relationType,optional"` // 关系类型过滤（manager/member）
+		IsPrimary    bool   `form:"isPrimary,optional"` // 是否主要关系过滤
+	}
+
+	// 组织成员列表数据
+	OrganizationMembersData {
+		List []UserOrgRelation `json:"list"` // 成员关系列表
+	}
+
+	// 获取组织成员响应
+	GetOrganizationMembersResponse {
+		BaseResponse // 基础响应
+		PageParams // 分页参数
+		Data OrganizationMembersData `json:"data,omitempty"` // 成员列表数据
+	}
+
+	// 添加组织成员请求
+	AddOrganizationMemberRequest {
+		OrganizationMemberPathRequest // 路径参数
+		UserId        string `json:"userId"` // 用户ID（必填）
+		RelationType  string `json:"relationType,optional"` // 关系类型（默认member）
+		PositionTitle string `json:"positionTitle,optional"` // 职位标题
+		IsPrimary     bool   `json:"isPrimary,optional"` // 是否主要关系（默认false）
+	}
+
+	// 添加组织成员响应
+	AddOrganizationMemberResponse {
+		BaseResponse // 基础响应
+	}
+
+	// 移除组织成员请求
+	RemoveOrganizationMemberRequest {
+		UserOrgPathRequest // 路径参数
+	}
+
+	// 移除组织成员响应
+	RemoveOrganizationMemberResponse {
+		BaseResponse // 基础响应
+	}
+
+	// 更新成员关系请求
+	UpdateOrganizationMemberRequest {
+		UserOrgPathRequest // 路径参数
+		RelationType  string `json:"relationType,optional"` // 关系类型
+		PositionTitle string `json:"positionTitle,optional"` // 职位标题
+		IsPrimary     bool   `json:"isPrimary,optional"` // 是否主要关系
+		Status        string `json:"status,optional"` // 关系状态
+	}
+
+	// 更新成员关系响应
+	UpdateOrganizationMemberResponse {
+		BaseResponse // 基础响应
+	}
+
+	// 获取用户所属组织请求
+	GetUserOrganizationsRequest {
+		Id       string `path:"id"` // 用户ID（路径参数）
+		IsPrimary bool   `form:"isPrimary,optional"` // 是否只返回主要关系
+	}
+
+	// 获取用户所属组织响应
+	GetUserOrganizationsResponse {
+		BaseResponse // 基础响应
+		Data {
+			List []UserOrgRelation `json:"list"` // 用户组织关系列表
+		} `json:"data,omitempty"`
+	}
+)

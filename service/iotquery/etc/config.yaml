@@ -1,0 +1,125 @@
+# IoT查询服务gRPC配置
+
+# 服务名称，用于标识服务
+Name: iotquery.rpc
+
+# gRPC监听地址
+ListenOn: 0.0.0.0:9993
+
+# 日志配置
+Log:
+  # 服务名称
+  ServiceName: "iotquery-service"
+  # 日志模式（可选项：console, file, volume）
+  Mode: "console"
+  # 日志格式（可选项：json, plain）
+  Encoding: "json"
+  # 日志文件路径
+  Path: "./logs"
+  # 日志级别（可选项：debug, info, error, severe）
+  Level: "info"
+  # 最大日志内容长度
+  MaxContentLength: 4096
+  # 是否压缩日志
+  Compress: true
+  # 启用日志统计
+  Stat: true
+  # 日志保留天数
+  KeepDays: 7
+  # 堆栈打印冷却时间（毫秒）
+  StackCooldownMillis: 100
+  # 最大日志备份数量
+  MaxBackups: 5
+  # 单个日志文件最大大小（MB）
+  MaxSize: 100
+  # 日志文件分割模式（可选项：daily, size）
+  Rotation: "size"
+
+# 运行模式（可选项：dev, test, rt, pre, pro）
+Mode: "dev"
+
+# 链路追踪配置
+Telemetry:
+  # 服务名称
+  Name: "iotquery-service"
+  # Jaeger 追踪端点
+  Endpoint: "http://jaeger:14268/api/traces"
+  # 采样率（1.0表示100%采样）
+  Sampler: 1.0
+  # 批处理方式（可选项：jaeger, zipkin, otlpgrpc, otlphttp）
+  Batcher: "jaeger"
+
+# 开发服务器配置（健康检查和指标监控）
+DevServer:
+  # 启用开发服务器
+  Enabled: true
+  # 开发服务器端口
+  Port: 6065
+  # 健康检查路径
+  HealthPath: "/healthz"
+  # 指标监控路径
+  MetricsPath: "/metrics"
+
+# gRPC服务器配置
+# 请求处理超时时间（毫秒）
+Timeout: 30000
+# CPU使用率阈值，范围是0到1000，表示0%到100%（用于自适应降载）
+CpuThreshold: 900
+# 健康检查开关（默认true）
+Health: true
+
+# Etcd服务注册发现配置
+Etcd:
+  # Etcd服务器端点列表
+  Hosts:
+    - etcd:2379
+  # 服务注册键
+  Key: iotquery.rpc
+  # 用户名（可选）
+  User: ""
+  # 密码（可选）
+  Pass: ""
+
+# PostgreSQL配置（查询设备元数据）
+PostgreSQL:
+  # 数据库主机
+  Host: postgres
+  # 数据库端口
+  Port: 5432
+  # 数据库名
+  Database: nexlyn
+  # 用户名
+  Username: nexlyn
+  # 密码
+  Password: Quanmate.2025
+  # 最大连接数
+  MaxConns: 10
+  # 最大空闲连接数
+  MaxIdleConns: 5
+  # 连接最大生存时间（秒）
+  MaxLifetime: 3600
+
+# ClickHouse配置（查询时序数据）
+ClickHouse:
+  # 数据库主机
+  Host: clickhouse
+  # 数据库端口
+  Port: 9000
+  # 数据库名
+  Database: nexlyn
+  # 用户名
+  Username: nexlyn
+  # 密码
+  Password: Quanmate.2025
+  # 最大连接数
+  MaxOpenConns: 10
+  # 最大空闲连接数
+  MaxIdleConns: 5
+  # 连接最大生存时间（秒）
+  MaxLifetime: 3600
+  # 连接超时时间（秒）
+  ConnTimeout: 10
+  # 读取超时时间（秒）
+  ReadTimeout: 30
+  # 写入超时时间（秒）
+  WriteTimeout: 30

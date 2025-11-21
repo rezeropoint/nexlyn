@@ -1,0 +1,117 @@
+/**
+ * 视频网格组件样式
+ */
+
+// 容器
+.container {
+  width: 100%;
+  height: 100%;
+  padding: 4px;
+  background: #000; // 视频播放器特殊需求：必须使用黑色背景
+}
+
+// 网格单元容器
+.cellWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+// 播放中的单元格
+.playingCell {
+  position: relative;
+  overflow: hidden;
+  background: #000; // 视频播放器特殊需求：必须使用黑色背景
+  border: 1px solid var(--ant-color-border-secondary);
+  border-radius: 4px;
+}
+
+// 视频头部信息栏
+.videoHeader {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 28px;
+  padding: 0 8px;
+  color: #fff; // 黑色背景上必须使用白色文字
+  font-size: var(--ant-font-size-sm);
+  background: rgba(0, 0, 0, 0.35); // 半透明黑色遮罩，视频播放器特殊需求
+}
+
+.videoTitle {
+  margin-right: 8px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.closeButton {
+  color: #fff; // 黑色背景上必须使用白色图标
+}
+
+// 视频播放器容器
+.playerContainer {
+  width: 100%;
+  height: 100%;
+}
+
+// 空白网格单元
+.emptyCell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--ant-color-text-tertiary);
+  background-color: var(--ant-color-bg-layout);
+  border: 2px dashed var(--ant-color-border);
+  border-radius: 4px;
+  transition: all 0.2s ease;
+
+  // 拖拽悬停状态
+  &.dragOver {
+    background-color: var(--ant-color-primary-bg-hover);
+    border-color: var(--ant-color-primary);
+  }
+}
+
+// 播放图标
+.playIcon {
+  margin-bottom: 8px;
+  color: var(--ant-color-border);
+  font-size: var(--ant-font-size-heading-1);
+  transition: color 0.2s ease;
+
+  // 拖拽悬停时
+  .emptyCell.dragOver & {
+    color: var(--ant-color-primary);
+  }
+}
+
+// 网格标签
+.gridLabel {
+  color: var(--ant-color-text-tertiary);
+  font-size: var(--ant-font-size);
+
+  // 拖拽悬停时
+  .emptyCell.dragOver & {
+    color: var(--ant-color-primary);
+  }
+}
+
+// 提示文本
+.hintText {
+  margin-top: 4px;
+  color: var(--ant-color-text-quaternary);
+  font-size: var(--ant-font-size-sm);
+
+  // 拖拽悬停时
+  .emptyCell.dragOver & {
+    color: var(--ant-color-success);
+  }
+}

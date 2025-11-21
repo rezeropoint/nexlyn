@@ -1,0 +1,137 @@
+syntax = "proto3";
+
+package iotquery;
+option go_package = "github.com/rezeropoint/nexlyn/service/iotquery/pb";
+
+// IoTQuery gRPC服务
+// 提供传感器历史数据查询能力（轻量级，只依赖PostgreSQL和ClickHouse）
+service IoTQuery {
+  // QueryTimeSeries 查询时序数据
+  // 支持原始数据查询和6种聚合类型（avg/max/min/sum/count/last）
+  rpc QueryTimeSeries(QueryTimeSeriesReq) returns (QueryTimeSeriesResp);
+
+  // GetLatestValues 获取设备字段最新值
+  // 用于实时监控和可视化大屏展示
+  rpc GetLatestValues(GetLatestValuesReq) returns (GetLatestValuesResp);
+
+  // GetDeviceStatistics 获取设备统计信息
+  // 计算指定时间范围内的min/max/avg/sum/count等统计指标
+  rpc GetDeviceStatistics(GetDeviceStatisticsReq) returns (GetDeviceStatisticsResp);
+}
+
+// ============================================================================
+// QueryTimeSeries 时序数据查询
+// ============================================================================
+
+// QueryTimeSeriesReq 时序数据查询请求
+message QueryTimeSeriesReq {
+  // 权限信息（由调用方提供，已完成验证）
+  string tenant_id = 1;          // 租户ID（必填）
+  repeated string org_ids = 2;   // 组织ID列表（必填，包含所有子组织）
+
+  // 查询条件
+  repeated string device_ids = 3;   // 设备ID列表（可选，为空则查询组织下所有设备）
+  repeated string field_names = 4;  // 查询字段列表（必填，最多10个）
+  int64 start_time = 5;             // 开始时间（Unix时间戳，秒）
+  int64 end_time = 6;               // 结束时间（Unix时间戳，秒）
+
+  // 聚合选项
+  string aggregation = 7;     // 聚合类型：空/"avg"/"max"/"min"/"sum"/"count"/"last"
+  int64 interval_seconds = 8; // 聚合时间间隔（秒），仅aggregation非空时有效
+
+  // 分页和排序
+  int32 limit = 9;        // 限制返回条数（默认1000，最大10000）
+  int32 offset = 10;      // 偏移量（默认0）
+  string order_by = 11;   // 排序字段："timestamp"/"device_id"
+  string order_dir = 12;  // 排序方向："asc"/"desc"
+}
+
+// QueryTimeSeriesResp 时序数据查询响应
+message QueryTimeSeriesResp {
+  repeated TimeSeriesRecord records = 1; // 数据列表
+  int64 total = 2;                       // 总记录数
+  int32 page = 3;                        // 当前页码
+  int32 page_size = 4;                   // 每页数量
+}
+
+// TimeSeriesRecord 时序数据记录
+message TimeSeriesRecord {
+  int64 timestamp = 1;       // 数据时间戳（Unix时间戳，秒）
+  string device_id = 2;      // 设备唯一标识符
+  string device_model = 3;   // 设备型号
+  string device_category = 4; // 设备类别
+  string field_name = 5;     // 字段名称
+  string value_json = 6;     // 字段值（JSON格式，支持多种类型）
+}
+
+// ============================================================================
+// GetLatestValues 最新值查询
+// ============================================================================
+
+// GetLatestValuesReq 最新值查询请求
+message GetLatestValuesReq {
+  // 权限信息
+  string tenant_id = 1;
+  repeated string org_ids = 2;
+
+  // 查询条件
+  repeated string device_ids = 3;   // 设备ID列表（可选）
+  repeated string field_names = 4;  // 字段列表（必填）
+}
+
+// GetLatestValuesResp 最新值查询响应
+message GetLatestValuesResp {
+  repeated DeviceLatestValues devices = 1;
+}
+
+// DeviceLatestValues 设备最新值
+message DeviceLatestValues {
+  string device_id = 1;                        // 设备ID
+  map<string, FieldValue> fields = 2;          // 字段名 -> 字段值映射
+}
+
+// FieldValue 字段值（包含值和时间戳）
+message FieldValue {
+  string value_json = 1;  // 字段值（JSON格式）
+  int64 timestamp = 2;    // 时间戳（Unix时间戳，秒）
+}
+
+// ============================================================================
+// GetDeviceStatistics 设备统计查询
+// ============================================================================
+
+// GetDeviceStatisticsReq 设备统计查询请求
+message GetDeviceStatisticsReq {
+  // 权限信息
+  string tenant_id = 1;
+  repeated string org_ids = 2;
+
+  // 查询条件
+  repeated string device_ids = 3;   // 设备ID列表（可选）
+  repeated string field_names = 4;  // 字段列表（必填）
+  int64 start_time = 5;             // 开始时间（Unix时间戳，秒）
+  int64 end_time = 6;               // 结束时间（Unix时间戳，秒）
+}
+
+// GetDeviceStatisticsResp 设备统计查询响应
+message GetDeviceStatisticsResp {
+  repeated DeviceStatistics devices = 1;
+}
+
+// DeviceStatistics 设备统计信息
+message DeviceStatistics {
+  string device_id = 1;                          // 设备ID
+  string device_model = 2;                       // 设备型号
+  map<string, FieldStatistics> fields = 3;       // 字段名 -> 统计信息映射
+}
+
+// FieldStatistics 字段统计信息
+message FieldStatistics {
+  double min = 1;         // 最小值
+  double max = 2;         // 最大值
+  double avg = 3;         // 平均值
+  double sum = 4;         // 总和
+  int64 count = 5;        // 数据点数量
+  string last_value = 6;  // 最新值（JSON格式）
+  int64 last_time = 7;    // 最新值时间戳（Unix时间戳，秒）
+}

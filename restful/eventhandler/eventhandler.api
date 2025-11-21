@@ -1,0 +1,220 @@
+syntax = "v1"
+
+import "api/base.api"
+import "api/platform.api"
+import "api/event_config.api"
+import "api/org_mapping.api"
+import "api/event_data.api"
+import "api/event_stats.api"
+import "api/flow_journey.api"
+import "api/user_assignments.api"
+import "api/flow_metadata.api"
+
+info (
+	title:   "Nexlyn 事件管理 API"
+	desc:    "Skylark平台对接、事件配置管理和数据查询接口"
+	author:  "Nexlyn Team"
+	email:   "dev@nexlyn.com"
+	version: "v2.0"
+)
+
+// ===== Skylark平台对接接口组 =====
+@server (
+	prefix: /api/v1
+	jwt:    Auth
+	group:  platform
+)
+service EventHandler {
+	@doc "获取Skylark平台配置"
+	@handler getPlatformConfig
+	get /skylark-platform/config (GetPlatformConfigRequest) returns (GetPlatformConfigResponse)
+
+	@doc "创建/更新Skylark平台配置"
+	@handler savePlatformConfig
+	post /skylark-platform/config (SavePlatformConfigRequest) returns (SavePlatformConfigResponse)
+
+	@doc "测试Skylark平台连接"
+	@handler testPlatformConnection
+	post /skylark-platform/test-connection (TestPlatformConnectionRequest) returns (TestPlatformConnectionResponse)
+
+	@doc "获取流程列表"
+	@handler getFlowList
+	get /skylark-platform/flows (GetFlowListRequest) returns (GetFlowListResponse)
+
+	@doc "获取流程字段列表"
+	@handler getFlowFields
+	get /skylark-platform/flows/:flowId/fields (GetFlowFieldsRequest) returns (GetFlowFieldsResponse)
+}
+
+// ===== 事件配置管理接口组（聚合接口） =====
+@server (
+	prefix: /api/v1
+	jwt:    Auth
+	group:  eventconfig
+)
+service EventHandler {
+	@doc "创建事件配置（包含字段，事务保证）"
+	@handler createEventConfigWithFields
+	post /event-configs (CreateEventConfigWithFieldsRequest) returns (CreateEventConfigWithFieldsResponse)
+
+	@doc "更新事件配置（包含字段，完整替换策略）"
+	@handler updateEventConfigWithFields
+	put /event-configs/:id (UpdateEventConfigWithFieldsRequest) returns (UpdateEventConfigWithFieldsResponse)
+
+	@doc "获取事件配置详情（包含字段）"
+	@handler getEventConfigWithFields
+	get /event-configs/:id (GetEventConfigWithFieldsRequest) returns (GetEventConfigWithFieldsResponse)
+
+	@doc "获取事件配置列表（包含字段）"
+	@handler getEventConfigListWithFields
+	get /event-configs/list (GetEventConfigListWithFieldsRequest) returns (GetEventConfigListWithFieldsResponse)
+
+	@doc "删除事件配置"
+	@handler deleteEventConfig
+	delete /event-configs/:id (DeleteEventConfigRequest) returns (DeleteEventConfigResponse)
+}
+
+// ===== 组织映射管理接口组（租户级别全局配置） =====
+@server (
+	prefix: /api/v1
+	jwt:    Auth
+	group:  orgmapping
+)
+service EventHandler {
+	@doc "创建组织映射（租户级别）"
+	@handler createOrgMapping
+	post /org-mappings (CreateOrgMappingRequest) returns (CreateOrgMappingResponse)
+
+	@doc "获取组织映射列表（租户的所有映射）"
+	@handler getOrgMappingList
+	get /org-mappings/list (GetOrgMappingListRequest) returns (GetOrgMappingListResponse)
+
+	@doc "获取单个组织映射"
+	@handler getOrgMapping
+	get /org-mappings/:id (GetOrgMappingRequest) returns (GetOrgMappingResponse)
+
+	@doc "更新组织映射"
+	@handler updateOrgMapping
+	put /org-mappings/:id (UpdateOrgMappingRequest) returns (UpdateOrgMappingResponse)
+
+	@doc "删除组织映射"
+	@handler deleteOrgMapping
+	delete /org-mappings/:id (DeleteOrgMappingRequest) returns (DeleteOrgMappingResponse)
+}
+
+// ===== 事件数据查询接口组 =====
+@server (
+	prefix: /api/v1
+	jwt:    Auth
+	group:  eventdata
+)
+service EventHandler {
+	@doc "查询事件数据列表（动态字段，Journey聚合，返回最新Assignment）"
+	@handler queryEventData
+	post /events/:eventId/data/query (QueryEventDataRequest) returns (QueryEventDataResponse)
+
+	@doc "获取事件详情（Journey的所有Assignment，用于详情页展示流转历史）"
+	@handler getEventDetail
+	get /events/:eventId/data/:journeyId (GetEventDetailRequest) returns (GetEventDetailResponse)
+}
+
+// ===== 事件统计分析接口组 =====
+@server (
+	prefix: /api/v1
+	jwt:    Auth
+	group:  eventstats
+)
+service EventHandler {
+	@doc "获取处理时长统计"
+	@handler getDurationStats
+	get /events/stats/duration (GetDurationStatsRequest) returns (GetDurationStatsResponse)
+
+	@doc "获取状态统计"
+	@handler getStatusStats
+	get /events/stats/status (GetStatusStatsRequest) returns (GetStatusStatsResponse)
+
+	@doc "获取趋势统计"
+	@handler getTrendStats
+	get /events/stats/trend (GetTrendStatsRequest) returns (GetTrendStatsResponse)
+
+	@doc "获取节点统计"
+	@handler getNodeStats
+	get /events/stats/node (GetNodeStatsRequest) returns (GetNodeStatsResponse)
+
+	@doc "获取处理人统计"
+	@handler getUserStats
+	get /events/stats/user (GetUserStatsRequest) returns (GetUserStatsResponse)
+
+	@doc "获取组织统计"
+	@handler getOrgStats
+	get /events/stats/org (GetOrgStatsRequest) returns (GetOrgStatsResponse)
+
+	@doc "获取待处理事件统计"
+	@handler getPendingStats
+	get /events/stats/pending (GetPendingStatsRequest) returns (GetPendingStatsResponse)
+}
+
+// ===== 流程Journey操作接口组 =====
+@server (
+	prefix: /api/v1
+	jwt:    Auth
+	group:  flowjourney
+)
+service EventHandler {
+	@doc "终止流程"
+	@handler abortJourney
+	delete /flows/:flowId/journeys/:journeyId (AbortJourneyRequest) returns (AbortJourneyResponse)
+
+	@doc "根据流程编号查询"
+	@handler getFlowJourneyBySN
+	get /flows/:flowId/journeys/search-by-sn (GetFlowJourneyBySNRequest) returns (GetFlowJourneyBySNResponse)
+
+	@doc "获取流程详情"
+	@handler getFlowJourneyDetail
+	get /flows/:flowId/journeys/:journeyId/detail (GetFlowJourneyDetailRequest) returns (GetFlowJourneyDetailResponse)
+
+	@doc "获取审批历史时间线"
+	@handler getJourneyMoments
+	get /flows/:flowId/journeys/:journeyId/moments (GetJourneyMomentsRequest) returns (GetJourneyMomentsResponse)
+
+	@doc "获取当前处理人"
+	@handler getCurrentProcessingUsers
+	get /flows/:flowId/journeys/:journeyId/processing-users (GetCurrentProcessingUsersRequest) returns (GetCurrentProcessingUsersResponse)
+
+	@doc "高级搜索流程记录"
+	@handler searchJourneys
+	post /flows/:flowId/journeys/search (SearchJourneysRequest) returns (SearchJourneysResponse)
+
+	@doc "更新流程Journey状态（审批操作：通过/回退/转交/撤销）"
+	@handler updateFlowJourneyStatus
+	post /flows/:flowId/journeys/:journeyId/actions (UpdateFlowJourneyStatusRequest) returns (UpdateFlowJourneyStatusResponse)
+}
+
+// ===== 用户任务接口组 =====
+@server (
+	prefix: /api/v1
+	jwt:    Auth
+	group:  userassignments
+)
+service EventHandler {
+	@doc "获取用户任务列表（待办、已处理、抄送）"
+	@handler getUserAssignments
+	get /my-assignments (GetUserAssignmentsRequest) returns (GetUserAssignmentsResponse)
+
+	@doc "获取用户发起的流程"
+	@handler getProposedJourneys
+	get /my-proposed-journeys (GetProposedJourneysRequest) returns (GetProposedJourneysResponse)
+}
+
+// ===== 流程元数据接口组 =====
+@server (
+	prefix: /api/v1
+	jwt:    Auth
+	group:  flowmetadata
+)
+service EventHandler {
+	@doc "获取流程元数据（字段、节点、边）"
+	@handler getFlowDetail
+	get /flows/:flowId/detail (GetFlowDetailRequest) returns (GetFlowDetailResponse)
+}
+

@@ -1,0 +1,146 @@
+syntax = "v1"
+
+// ===== Tenant 共用类型定义（对齐 JWTUser 命名） =====
+type (
+	// 租户实体
+	Tenant {
+		Id           string   `json:"id"` // 租户UUID（内部标识）
+		TenantKey    string   `json:"tenantKey"` // 租户唯一标识符（业务标识）
+		TenantName   string   `json:"tenantName"` // 租户名称
+		Description  string   `json:"description"` // 描述
+		Tags         []string `json:"tags"` // 标签（通过关联查询）
+		ContactEmail string   `json:"contactEmail"` // 联系邮箱
+		Status       string   `json:"status"` // 状态：active/inactive/deleted
+		CreatedAt    string   `json:"createdAt"` // 创建时间（ISO 8601）
+		UpdatedAt    string   `json:"updatedAt"` // 更新时间（ISO 8601）
+		ExpiresAt    string   `json:"expiresAt"` // 过期时间（ISO 8601）
+		CreatedBy    string   `json:"createdBy"` // 创建者用户ID
+		UpdatedBy    string   `json:"updatedBy"` // 最后修改者用户ID
+		MaxUsers     int      `json:"maxUsers"` // 用户数量限制
+	}
+)
+
+// ===== 路径参数相关类型 =====
+type (
+	// Tenant Key 路径参数（使用 tenantKey 作为业务标识）
+	TenantIdPathRequest {
+		Id string `path:"id"` // 租户唯一标识符
+	}
+)
+
+// ===== Tenant 管理相关类型 =====
+type (
+	// 租户选项（用于下拉框等）
+	TenantOption {
+		TenantKey  string `json:"tenantKey"` // 租户业务标识符
+		TenantId   string `json:"tenantId"` // 租户UUID
+		TenantName string `json:"tenantName"` // 租户名称
+		Status     string `json:"status"` // 状态
+	}
+	// 获取租户选项请求
+	GetTenantOptionsRequest {
+		Keyword string `form:"keyword,optional"` // 关键字搜索（租户名称）
+		Limit   int64  `form:"limit,optional"` // 限制数量（默认20）
+		Status  string `form:"status,optional"` // 状态过滤
+	}
+	// 获取租户选项响应
+	GetTenantOptionsResponse {
+		BaseResponse // 基础响应
+		Data {
+			List []TenantOption `json:"list"` // 租户选项列表
+		} `json:"data,omitempty"`
+	}
+	// 获取租户请求
+	GetTenantRequest {
+		TenantIdPathRequest // 路径参数
+	}
+	// 获取租户响应
+	GetTenantResponse {
+		BaseResponse // 基础响应
+		Data Tenant `json:"data,omitempty"` // 租户数据
+	}
+	// 租户列表查询请求
+	GetTenantListRequest {
+		PageParamsRequest // 分页请求参数
+		// 过滤条件
+		Id  string   `form:"id,optional" db:"id"` // 租户UUID
+		TenantKey  string   `form:"tenantKey,optional" db:"tenant_key"` // 租户唯一标识符
+		TenantName string   `form:"tenantName,optional" db:"tenant_name"` // 名称模糊查询
+		Status     string   `form:"status,optional" db:"status"` // 状态过滤（字符串类型）
+		Tags       []string `form:"tags,optional" "` // 多标签过滤（包含任一）
+	}
+	// 租户列表数据
+	TenantListData {
+		List []Tenant `json:"list"` // 租户列表
+	}
+	// 租户列表响应
+	GetTenantListResponse {
+		BaseResponse // 基础响应
+		PageParams // 分页参数
+		Data TenantListData `json:"data,omitempty"` // 列表数据
+	}
+	// 创建租户请求
+	CreateTenantRequest {
+		TenantKey    string   `json:"tenantKey"` // 租户唯一标识符
+		TenantName   string   `json:"tenantName"` // 租户名称（必填）
+		Description  string   `json:"description,optional"` // 描述
+		Tags         []string `json:"tags,optional"` // 标签
+		ContactEmail string   `json:"contactEmail,optional"` // 联系邮箱
+		Status       string   `json:"status,optional"` // 初始状态（默认active）
+		MaxUsers     int      `json:"maxUsers,optional"` // 用户数量限制（默认100）
+		ExpiresAt    string   `json:"expiresAt,optional"` // 过期时间（ISO 8601）
+		
+		// 管理员用户创建参数
+		AdminUserName string `json:"adminUserName,optional"` // 管理员用户名（默认admin）
+		AdminName     string `json:"adminName,optional"`     // 管理员显示名称
+		AdminEmail    string `json:"adminEmail,optional"`    // 管理员邮箱
+		AdminPassword string `json:"adminPassword,optional"` // 管理员密码（可选，不提供则生成随机密码）
+		AdminRoleKey  string `json:"adminRoleKey"`           // 管理员角色（必填，必须是不包含租户管理权限的角色）
+	}
+	// 创建租户响应
+	CreateTenantResponse {
+		BaseResponse // 基础响应
+		Data {
+			TenantKey  string `json:"tenantKey"` // 租户业务标识符
+			TenantId   string `json:"tenantId"` // 租户UUID
+			TenantName string `json:"tenantName"` // 租户名称
+			
+			// 管理员用户信息
+			AdminUserKey  string `json:"adminUserKey,omitempty"`  // 管理员用户Key
+			AdminUserName string `json:"adminUserName,omitempty"` // 管理员用户名
+			AdminPassword string `json:"adminPassword,omitempty"` // 管理员初始密码（如果是生成的）
+		} `json:"data,omitempty"`
+	}
+	// 更新租户请求
+	UpdateTenantRequest {
+		TenantIdPathRequest // 路径参数
+		TenantName   string   `json:"tenantName,optional"` // 租户名称
+		Description  string   `json:"description,optional"` // 描述
+		Tags         []string `json:"tags,optional"` // 标签
+		ContactEmail string   `json:"contactEmail,optional"` // 联系邮箱
+		MaxUsers     int      `json:"maxUsers,optional"` // 用户数量限制
+		ExpiresAt    string   `json:"expiresAt,optional"` // 过期时间（ISO 8601）
+	}
+	// 更新租户响应
+	UpdateTenantResponse {
+		BaseResponse // 基础响应
+	}
+	// 更新租户状态请求
+	UpdateTenantStatusRequest {
+		TenantIdPathRequest // 路径参数
+		Status string `json:"status"` // 状态：active/inactive/deleted
+	}
+	// 更新租户状态响应
+	UpdateTenantStatusResponse {
+		BaseResponse // 基础响应
+	}
+	// 删除租户请求
+	DeleteTenantRequest {
+		TenantIdPathRequest // 路径参数
+	}
+	// 删除租户响应
+	DeleteTenantResponse {
+		BaseResponse // 基础响应
+	}
+)
+

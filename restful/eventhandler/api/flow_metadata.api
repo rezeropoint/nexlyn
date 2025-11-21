@@ -1,0 +1,50 @@
+syntax = "v1"
+
+// ===== 表单和流程元数据相关类型定义 =====
+
+type (
+	// FlowField 流程字段
+	FlowField {
+		Name        string `json:"name"`                // 字段名
+		Title       string `json:"title"`               // 字段标题
+		Type        string `json:"type"`                // 字段类型：TextField/NumberField/DateField等
+		Required    bool   `json:"required"`            // 是否必填
+		Description string `json:"description,optional"` // 字段描述
+	}
+
+	// FlowVertex 流程节点
+	FlowVertex {
+		Id          int64  `json:"id"`                  // 节点ID
+		Title       string `json:"title"`               // 节点标题
+		Type        string `json:"type"`                // 节点类型：start/end/approve/cc等
+		Description string `json:"description,optional"` // 节点描述
+	}
+
+	// FlowEdge 流程边
+	FlowEdge {
+		Id           int64  `json:"id"`                  // 边ID
+		SourceVertex int64  `json:"sourceVertex"`        // 源节点ID
+		TargetVertex int64  `json:"targetVertex"`        // 目标节点ID
+		Condition    string `json:"condition,optional"`  // 条件表达式
+	}
+
+	// FlowDetailData 流程元数据
+	FlowDetailData {
+		Id       int64        `json:"id"`       // 流程ID
+		Title    string       `json:"title"`    // 流程标题
+		Fields   []FlowField  `json:"fields"`   // 字段列表
+		Vertices []FlowVertex `json:"vertices"` // 节点列表
+		Edges    []FlowEdge   `json:"edges"`    // 边列表
+	}
+
+	// 获取流程元数据请求
+	GetFlowDetailRequest {
+		FlowId int64 `path:"flowId"` // 流程ID
+	}
+
+	// 获取流程元数据响应
+	GetFlowDetailResponse {
+		BaseResponse
+		Data FlowDetailData `json:"data"`
+	}
+)

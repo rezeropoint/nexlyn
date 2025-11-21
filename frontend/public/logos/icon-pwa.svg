@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- PWA应用图标 - 简化版本，适合转换为PNG -->
+
+  <!-- 圆形背景 -->
+  <circle cx="256" cy="256" r="256" fill="#1890ff"/>
+
+  <!-- 逻辑节点网络 - 放大版本 -->
+  <g stroke="#ffffff" stroke-width="12" fill="none">
+    <!-- 连接线 -->
+    <path d="M 140 200 L 256 140 L 372 200" stroke-linecap="round"/>
+    <path d="M 256 140 L 256 256" stroke-linecap="round"/>
+    <path d="M 140 200 L 170 320" stroke-linecap="round"/>
+    <path d="M 372 200 L 342 320" stroke-linecap="round"/>
+    <path d="M 170 320 L 256 372 L 342 320" stroke-linecap="round"/>
+  </g>
+
+  <!-- 节点 - 白色加彩色 -->
+  <circle cx="256" cy="140" r="28" fill="#ffffff"/>
+  <circle cx="140" cy="200" r="22" fill="#52c41a"/>
+  <circle cx="372" cy="200" r="22" fill="#52c41a"/>
+  <circle cx="256" cy="256" r="22" fill="#faad14"/>
+  <circle cx="170" cy="320" r="22" fill="#52c41a"/>
+  <circle cx="342" cy="320" r="22" fill="#52c41a"/>
+  <circle cx="256" cy="372" r="28" fill="#ffffff"/>
+</svg>

@@ -1,0 +1,106 @@
+syntax = "v1"
+
+// ===== 时序数据查询请求/响应定义 =====
+
+// QueryTimeSeriesRequest 时序数据查询请求
+type QueryTimeSeriesRequest {
+	// 基础过滤条件
+	OrgId      string   `json:"orgId"`                // 组织ID（必填，REST层将查询其所有子组织）
+	DeviceIds  []string `json:"deviceIds,optional"`   // 设备ID列表（可选，在组织范围内进一步过滤）
+	FieldNames []string `json:"fieldNames"`           // 查询字段列表（必填）
+	StartTime  string   `json:"startTime"`            // 开始时间（ISO8601格式，如"2024-01-01T00:00:00Z"）
+	EndTime    string   `json:"endTime"`              // 结束时间（ISO8601格式）
+
+	// 聚合选项
+	Aggregation string `json:"aggregation,optional,options=avg|max|min|sum|count|last"` // 聚合类型（空表示原始数据）
+	Interval    int64  `json:"interval,optional"`                                        // 聚合时间间隔（秒），仅在Aggregation非空时有效
+
+	// 分页和排序
+	Limit    int64  `json:"limit,optional,range=[1:10000]"`                        // 限制返回条数（默认1000）
+	Offset   int64  `json:"offset,optional,range=[0:]"`                            // 偏移量（默认0）
+	OrderBy  string `json:"orderBy,optional,options=timestamp|device_id"`          // 排序字段（默认timestamp）
+	OrderDir string `json:"orderDir,optional,options=asc|desc|ASC|DESC,default=asc"` // 排序方向（默认asc）
+}
+
+// TimeSeriesDataItem 时序数据项
+type TimeSeriesDataItem {
+	Timestamp      string      `json:"timestamp"`      // 数据时间戳
+	DeviceId       string      `json:"deviceId"`       // 设备唯一标识符
+	DeviceModel    string      `json:"deviceModel"`    // 设备型号
+	DeviceCategory string      `json:"deviceCategory"` // 设备类别
+	FieldName      string      `json:"fieldName"`      // 字段名称
+	Value          interface{} `json:"value"`          // 字段值
+}
+
+// QueryTimeSeriesResponse 时序数据查询响应
+type QueryTimeSeriesResponse {
+	BaseResponse
+	Data {
+		List     []TimeSeriesDataItem `json:"list"`     // 数据列表
+		Total    int64                `json:"total"`    // 总记录数
+		Page     int64                `json:"page"`     // 当前页码
+		PageSize int64                `json:"pageSize"` // 每页数量
+	} `json:"data"`
+}
+
+// ===== 最新值查询请求/响应定义 =====
+
+// GetLatestValuesRequest 最新值查询请求
+type GetLatestValuesRequest {
+	OrgId      string   `json:"orgId"`              // 组织ID（必填）
+	DeviceIds  []string `json:"deviceIds,optional"` // 设备ID列表（可选）
+	FieldNames []string `json:"fieldNames"`         // 字段列表（必填）
+}
+
+// FieldValue 字段值和时间戳
+type FieldValue {
+	Value     interface{} `json:"value"`     // 字段值
+	Timestamp string      `json:"timestamp"` // 时间戳
+}
+
+// DeviceLatestValuesItem 设备最新值
+type DeviceLatestValuesItem {
+	DeviceId string                `json:"deviceId"` // 设备ID
+	Fields   map[string]FieldValue `json:"fields"`   // 字段名->字段值映射
+}
+
+// GetLatestValuesResponse 最新值查询响应
+type GetLatestValuesResponse {
+	BaseResponse
+	Data []DeviceLatestValuesItem `json:"data"`
+}
+
+// ===== 设备统计查询请求/响应定义 =====
+
+// GetDeviceStatisticsRequest 设备统计查询请求
+type GetDeviceStatisticsRequest {
+	OrgId      string   `json:"orgId"`              // 组织ID（必填）
+	DeviceIds  []string `json:"deviceIds,optional"` // 设备ID列表（可选）
+	FieldNames []string `json:"fieldNames"`         // 字段列表（必填）
+	StartTime  string   `json:"startTime"`          // 开始时间（ISO8601格式）
+	EndTime    string   `json:"endTime"`            // 结束时间（ISO8601格式）
+}
+
+// FieldStatItem 字段统计信息
+type FieldStatItem {
+	Min       float64     `json:"min"`       // 最小值
+	Max       float64     `json:"max"`       // 最大值
+	Avg       float64     `json:"avg"`       // 平均值
+	Sum       float64     `json:"sum"`       // 总和
+	Count     int64       `json:"count"`     // 数据点数量
+	LastValue interface{} `json:"lastValue"` // 最新值
+	LastTime  string      `json:"lastTime"`  // 最新值时间戳
+}
+
+// DeviceStatisticsItem 设备统计数据
+type DeviceStatisticsItem {
+	DeviceId    string                   `json:"deviceId"`    // 设备ID
+	DeviceModel string                   `json:"deviceModel"` // 设备型号
+	Fields      map[string]FieldStatItem `json:"fields"`      // 字段名->统计信息映射
+}
+
+// GetDeviceStatisticsResponse 设备统计查询响应
+type GetDeviceStatisticsResponse {
+	BaseResponse
+	Data []DeviceStatisticsItem `json:"data"`
+}

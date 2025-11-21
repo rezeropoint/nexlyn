@@ -1,0 +1,32 @@
+// Code scaffolded by goctl. Safe to edit.
+// goctl 1.9.2
+
+package flowjourney
+
+import (
+	"net/http"
+
+	"github.com/rezeropoint/nexlyn/restful/eventhandler/internal/logic/flowjourney"
+	"github.com/rezeropoint/nexlyn/restful/eventhandler/internal/svc"
+	"github.com/rezeropoint/nexlyn/restful/eventhandler/internal/types"
+	"github.com/zeromicro/go-zero/rest/httpx"
+)
+
+// 获取审批历史时间线
+func GetJourneyMomentsHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var req types.GetJourneyMomentsRequest
+		if err := httpx.Parse(r, &req); err != nil {
+			httpx.ErrorCtx(r.Context(), w, err)
+			return
+		}
+
+		l := flowjourney.NewGetJourneyMomentsLogic(r.Context(), svcCtx)
+		resp, err := l.GetJourneyMoments(&req)
+		if err != nil {
+			httpx.ErrorCtx(r.Context(), w, err)
+		} else {
+			httpx.OkJsonCtx(r.Context(), w, resp)
+		}
+	}
+}

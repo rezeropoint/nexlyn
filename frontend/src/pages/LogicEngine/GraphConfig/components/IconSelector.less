@@ -1,0 +1,70 @@
+// 图标选择器样式
+.iconSelector {
+  width: 100%;
+  max-height: 500px;
+  display: flex;
+  flex-direction: column;
+
+  :global {
+    .ant-tabs-content {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+  }
+}
+
+.searchBar {
+  margin-bottom: 16px;
+}
+
+.iconGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.iconItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover .iconBox {
+    transform: scale(1.1);
+    border-color: var(--ant-color-primary);
+    background: var(--ant-color-primary-bg);
+  }
+}
+
+.iconBox {
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  transition: all 0.2s;
+  background: var(--ant-color-fill-quaternary);
+}
+
+.iconLabel {
+  font-size: 12px;
+  color: var(--ant-color-text-secondary);
+  text-align: center;
+  word-break: break-word;
+  line-height: 1.2;
+}
+
+.selected .iconBox {
+  border-color: var(--ant-color-primary);
+  background: var(--ant-color-primary-bg);
+}
+
+.selected .iconLabel {
+  color: var(--ant-color-primary);
+  font-weight: 500;
+}

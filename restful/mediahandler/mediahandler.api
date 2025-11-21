@@ -1,0 +1,12 @@
+syntax = "v1"
+
+// ===== 独立登录接口 =====
+@server (
+	prefix: /api/v1
+	group:  ping
+)
+service Backend {
+	@handler ping
+	get /ping
+}
+

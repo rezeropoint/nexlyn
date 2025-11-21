@@ -1,0 +1,50 @@
+.graph-canvas {
+  width: 100%;
+  height: 100%;
+  max-width: 100%; // 防止宽度溢出
+  max-height: 100%; // 防止高度溢出
+  background-color: var(--ant-color-bg-layout);
+  border: 1px solid var(--ant-color-border);
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden; // 隐藏X6画布溢出产生的滚动条
+  box-sizing: border-box; // 确保边框包含在尺寸内
+
+  // X6 画布样式
+  :global {
+    // X6 内部容器禁用滚动
+    .x6-graph {
+      overflow: hidden !important;
+    }
+
+    .x6-graph-svg {
+      background-color: var(--ant-color-bg-layout);
+      overflow: visible; // SVG允许内容溢出显示，但容器会裁剪
+    }
+
+    .x6-node-selected rect {
+      stroke: var(--ant-color-primary) !important;
+      stroke-width: 3 !important;
+      filter: drop-shadow(0 0 6px var(--ant-color-primary));
+    }
+
+    .x6-edge-selected path {
+      stroke: var(--ant-color-primary) !important;
+      stroke-width: 3 !important;
+    }
+
+    .x6-selection-box {
+      border: 2px dashed var(--ant-color-primary);
+      background-color: var(--ant-color-primary-bg-hover); // 修复硬编码颜色
+    }
+
+    .x6-widget-selection-box {
+      border: 2px dashed var(--ant-color-primary);
+    }
+
+    .x6-widget-snapline {
+      stroke: var(--ant-color-primary);
+      stroke-dasharray: 5, 5;
+    }
+  }
+}

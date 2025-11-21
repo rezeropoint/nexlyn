@@ -1,0 +1,329 @@
+syntax = "v1"
+
+import "api/base.api"
+import "api/auth.api"
+import "api/user.api"
+import "api/infoatom.api"
+import "api/graph.api"
+import "api/block.api"
+import "api/tenant.api"
+import "api/tags.api"
+import "api/permission.api"
+import "api/organization.api"
+import "api/sync.api"
+
+info (
+	title:   "Nexlyn 后端管理 API"
+	desc:    "Nexlyn 项目用户管理、认证、租户管理、信息原子类型管理、图配置管理和逻辑块管理接口"
+	author:  "Nexlyn Team"
+	email:   "dev@nexlyn.com"
+	version: "v1.0"
+)
+
+// ===== 独立登录接口 =====
+@server (
+	prefix: /api/v1
+	group:  auth
+)
+service Backend {
+	@doc "用户登录"
+	@handler login
+	post /auth/login (LoginRequest) returns (LoginResponse)
+}
+
+// ===== 用户管理接口组 =====
+@server (
+	prefix: /api/v1
+	jwt:    Auth
+	group:  user
+)
+service Backend {
+	@doc "获取当前用户信息"
+	@handler getCurrentUser
+	get /user/current returns (GetCurrentUserResponse)
+
+	@doc "获取用户选项列表（下拉框用）"
+	@handler getUserOptions
+	get /user/options (GetUserOptionsRequest) returns (GetUserOptionsResponse)
+
+	@doc "获取用户列表"
+	@handler getUserList
+	get /user/list (GetUserListRequest) returns (GetUserListResponse)
+
+	@doc "根据ID获取用户详情"
+	@handler getUserById
+	get /user/:id (GetUserByIdRequest) returns (GetUserByIdResponse)
+
+	@doc "创建新用户"
+	@handler createUser
+	post /user (CreateUserRequest) returns (CreateUserResponse)
+
+	@doc "更新用户信息"
+	@handler updateUser
+	put /user/:id (UpdateUserRequest) returns (UpdateUserResponse)
+
+	@doc "删除用户"
+	@handler deleteUser
+	delete /user/:id (DeleteUserRequest) returns (DeleteUserResponse)
+
+	@doc "重置用户密码(仅限管理员,需要user:write权限;用户修改自己密码请使用changePassword接口)"
+	@handler resetUserPassword
+	post /user/:id/reset-password (ResetPasswordRequest) returns (ResetPasswordResponse)
+
+	@doc "更新用户状态"
+	@handler updateUserStatus
+	post /user/:id/status (UpdateUserStatusRequest) returns (UpdateUserStatusResponse)
+
+	@doc "上传用户头像"
+	@handler uploadAvatar
+	post /user/avatar/upload returns (UploadAvatarResponse)
+
+	@doc "修改当前用户密码"
+	@handler changePassword
+	post /user/password/change (ChangePasswordRequest) returns (ChangePasswordResponse)
+
+	@doc "更新当前用户信息(用户修改自己的资料,无需user:write权限)"
+	@handler updateCurrentUser
+	post /user/current/profile (UpdateCurrentUserRequest) returns (UpdateCurrentUserResponse)
+}
+
+// ===== 租户管理接口组 =====
+@server (
+	prefix: /api/v1
+	jwt:    Auth
+	group:  tenant
+)
+service Backend {
+	@doc "获取租户详情"
+	@handler getTenant
+	get /tenant/:id (GetTenantRequest) returns (GetTenantResponse)
+
+	@doc "获取租户选项列表（下拉框用）"
+	@handler getTenantOptions
+	get /tenant/options (GetTenantOptionsRequest) returns (GetTenantOptionsResponse)
+
+	@doc "获取租户列表"
+	@handler getTenantList
+	get /tenant/list (GetTenantListRequest) returns (GetTenantListResponse)
+
+	@doc "创建租户"
+	@handler createTenant
+	post /tenant (CreateTenantRequest) returns (CreateTenantResponse)
+
+	@doc "更新租户信息"
+	@handler updateTenant
+	put /tenant/:id (UpdateTenantRequest) returns (UpdateTenantResponse)
+
+	@doc "更新租户状态"
+	@handler updateTenantStatus
+	post /tenant/:id/status (UpdateTenantStatusRequest) returns (UpdateTenantStatusResponse)
+
+	@doc "删除租户"
+	@handler deleteTenant
+	delete /tenant/:id (DeleteTenantRequest) returns (DeleteTenantResponse)
+}
+
+// ===== 标签接口组（区分用户与租户，提供增删改查与下拉） =====
+@server (
+	prefix: /api/v1
+	jwt:    Auth
+	group:  tags
+)
+service Backend {
+	@doc "创建标签"
+	@handler createTag
+	post /tags (CreateTagRequest) returns (CreateTagResponse)
+
+	@doc "更新标签"
+	@handler updateTag
+	put /tags/:id (UpdateTagRequest) returns (UpdateTagResponse)
+
+	@doc "删除标签"
+	@handler deleteTag
+	delete /tags/:id (DeleteTagRequest) returns (DeleteTagResponse)
+
+	@doc "获取标签详情"
+	@handler getTag
+	get /tags/:id (GetTagRequest) returns (GetTagResponse)
+
+	@doc "获取标签列表"
+	@handler getTagList
+	get /tags/list (GetTagListRequest) returns (GetTagListResponse)
+
+	@doc "获取标签下拉选项"
+	@handler getTagOptions
+	get /tags/options (GetTagOptionsRequest) returns (GetTagOptionsResponse)
+}
+
+// ===== 权限管理接口组 =====
+@server (
+	prefix: /api/v1
+	jwt:    Auth
+	group:  permission
+)
+service Backend {
+	@doc "添加权限规则"
+	@handler addPermission
+	post /permission/add (AddPermissionRequest) returns (AddPermissionResponse)
+
+	@doc "移除权限规则"
+	@handler removePermission
+	delete /permission/remove (RemovePermissionRequest) returns (RemovePermissionResponse)
+
+	@doc "为用户添加角色"
+	@handler addRoleForUser
+	post /permission/role/add (AddRoleRequest) returns (AddRoleForUserResponse)
+
+	@doc "为用户移除角色"
+	@handler removeRoleForUser
+	delete /permission/role/remove (RemoveRoleRequest) returns (RemoveRoleForUserResponse)
+
+	@doc "检查用户权限"
+	@handler checkPermission
+	post /permission/check (CheckPermissionRequest) returns (CheckPermissionResponse)
+
+	@doc "获取当前用户权限"
+	@handler getCurrentUserPermissions
+	get /permission/current returns (GetUserPermissionsResponse)
+
+	@doc "获取权限规则列表"
+	@handler getPermissionRules
+	get /permission/rules (GetPermissionRulesRequest) returns (GetPermissionRulesResponse)
+
+	@doc "创建角色"
+	@handler createRole
+	post /permission/role (CreateRoleRequest) returns (CreateRoleResponse)
+
+	@doc "更新角色"
+	@handler updateRole
+	put /permission/role/:roleKey (UpdateRoleRequest) returns (UpdateRoleResponse)
+
+	@doc "删除角色"
+	@handler deleteRole
+	delete /permission/role/:roleKey (DeleteRoleRequest) returns (DeleteRoleResponse)
+
+	@doc "获取角色列表"
+	@handler getRoleList
+	get /permission/role/list (GetRoleListRequest) returns (GetRoleListResponse)
+
+	@doc "获取角色详情"
+	@handler getRole
+	get /permission/role/:roleKey (GetRoleRequest) returns (GetRoleResponse)
+
+	@doc "为角色添加权限"
+	@handler addRolePermission
+	post /permission/role/permission/add (AddRolePermissionRequest) returns (AddRolePermissionResponse)
+
+	@doc "为角色移除权限"
+	@handler removeRolePermission
+	delete /permission/role/permission/remove (RemoveRolePermissionRequest) returns (RemoveRolePermissionResponse)
+
+	@doc "获取可用权限列表"
+	@handler getAvailablePermissions
+	get /permission/available returns (GetAvailablePermissionsResponse)
+}
+
+// ===== 组织管理接口组 =====
+@server (
+	prefix: /api/v1
+	jwt:    Auth
+	group:  organization
+)
+service Backend {
+	@doc "获取组织树"
+	@handler getOrganizationTree
+	get /organization/tree (GetOrganizationTreeRequest) returns (GetOrganizationTreeResponse)
+
+	@doc "获取组织详情"
+	@handler getOrganization
+	get /organization/:id (GetOrganizationRequest) returns (GetOrganizationResponse)
+
+	@doc "获取组织列表"
+	@handler getOrganizationList
+	get /organization/list (GetOrganizationListRequest) returns (GetOrganizationListResponse)
+
+	@doc "获取组织下拉选项"
+	@handler getOrganizationOptions
+	get /organization/options (GetOrganizationOptionsRequest) returns (GetOrganizationOptionsResponse)
+
+	@doc "创建组织"
+	@handler createOrganization
+	post /organization (CreateOrganizationRequest) returns (CreateOrganizationResponse)
+
+	@doc "更新组织"
+	@handler updateOrganization
+	put /organization/:id (UpdateOrganizationRequest) returns (UpdateOrganizationResponse)
+
+	@doc "删除组织"
+	@handler deleteOrganization
+	delete /organization/:id (DeleteOrganizationRequest) returns (DeleteOrganizationResponse)
+
+	@doc "移动组织"
+	@handler moveOrganization
+	post /organization/:id/move (MoveOrganizationRequest) returns (MoveOrganizationResponse)
+
+	@doc "获取组织成员"
+	@handler getOrganizationMembers
+	get /organization/:id/members (GetOrganizationMembersRequest) returns (GetOrganizationMembersResponse)
+
+	@doc "添加组织成员"
+	@handler addOrganizationMember
+	post /organization/:id/members (AddOrganizationMemberRequest) returns (AddOrganizationMemberResponse)
+
+	@doc "移除组织成员"
+	@handler removeOrganizationMember
+	delete /organization/:orgId/members/:userId (RemoveOrganizationMemberRequest) returns (RemoveOrganizationMemberResponse)
+
+	@doc "更新成员关系"
+	@handler updateOrganizationMember
+	put /organization/:orgId/members/:userId (UpdateOrganizationMemberRequest) returns (UpdateOrganizationMemberResponse)
+
+	@doc "获取用户所属组织"
+	@handler getUserOrganizations
+	get /user/:id/organizations (GetUserOrganizationsRequest) returns (GetUserOrganizationsResponse)
+}
+
+// ===== Skylark 数据同步接口组 =====
+@server (
+	prefix: /api/v1
+	jwt:    Auth
+	group:  sync
+)
+service Backend {
+	@doc "同步单个用户到Skylark"
+	@handler syncUser
+	post /sync/user/:id (SyncUserRequest) returns (SyncUserResponse)
+
+	@doc "查询用户同步状态"
+	@handler getUserSyncStatus
+	get /sync/users/status (GetUserSyncStatusRequest) returns (GetUserSyncStatusResponse)
+
+	@doc "同步单个组织到Skylark"
+	@handler syncOrganization
+	post /sync/organization/:id (SyncOrganizationRequest) returns (SyncOrganizationResponse)
+
+	@doc "查询组织同步状态"
+	@handler getOrgSyncStatus
+	get /sync/organizations/status (GetOrgSyncStatusRequest) returns (GetOrgSyncStatusResponse)
+
+	@doc "绑定用户到已存在的Skylark用户"
+	@handler bindUser
+	post /sync/user/:id/bind (BindUserRequest) returns (BindUserResponse)
+
+	@doc "解绑用户的Skylark映射"
+	@handler unbindUser
+	delete /sync/user/:id/bind (UnbindUserRequest) returns (UnbindUserResponse)
+
+	@doc "绑定组织到已存在的Skylark组织"
+	@handler bindOrganization
+	post /sync/organization/:id/bind (BindOrganizationRequest) returns (BindOrganizationResponse)
+
+	@doc "解绑组织的Skylark映射"
+	@handler unbindOrganization
+	delete /sync/organization/:id/bind (UnbindOrganizationRequest) returns (UnbindOrganizationResponse)
+
+	@doc "eventsync服务健康检查"
+	@handler syncHealthCheck
+	get /sync/health returns (SyncHealthCheckResponse)
+}
+

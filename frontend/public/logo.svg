@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <!-- 纯图标版本 - 无文字和字母，仅保留节点网络图形 -->
+
+  <!-- 背景圆形 -->
+  <circle cx="60" cy="60" r="55" fill="#1890ff" opacity="0.1"/>
+
+  <!-- 逻辑节点网络 - 代表逻辑引擎 -->
+  <g stroke="#1890ff" stroke-width="2.5" fill="none">
+    <!-- 连接线 -->
+    <path d="M 30 45 L 60 30 L 90 45" stroke-linecap="round"/>
+    <path d="M 60 30 L 60 60" stroke-linecap="round"/>
+    <path d="M 30 45 L 38 75" stroke-linecap="round"/>
+    <path d="M 90 45 L 82 75" stroke-linecap="round"/>
+    <path d="M 38 75 L 60 90 L 82 75" stroke-linecap="round"/>
+  </g>
+
+  <!-- 节点 - 代表信息原子 -->
+  <circle cx="60" cy="30" r="6" fill="#1890ff"/>
+  <circle cx="30" cy="45" r="5" fill="#52c41a"/>
+  <circle cx="90" cy="45" r="5" fill="#52c41a"/>
+  <circle cx="60" cy="60" r="5" fill="#faad14"/>
+  <circle cx="38" cy="75" r="5" fill="#52c41a"/>
+  <circle cx="82" cy="75" r="5" fill="#52c41a"/>
+  <circle cx="60" cy="90" r="6" fill="#1890ff"/>
+</svg>

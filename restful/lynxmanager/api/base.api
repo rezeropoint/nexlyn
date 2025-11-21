@@ -1,0 +1,21 @@
+syntax = "v1"
+
+// ===== 通用基础类型定义 =====
+type (
+	// 基础响应
+	BaseResponse {
+		Code    int    `json:"code"`
+		Message string `json:"message"`
+	}
+	// 分页参数
+	PageParams {
+		Page     int   `json:"page"`
+		PageSize int   `json:"pageSize"`
+		Total    int64 `json:"total"`
+	}
+	// 分页请求参数
+	PageParamsRequest {
+		Page     int `form:"page,default=1"`
+		PageSize int `form:"pageSize,default=10"`
+	}
+)

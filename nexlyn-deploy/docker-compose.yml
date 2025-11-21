@@ -1,0 +1,423 @@
+services:
+  # PostgreSQL 数据库服务
+  postgres:
+    image: postgres:17.5-alpine
+    container_name: nexlyn-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: nexlyn
+      POSTGRES_USER: nexlyn
+      POSTGRES_PASSWORD: Quanmate.2025
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --lc-collate=C --lc-ctype=C"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres-init-scripts:/docker-entrypoint-initdb.d:ro
+    networks:
+      - nexlyn-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nexlyn -d nexlyn"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis 缓存服务
+  redis:
+    image: redis:7-alpine
+    container_name: nexlyn-redis
+    command: redis-server --requirepass Quanmate.2025 --appendonly yes
+    environment:
+      - TZ=Asia/Shanghai
+    networks:
+      - nexlyn-network
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # MongoDB 服务
+  mongodb:
+    image: mongo:8
+    container_name: nexlyn-mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: nexlyn
+      MONGO_INITDB_ROOT_PASSWORD: Quanmate.2025
+      MONGO_INITDB_DATABASE: nexlyn
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - nexlyn-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')", "--username", "nexlyn", "--password", "Quanmate.2025", "--authenticationDatabase", "admin"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Etcd 服务
+  etcd:
+    image: registry.cn-hangzhou.aliyuncs.com/rezeropoint/etcd:v3.5.0
+    container_name: nexlyn-etcd
+    restart: unless-stopped
+    command: etcd --name etcd --data-dir /etcd-data --listen-client-urls http://0.0.0.0:2379 --advertise-client-urls http://etcd:2379 --listen-peer-urls http://0.0.0.0:2380 --initial-advertise-peer-urls http://etcd:2380 --initial-cluster etcd=http://etcd:2380 --initial-cluster-token etcd-cluster-1 --initial-cluster-state new
+    ports:
+      - "2379:2379"
+      - "2380:2380"
+    volumes:
+      - etcd_data:/etcd-data
+    networks:
+      - nexlyn-network
+    healthcheck:
+      test: ["CMD", "etcdctl", "endpoint", "health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # MQTT 服务器 (Mosquitto)
+  mqtt:
+    image: registry.cn-hangzhou.aliyuncs.com/rezeropoint/eclipse-mosquitto:2
+    container_name: nexlyn-mqtt
+    restart: unless-stopped
+    ports:
+      - "1883:1883"   # MQTT 端口
+      - "9001:9001"   # WebSocket 端口（可选）
+    volumes:
+      - mqtt_data:/mosquitto/data
+      - mqtt_log:/mosquitto/log
+      - ./configs/mosquitto:/mosquitto/config
+    networks:
+      - nexlyn-network
+    healthcheck:
+      test: ["CMD", "mosquitto_sub", "-t", "$$SYS/#", "-C", "1", "-i", "healthcheck", "-W", "3"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # ClickHouse 时序数据库
+  clickhouse:
+    image: registry.cn-hangzhou.aliyuncs.com/rezeropoint/clickhouse-server:25.5-alpine
+    container_name: nexlyn-clickhouse
+    restart: unless-stopped
+    environment:
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: 1
+    ports:
+      - "8123:8123"  # HTTP 端口
+      - "9000:9000"  # Native 端口
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
+      - clickhouse_logs:/var/log/clickhouse-server
+      - ./clickhouse-init-scripts:/docker-entrypoint-initdb.d
+    networks:
+      - nexlyn-network
+    healthcheck:
+      test: ["CMD", "clickhouse-client", "-q", "SELECT 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # 后端API服务
+  backend:
+    image: nexlyn-backend:latest
+    build:
+      context: ..
+      dockerfile: ./restful/backend/Dockerfile
+      args:
+        SSH_PRIVATE_KEY: ${SSH_PRIVATE_KEY}
+    container_name: nexlyn-backend
+    restart: unless-stopped
+    environment:
+      POD_NAME: "nexlyn-backend-docker"
+    ports:
+      - "8888:8888"   # REST API 端口
+      # - "9999:9999"   # gRPC 端口
+      # - "6060:6060"   # 开发服务器端口（健康检查和指标）
+    volumes:
+      - ./configs/backend/config.yaml:/app/etc/config.yaml  # 挂载配置文件
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      # mongo:
+      #   condition: service_healthy
+      # etcd:
+      #   condition: service_started
+      clickhouse:
+        condition: service_healthy
+      eventsync:
+        condition: service_started
+    networks:
+      - nexlyn-network
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "--spider", "http://localhost:6060/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # mediahandler 服务
+  mediahandler:
+    image: nexlyn-mediahandler:latest
+    build:
+      context: ..
+      dockerfile: ./restful/mediahandler/Dockerfile
+      args:
+        SSH_PRIVATE_KEY: ${SSH_PRIVATE_KEY}
+    container_name: nexlyn-mediahandler
+    restart: unless-stopped
+    environment:
+      POD_NAME: "nexlyn-mediahandler-docker"
+    ports:
+      - "8080:8080"   # mediahandler Web 管理端口（admin.zip)
+    #   - "6000:6000/udp" # SRT 端口（如启用）
+      - "5060:5060/udp" # GB28181 SIP 端口（如启用）
+    #   - "44944:44944"   # QUIC 端口（如启用）
+      - "10001-10012:10001-10012" # 添加的端口范围
+      - "10001-10012:10001-10012/udp" # 添加的端口范围
+    volumes:
+      - ./configs/mediahandler/config.yaml:/app/config.yaml # 挂载配置文件
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - nexlyn-network
+
+  # IoT 配置管理服务
+  iotmanager:
+    image: nexlyn-iotmanager:latest
+    build:
+      context: ..
+      dockerfile: ./restful/iotmanager/Dockerfile
+      args:
+        SSH_PRIVATE_KEY: ${SSH_PRIVATE_KEY}
+    container_name: nexlyn-iotmanager
+    restart: unless-stopped
+    environment:
+      POD_NAME: "nexlyn-iotmanager-docker"
+    ports:
+      - "8889:8888"   # REST API 端口
+    #   - "9998:9999"   # gRPC 端口
+    #   - "6061:6060"   # 开发服务器端口（健康检查和指标）
+    depends_on:
+      redis:
+        condition: service_healthy
+      etcd:
+        condition: service_healthy
+      mqtt:
+        condition: service_healthy
+      clickhouse:
+        condition: service_healthy
+    networks:
+      - nexlyn-network
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "--spider", "http://localhost:6060/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # EventHandler 服务（Skylark 事件管理）
+  eventhandler:
+    image: nexlyn-eventhandler:latest
+    build:
+      context: ..
+      dockerfile: ./restful/eventhandler/Dockerfile
+      args:
+        SSH_PRIVATE_KEY: ${SSH_PRIVATE_KEY}
+    container_name: nexlyn-eventhandler
+    restart: unless-stopped
+    environment:
+      POD_NAME: "nexlyn-eventhandler-docker"
+    ports:
+      - "8890:8888"   # REST API 端口
+    #   - "9997:9999"   # gRPC 端口
+    #   - "6062:6060"   # 开发服务器端口（健康检查和指标）
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      eventsync:
+        condition: service_started
+    networks:
+      - nexlyn-network
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "--spider", "http://localhost:6060/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # EventSync 服务（Skylark 用户/组织同步 gRPC）
+  eventsync:
+    image: nexlyn-eventsync:latest
+    build:
+      context: ..
+      dockerfile: ./service/eventsync/Dockerfile
+      args:
+        SSH_PRIVATE_KEY: ${SSH_PRIVATE_KEY}
+    container_name: nexlyn-eventsync
+    restart: unless-stopped
+    environment:
+      POD_NAME: "nexlyn-eventsync-docker"
+    ports:
+      - "9998:9999"   # gRPC 端口
+    volumes:
+      - ./configs/eventsync/config.yaml:/app/etc/config.yaml  # 挂载配置文件
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - nexlyn-network
+
+  # LynxGraph Manager 服务（REST API配置管理）
+  lynxmanager:
+    image: nexlyn-lynxmanager:latest
+    build:
+      context: ..
+      dockerfile: ./restful/lynxmanager/Dockerfile
+      args:
+        SSH_PRIVATE_KEY: ${SSH_PRIVATE_KEY}
+    container_name: nexlyn-lynxmanager
+    restart: unless-stopped
+    environment:
+      POD_NAME: "nexlyn-lynxmanager-docker"
+    ports:
+      - "8891:8888"   # REST API 端口
+    #   - "6063:6060"   # 开发服务器端口（健康检查和指标）
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      etcd:
+        condition: service_healthy
+    networks:
+      - nexlyn-network
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "--spider", "http://localhost:6060/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # LynxGraph Engine 服务（gRPC运行时执行）
+  lynxengine:
+    image: nexlyn-lynxengine:latest
+    build:
+      context: ..
+      dockerfile: ./service/lynxengine/Dockerfile
+      args:
+        SSH_PRIVATE_KEY: ${SSH_PRIVATE_KEY}
+    container_name: nexlyn-lynxengine
+    restart: unless-stopped
+    environment:
+      POD_NAME: "nexlyn-lynxengine-docker"
+    ports:
+      - "9992:9999"   # gRPC 端口
+    #   - "6064:6060"   # 开发服务器端口（健康检查和指标）
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      etcd:
+        condition: service_healthy
+    networks:
+      - nexlyn-network
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "--spider", "http://localhost:6060/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # IoT查询服务（gRPC轻量级查询）
+  iotquery:
+    image: nexlyn-iotquery:latest
+    build:
+      context: ..
+      dockerfile: ./service/iotquery/Dockerfile
+      args:
+        SSH_PRIVATE_KEY: ${SSH_PRIVATE_KEY}
+    container_name: nexlyn-iotquery
+    restart: unless-stopped
+    environment:
+      POD_NAME: "nexlyn-iotquery-docker"
+    ports:
+      - "9993:9993"   # gRPC 端口
+    depends_on:
+      postgres:
+        condition: service_healthy
+      clickhouse:
+        condition: service_healthy
+      etcd:
+        condition: service_started
+    networks:
+      - nexlyn-network
+
+  # 前端Web服务
+  frontend:
+    image: nexlyn-frontend:latest
+    build:
+      context: ..
+      dockerfile: frontend/Dockerfile
+      args:
+        # 设置构建时的环境变量
+        REACT_APP_ENV: production
+        UMI_ENV: prod
+    container_name: nexlyn-frontend
+    restart: unless-stopped
+    ports:
+      - "8443:80"
+      #- "443:443"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - nexlyn-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  nexlyn-network:
+    driver: bridge
+    name: nexlyn-network
+
+volumes:
+  postgres_data:
+    name: nexlyn-postgres-data
+  redis_data:
+    name: nexlyn-redis-data
+  backend_logs:
+    name: nexlyn-backend-logs
+  mqtt_data:
+    name: nexlyn-mqtt-data
+  mqtt_log:
+    name: nexlyn-mqtt-log
+  mongo_data:
+    name: nexlyn-mongo-data
+  etcd_data:
+    name: nexlyn-etcd-data
+  clickhouse_data:
+    name: nexlyn-clickhouse-data
+  clickhouse_logs:
+    name: nexlyn-clickhouse-logs 

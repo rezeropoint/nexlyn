@@ -1,0 +1,45 @@
+/**
+ * 录像列表组件样式
+ */
+
+// 主容器
+.container {
+  display: flex;
+  flex-direction: column;
+}
+
+// 查询条件区域
+.querySection {
+  margin-bottom: 16px;
+}
+
+// 时间选择器
+.rangePicker {
+  width: 400px;
+}
+
+// 视图模式切换
+.viewModeGroup {
+  margin-left: 16px;
+}
+
+// 录像显示区域
+.recordingSection {
+  min-height: 300px; // 确保时间轴有足够的显示高度
+
+  // 列表视图样式（Table组件自动适配）
+  :global(.ant-table-wrapper) {
+    // Table 组件会自动适配主题，不需要额外样式
+  }
+}
+
+// 播放中的行样式（全局样式，用于Table的rowClassName）
+:global {
+  .recording-playing-row {
+    background-color: var(--ant-color-primary-bg) !important;
+
+    &:hover {
+      background-color: var(--ant-color-primary-bg-hover) !important;
+    }
+  }
+}

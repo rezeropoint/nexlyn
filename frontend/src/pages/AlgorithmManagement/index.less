@@ -1,0 +1,150 @@
+// AlgorithmManagement 算法管理主页面样式
+
+// 页面容器相关
+.alert-container {
+  margin-bottom: 24px;
+}
+
+// 头部介绍卡片
+.hero-card {
+  margin-bottom: 24px;
+  border-radius: 8px;
+
+  // 卡片内容区域（使用动态渐变背景，由组件传入）
+  .hero-content {
+    background-repeat: no-repeat;
+    background-position: 100% -30%;
+    background-size: 274px auto;
+  }
+
+  .hero-title {
+    margin-bottom: 16px;
+    color: white;
+    font-weight: bold;
+    font-size: var(--ant-font-size-heading-2);
+  }
+
+  .hero-description {
+    margin-bottom: 32px;
+    color: rgba(255, 255, 255, 0.85);
+    font-size: var(--ant-font-size-lg);
+  }
+}
+
+// 统计概览区域
+.stats-row {
+  margin-bottom: 24px;
+}
+
+.stats-card-value {
+  font-weight: bold;
+  font-size: var(--ant-font-size-heading-3);
+}
+
+// 统计图标（动态颜色，由组件传入）
+.stat-icon-primary {
+  // color由组件动态设置
+}
+
+// 核心能力区域
+.capabilities-card {
+  margin-bottom: 24px;
+}
+
+.capability-card {
+  height: 100%;
+  border-radius: 8px;
+
+  :global(.ant-card-body) {
+    padding: 20px;
+  }
+
+  .capability-icon-container {
+    margin-bottom: 16px;
+    font-size: var(--ant-font-size-heading-1);
+    text-align: center;
+    // color由组件动态设置
+  }
+
+  .capability-title {
+    margin-bottom: 12px;
+    text-align: center;
+  }
+
+  .capability-description {
+    margin-bottom: 16px;
+    text-align: center;
+  }
+
+  .capability-features {
+    text-align: center;
+
+    .feature-tag {
+      margin: 2px;
+    }
+  }
+}
+
+// 算法生命周期区域
+.lifecycle-card {
+  margin-bottom: 24px;
+}
+
+.lifecycle-stage {
+  padding: 0 20px;
+
+  .stage-title {
+    margin-bottom: 8px;
+    // color由组件动态设置（不同阶段颜色不同）
+  }
+
+  .stage-description {
+    font-size: var(--ant-font-size);
+  }
+}
+
+// 应用场景区域
+.scenarios-card {
+  margin-bottom: 24px;
+}
+
+.scenario-card {
+  color: white;
+  border-radius: 8px;
+  // background由组件动态设置（渐变背景）
+
+  .scenario-title {
+    margin-bottom: 12px;
+    color: white;
+  }
+
+  .scenario-description {
+    margin-bottom: 12px;
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  .scenario-info-row {
+    margin-bottom: 8px;
+
+    .info-label {
+      color: white;
+    }
+
+    .info-value {
+      color: rgba(255, 255, 255, 0.9);
+    }
+  }
+
+  .scenario-info-row:last-child {
+    margin-bottom: 0;
+  }
+}
+
+// 技术架构优势区域
+.architecture-section-title {
+  // 使用默认样式，颜色由主题控制
+}
+
+.architecture-description {
+  // color由token.colorTextSecondary动态设置
+}

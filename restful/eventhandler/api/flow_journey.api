@@ -1,0 +1,194 @@
+syntax = "v1"
+
+// ===== 流程Journey操作相关类型定义 =====
+
+type (
+	// TypedValue 类型化值（Skylark字段系统）
+	TypedValue {
+		Type  string      `json:"type"`  // string/number/boolean/date/array/object/file
+		Value interface{} `json:"value"` // 字段值
+	}
+
+	// FlowUser 流程用户信息
+	FlowUser {
+		Id         string  `json:"id"`                  // 用户UUID
+		Name       string  `json:"name"`                // 用户姓名
+		Nickname   string  `json:"nickname,optional"`   // 用户昵称
+		Identifier string  `json:"identifier,optional"` // 工号/身份证号
+	}
+
+	// Journey 流程记录
+	Journey {
+		Id              int64     `json:"id"`                        // Journey ID
+		Sn              string    `json:"sn"`                        // 流程编号
+		Status          string    `json:"status"`                    // 流程状态：processing/completed/aborted/stashed
+		CurrentVertexId int64     `json:"currentVertexId"`           // 当前节点ID
+		FlowId          int64     `json:"flowId"`                    // 流程ID
+		CreatedAt       string    `json:"createdAt"`                 // 创建时间
+		UpdatedAt       string    `json:"updatedAt"`                 // 更新时间
+		User            FlowUser  `json:"user,optional"`             // 发起人信息
+	}
+
+	// Attachment 附件信息
+	Attachment {
+		Id         int64  `json:"id"`                  // 附件ID
+		Name       string `json:"name"`                // 文件名
+		Url        string `json:"url"`                 // 下载URL
+		Size       int64  `json:"size"`                // 文件大小（字节）
+		MimeType   string `json:"mimeType"`            // MIME类型
+		UploadedBy int64  `json:"uploadedBy"`          // 上传者用户ID
+		CreatedAt  string `json:"createdAt"`           // 上传时间
+	}
+
+	// JourneyDetail 流程详情
+	JourneyDetail {
+		Id                       int64                  `json:"id"`                                  // Journey ID
+		Sn                       string                 `json:"sn"`                                  // 流程编号
+		Status                   string                 `json:"status"`                              // 流程状态
+		CurrentVertexId          int64                  `json:"currentVertexId"`                     // 当前节点ID
+		FlowId                   int64                  `json:"flowId"`                              // 流程ID
+		CreatedAt                string                 `json:"createdAt"`                           // 创建时间
+		UpdatedAt                string                 `json:"updatedAt"`                           // 更新时间
+		JourneyUrl               string                 `json:"journeyUrl,optional"`                 // Skylark流程详情页URL
+		ReviewerVertexIds        []int64                `json:"reviewerVertexIds,optional"`          // 审批节点ID列表
+		CurrentDurationThreshold string                 `json:"currentDurationThreshold,optional"`   // 当前节点超时阈值
+		Initiator                FlowUser               `json:"initiator,optional"`                  // 发起人信息
+		BusinessData             map[string]interface{} `json:"businessData,optional"`               // 字段值
+		Attachments              []Attachment           `json:"attachments,optional"`                // 附件列表
+	}
+
+	// Moment 审批历史节点
+	Moment {
+		Id           int64  `json:"id"`                    // Moment ID
+		AssignmentId int64  `json:"assignmentId"`          // Assignment ID
+		JourneyId    int64  `json:"journeyId"`             // Journey ID
+		VertexId     int64  `json:"vertexId"`              // 节点ID
+		VertexName   string `json:"vertexName,optional"`   // 节点名称
+		Status       string `json:"status"`                // 状态：approved/refused/transferred/cancelled
+		OperatorId   string `json:"operatorId"`            // 操作人UUID（远程用户ID）
+		OperatorName string `json:"operatorName,optional"` // 操作人姓名
+		Comment      string `json:"comment,optional"`      // 处理意见
+		CreatedAt    string `json:"createdAt"`             // 操作时间
+		UpdatedAt    string `json:"updatedAt"`             // 更新时间
+		Duration     int    `json:"duration,optional"`     // 处理时长（秒）
+	}
+
+	// ProcessingUser 当前处理人
+	ProcessingUser {
+		Id         string   `json:"id"`                  // 用户UUID
+		Name       string   `json:"name"`                // 用户姓名
+		Nickname   string   `json:"nickname,optional"`   // 用户昵称
+		Phone      string   `json:"phone,optional"`      // 手机号
+		Identifier string   `json:"identifier,optional"` // 工号/身份证号
+		Headimgurl string   `json:"headimgurl,optional"` // 头像URL
+		Tags       []string `json:"tags,optional"`       // 用户标签
+	}
+
+	// JourneySearchRequest 流程搜索请求
+	JourneySearchRequest {
+		Status      string `json:"status,optional"`      // 流程状态
+		Keyword     string `json:"keyword,optional"`     // 关键词
+		InitiatorId string `json:"initiatorId,optional"` // 发起人ID（本地用户UUID，SDK会转换为远程ID）
+		CreatedFrom string `json:"createdFrom,optional"` // 创建时间起始
+		CreatedTo   string `json:"createdTo,optional"`   // 创建时间结束
+		Page        int    `json:"page"`                 // 页码
+		PageSize    int    `json:"pageSize"`             // 每页数量
+	}
+
+	// ===== 请求和响应类型 =====
+
+	// 终止流程请求（路径参数）
+	AbortJourneyRequest {
+		FlowId    int64 `path:"flowId"`    // 流程ID
+		JourneyId int64 `path:"journeyId"` // Journey ID
+	}
+
+	// 终止流程响应
+	AbortJourneyResponse {
+		BaseResponse
+	}
+
+	// 根据流程编号查询请求
+	GetFlowJourneyBySNRequest {
+		FlowId int64  `path:"flowId"` // 流程ID
+		Sn     string `form:"sn"`     // 流程编号（查询参数）
+	}
+
+	// 根据流程编号查询响应
+	GetFlowJourneyBySNResponse {
+		BaseResponse
+		Data Journey `json:"data"`
+	}
+
+	// 获取流程详情请求
+	GetFlowJourneyDetailRequest {
+		FlowId    int64 `path:"flowId"`    // 流程ID
+		JourneyId int64 `path:"journeyId"` // Journey ID
+	}
+
+	// 获取流程详情响应
+	GetFlowJourneyDetailResponse {
+		BaseResponse
+		Data JourneyDetail `json:"data"`
+	}
+
+	// 获取审批历史请求
+	GetJourneyMomentsRequest {
+		FlowId    int64 `path:"flowId"`    // 流程ID
+		JourneyId int64 `path:"journeyId"` // Journey ID
+	}
+
+	// 获取审批历史响应
+	GetJourneyMomentsResponse {
+		BaseResponse
+		Data []Moment `json:"data"`
+	}
+
+	// 获取当前处理人请求
+	GetCurrentProcessingUsersRequest {
+		FlowId    int64 `path:"flowId"`    // 流程ID
+		JourneyId int64 `path:"journeyId"` // Journey ID
+	}
+
+	// 获取当前处理人响应
+	GetCurrentProcessingUsersResponse {
+		BaseResponse
+		Data []ProcessingUser `json:"data"`
+	}
+
+	// SearchJourneysData 搜索流程响应数据
+	SearchJourneysData {
+		List  []Journey `json:"list"`  // 流程列表
+		Total int       `json:"total"` // 总数
+	}
+
+	// 搜索流程请求
+	SearchJourneysRequest {
+		FlowId int64 `path:"flowId"` // 流程ID（路径参数）
+
+		JourneySearchRequest // 嵌入搜索条件
+	}
+
+	// 搜索流程响应
+	SearchJourneysResponse {
+		BaseResponse
+		Data SearchJourneysData `json:"data"`
+	}
+
+	// 更新流程Journey状态请求
+	UpdateFlowJourneyStatusRequest {
+		FlowId       int64  `path:"flowId"`       // 流程ID（路径参数）
+		JourneyId    int64  `path:"journeyId"`    // Journey ID（路径参数）
+
+		AssignmentId       int64                     `json:"assignmentId"`                 // Assignment ID（必填）
+		Operation          string                    `json:"operation"`                    // 操作类型：approve/refuse/transfer/cancel
+		Comment            string                    `json:"comment,optional"`             // 处理意见（可选）
+		CarbonCopyUserIds  []string                  `json:"carbonCopyUserIds,optional"`   // 抄送用户UUID列表（可选）
+		Data               map[string]TypedValue     `json:"data,optional"`                // 字段数据更新（可选）
+	}
+
+	// 更新流程Journey状态响应
+	UpdateFlowJourneyStatusResponse {
+		BaseResponse // 基础响应
+	}
+)

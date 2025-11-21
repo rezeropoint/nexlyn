@@ -1,0 +1,111 @@
+# Backend 服务配置文件（Docker 部署环境）
+
+Name: backend-service
+Mode: "dev"  # 生产环境改为 "pro"
+
+# 日志配置
+Log:
+  ServiceName: "backend-service"
+  Mode: "console"  # console/file/volume
+  Encoding: "json"  # json/plain
+  Path: "./logs"
+  Level: "debug"  # 生产环境改为 "info"
+  MaxContentLength: 4096
+  Compress: true
+  Stat: true
+  KeepDays: 7
+  StackCooldownMillis: 100
+  MaxBackups: 5
+  MaxSize: 100
+  Rotation: "size"  # daily/size
+
+# 链路追踪配置（可选）
+Telemetry:
+  Name: "backend-service"
+  Endpoint: "http://jaeger:14268/api/traces"
+  Sampler: 1.0  # 生产环境建议 0.1 或更低
+  Batcher: "jaeger"
+
+# 开发服务器配置（健康检查和指标监控）
+DevServer:
+  Enabled: true
+  Port: 6060
+  HealthPath: "/healthz"
+  MetricsPath: "/metrics"
+
+# 服务器配置
+ListenOn: 0.0.0.0:9999  # gRPC 端口
+Host: 0.0.0.0
+Port: 8888
+MaxConns: 10000
+MaxBytes: 1048576  # 1MB，上传大文件需增加
+Timeout: 3000
+CpuThreshold: 900
+
+# Redis 缓存配置
+CacheConf:
+  - Host: "redis:6379"
+    Pass: "Quanmate.2025"  # 生产环境必改
+    Type: "node"
+
+# PostgreSQL 数据库配置
+DataSource:
+  Driver: "postgres"
+  Host: "postgres"
+  Port: 5432
+  Database: "nexlyn"
+  Username: "nexlyn"
+  Password: "Quanmate.2025"  # 生产环境必改
+  MaxConns: 10
+
+# JWT 认证配置
+Auth:
+  AccessSecret: "Rezeropoint"  # 生产环境必改为强随机字符串
+  AccessExpire: 86400  # 24小时
+
+# MongoDB 配置
+MongoDBConfig:
+  URI: "mongodb://nexlyn:Quanmate.2025@mongo:27017/nexlyn?authSource=admin"  # 生产环境必改
+  DB: "nexlyn"
+  CacheConf:
+    - Host: "redis:6379"
+      Pass: "Quanmate.2025"
+      Type: "node"
+
+# Etcd 配置中心
+EtcdConfig:
+  Key: "/nexlyn/triggers"
+  endpoints:
+    - "etcd:2379"
+  dial_timeout: 5s
+  username: ""
+  password: ""
+
+# Casbin 权限管理 Watcher 配置
+WatcherConfig:
+  Redis:
+    network: "tcp"
+    Addr: "redis:6379"
+    Password: "Quanmate.2025"  # 生产环境必改
+    DB: 0
+    channel: "casbinx"
+    ignoreself: true
+
+# OSS 对象存储配置（用于头像上传等功能）
+OSSConfig:
+  Enabled: false  # 配置完成后改为 true
+  Endpoint: ""  # 示例：oss-cn-hangzhou.aliyuncs.com
+  AccessKeyID: ""
+  AccessKeySecret: ""
+  BucketName: ""
+  CDNDomain: ""  # 可选
+  MaxFileSize: 5242880  # 5MB
+
+# Skylark 用户/组织同步配置
+SkylarkSyncEnabled: true
+
+AdminSyncClient:
+  Endpoints:
+    - eventsync:9998
+  Timeout: 10000
+  NonBlock: false

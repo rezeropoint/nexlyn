@@ -1,0 +1,27 @@
+syntax = "v1"
+
+// ===== 逻辑块规格相关定义 =====
+type (
+	// 逻辑块规格
+	BlockSpec {
+		BlockType    string `json:"blockType"` // 逻辑块类型
+		Version      string `json:"version"` // 版本
+		Name         string `json:"name"` // 显示名称
+		Description  string `json:"description"` // 描述
+		Category     string `json:"category"` // 分类
+		InputSchema  string `json:"inputSchema,optional"` // 输入Schema（JSON字符串）
+		OutputSchema string `json:"outputSchema,optional"` // 输出Schema（JSON字符串）
+		ConfigSchema string `json:"configSchema,optional"` // 配置Schema（JSON字符串）
+	}
+	// 查询逻辑块规格列表请求
+	GetBlockSpecsRequest  {}
+	// 查询逻辑块规格列表响应数据
+	GetBlockSpecsData {
+		List []BlockSpec `json:"list"` // 逻辑块规格列表
+	}
+	// 查询逻辑块规格列表响应
+	GetBlockSpecsResponse {
+		BaseResponse
+		Data GetBlockSpecsData `json:"data,omitempty"`
+	}
+)

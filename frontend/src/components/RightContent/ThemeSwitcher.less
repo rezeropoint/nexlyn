@@ -1,0 +1,70 @@
+.themeSwitcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+
+  // 悬停效果
+  &:hover {
+    background-color: var(--ant-color-fill-tertiary);
+    transform: translateY(-1px);
+
+    .themeIndicator {
+      transform: scale(1.1);
+    }
+  }
+
+  // 主题指示器 - 彩色圆形徽章
+  .themeIndicator {
+    position: relative;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+
+    // 默认主题（亮色） - 渐变暖色
+    &.light {
+      background: linear-gradient(135deg, #ffd89b 0%, #19547b 100%);
+    }
+
+    // 暗色主题 - 渐变冷色
+    &.dark {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    // 紧凑模式 - 渐变青色
+    &.compact {
+      background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+    }
+
+    // 暗色紧凑 - 渐变深紫
+    &.dark-compact {
+      background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);
+    }
+
+    // 内部白色小圆点（可选装饰）
+    &::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 6px;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 50%;
+    }
+  }
+
+  // 图标样式
+  .themeIcon {
+    font-size: 16px;
+    color: var(--ant-color-text);
+    transition: color 0.3s;
+  }
+}

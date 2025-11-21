@@ -1,0 +1,124 @@
+syntax = "v1"
+
+// ===== Graph 共用类型定义 =====
+type (
+	// 节点类型
+	NodeType {
+		Value string `json:"value"` // 节点类型值
+	}
+	// 节点配置
+	NodeConfig {
+		ID                        string                 `json:"id"` // 节点的唯一标识符
+		Type                      NodeType               `json:"type"` // 节点类型
+		BlockType                 LogicBlockType         `json:"blockType"` // 节点关联的逻辑块类型
+		BlockVersion              string                 `json:"blockVersion"` // 节点关联的逻辑块版本
+		BlockConfig               map[string]interface{} `json:"blockConfig"` // 节点关联的逻辑块配置
+		IsEntryPoint              bool                   `json:"isEntryPoint"` // 是否为入口节点
+		SubscribedInfoAtomTypeIDs []string               `json:"subscribedInfoAtomTypeIds"` // 订阅的信息原子类型ID列表
+		SubscribedSource          string                 `json:"subscribedSource"` // 节点订阅的信息原子来源
+		SubscribedLabels          map[string]string      `json:"subscribedLabels"` // 节点的标签
+	}
+	// 边配置
+	EdgeConfig {
+		ID        string `json:"id"` // 边的唯一标识符
+		SourceID  string `json:"sourceId"` // 边的源节点ID
+		TargetID  string `json:"targetId"` // 边的目标节点ID
+		Condition string `json:"condition"` // 边的条件表达式
+	}
+	// 图配置信息
+	GraphConfig {
+		ID          string       `json:"id"` // 图的唯一标识符
+		TenantId    string       `json:"tenantId"` // 租户ID
+		Name        string       `json:"name"` // 图的名称
+		Version     string       `json:"version"` // 图的版本
+		Description string       `json:"description"` // 图的描述
+		Tags        []string     `json:"tags"` // 标签，用于分类
+		Enable      bool         `json:"enable"` // 图是否启用
+		Nodes       []NodeConfig `json:"nodes"` // 图中的节点
+		Edges       []EdgeConfig `json:"edges"` // 图中的边
+		CreatedAt   int64        `json:"createdAt"` // 创建时间（Unix时间戳）
+		UpdatedAt   int64        `json:"updatedAt"` // 更新时间（Unix时间戳）
+	}
+)
+
+// ===== 路径参数相关类型 =====
+type (
+	// GraphConfig ID路径参数
+	GraphConfigIdPathRequest {
+		Id string `path:"id"` // 图配置ID
+	}
+)
+
+// ===== Graph 管理相关类型 =====
+type (
+	// 获取图配置请求
+	GetGraphConfigRequest {
+		GraphConfigIdPathRequest // 路径参数
+	}
+	// 获取图配置响应
+	GetGraphConfigResponse {
+		BaseResponse // 基础响应
+		Data GraphConfig `json:"data,omitempty"` // 图配置数据
+	}
+	// 图配置列表查询请求
+	GetGraphConfigListRequest {
+		PageParamsRequest // 分页请求参数
+		TenantId string   `form:"tenantId,optional"` // 租户ID筛选
+		Name     string   `form:"name,optional"` // 名称模糊查询
+		Tags     []string `form:"tags,optional"` // 标签筛选
+		Enable   *bool    `form:"enable,optional"` // 启用状态筛选
+	}
+	// 图配置列表数据
+	GraphConfigListData {
+		List []GraphConfig `json:"list"` // 图配置列表
+	}
+	// 图配置列表响应
+	GetGraphConfigListResponse {
+		BaseResponse // 基础响应
+		PageParams // 分页参数
+		Data GraphConfigListData `json:"data,omitempty"` // 图配置列表数据
+	}
+	// 创建图配置请求
+	CreateGraphConfigRequest {
+		TenantId    string       `json:"tenantId"` // 租户ID
+		Name        string       `json:"name"` // 图的名称
+		Version     string       `json:"version"` // 图的版本
+		Description string       `json:"description"` // 图的描述
+		Tags        []string     `json:"tags"` // 标签，用于分类
+		Enable      bool         `json:"enable"` // 图是否启用
+		Nodes       []NodeConfig `json:"nodes"` // 图中的节点
+		Edges       []EdgeConfig `json:"edges"` // 图中的边
+	}
+	// 创建图配置响应
+	CreateGraphConfigResponse {
+		BaseResponse // 基础响应
+		Data {
+			ID string `json:"id"` // 新创建的图配置ID
+		} `json:"data,omitempty"`
+	}
+	// 更新图配置请求
+	UpdateGraphConfigRequest {
+		GraphConfigIdPathRequest // 路径参数
+		TenantId    string       `json:"tenantId,optional"` // 租户ID
+		Name        string       `json:"name,optional"` // 图的名称
+		Version     string       `json:"version,optional"` // 图的版本
+		Description string       `json:"description,optional"` // 图的描述
+		Tags        []string     `json:"tags,optional"` // 标签，用于分类
+		Enable      *bool        `json:"enable,optional"` // 图是否启用
+		Nodes       []NodeConfig `json:"nodes,optional"` // 图中的节点
+		Edges       []EdgeConfig `json:"edges,optional"` // 图中的边
+	}
+	// 更新图配置响应
+	UpdateGraphConfigResponse {
+		BaseResponse // 基础响应
+	}
+	// 删除图配置请求
+	DeleteGraphConfigRequest {
+		GraphConfigIdPathRequest // 路径参数
+	}
+	// 删除图配置响应
+	DeleteGraphConfigResponse {
+		BaseResponse // 基础响应
+	}
+)
+

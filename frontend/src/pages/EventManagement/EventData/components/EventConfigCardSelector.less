@@ -1,0 +1,393 @@
+/**
+ * 事件配置卡片选择器样式
+ * 遵循前端编码规范：使用CSS变量，避免硬编码颜色，确保主题适配
+ */
+
+.cardSelectorContainer {
+  width: 100%;
+
+  // 工具栏
+  .toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    gap: 16px;
+
+    // 搜索框
+    .searchBox {
+      flex: 1;
+      min-width: 200px;
+    }
+  }
+
+  // 卡片容器
+  .cardsContainer {
+    min-height: 300px;
+  }
+
+  // 卡片包装器（响应式布局）
+  .cardWrapper {
+    flex: 0 0 calc(33.33% - 11px);
+    min-width: 320px;
+    max-width: 420px;
+
+    // 2K及以上屏幕（宽度 >= 1920px）：4列布局
+    @media (min-width: 1920px) {
+      flex: 0 0 calc(25% - 12px);
+      max-width: 380px;
+    }
+
+    // 超宽屏幕（宽度 >= 2560px）：5列布局
+    @media (min-width: 2560px) {
+      flex: 0 0 calc(20% - 13px);
+      max-width: 400px;
+    }
+
+    // 小屏幕（宽度 < 1400px）：2列布局
+    @media (max-width: 1399px) {
+      flex: 0 0 calc(50% - 8px);
+      max-width: none;
+    }
+
+    // 移动端（宽度 < 768px）：1列布局
+    @media (max-width: 767px) {
+      flex: 0 0 100%;
+      max-width: none;
+    }
+  }
+
+  // 事件配置卡片
+  .eventCard {
+    height: 100%;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+
+    // 选中状态
+    &.selected {
+      border-color: var(--ant-color-primary);
+      box-shadow: 0 0 0 2px var(--ant-color-primary-bg);
+    }
+
+    // 悬停状态
+    &:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    // 卡片内容区域 - 默认密度
+    :global(.ant-card-body) {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      padding: 16px;
+    }
+
+    // 宽松密度
+    &.density-loose {
+      :global(.ant-card-body) {
+        padding: 20px;
+      }
+
+      .cardHeader {
+        margin-bottom: 16px;
+      }
+
+      .eventTitle {
+        font-size: var(--ant-font-size-lg) !important;
+      }
+
+      .flowInfo, .description {
+        font-size: var(--ant-font-size);
+      }
+
+      .statValue {
+        font-size: 18px !important;
+      }
+
+      .statIcon {
+        font-size: 20px !important;
+      }
+    }
+
+    // 紧凑密度
+    &.density-compact {
+      :global(.ant-card-body) {
+        padding: 12px;
+      }
+
+      .cardHeader {
+        margin-bottom: 8px;
+      }
+
+      .eventTitle {
+        font-size: var(--ant-font-size) !important;
+      }
+
+      .flowInfo, .description {
+        font-size: var(--ant-font-size-sm);
+        margin-bottom: 6px;
+      }
+
+      .statsSection {
+        margin-bottom: 8px;
+        padding: 8px 0;
+      }
+
+      .statItem {
+        padding: 4px 6px;
+      }
+
+      .statValue {
+        font-size: 14px !important;
+      }
+
+      .statIcon {
+        font-size: 16px !important;
+        margin-right: 6px;
+      }
+
+      .statLabel {
+        font-size: 10px !important;
+      }
+    }
+  }
+
+  // 卡片头部（标题 + 状态标签）
+  .cardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+    gap: 8px;
+  }
+
+  // 事件标题
+  .eventTitle {
+    flex: 1;
+    margin: 0;
+    font-size: var(--ant-font-size-lg);
+    font-weight: 500;
+    color: var(--ant-color-text);
+    line-height: 1.5;
+  }
+
+  // 流程信息
+  .flowInfo {
+    margin-bottom: 8px;
+    font-size: var(--ant-font-size-sm);
+    color: var(--ant-color-text-secondary);
+    line-height: 1.5;
+  }
+
+  // 描述信息
+  .description {
+    margin-bottom: 12px;
+    font-size: var(--ant-font-size-sm);
+    color: var(--ant-color-text-tertiary);
+    line-height: 1.6;
+
+    // 覆盖Ant Design Paragraph默认样式
+    &:global(.ant-typography) {
+      margin-bottom: 12px;
+    }
+  }
+
+  // 统计数据区域
+  .statsSection {
+    flex: 1;
+    margin-bottom: 12px;
+    padding: 12px 0;
+    border-top: 1px solid var(--ant-color-border-secondary);
+    border-bottom: 1px solid var(--ant-color-border-secondary);
+    min-height: 120px; // 确保与真实内容高度一致，避免加载时抖动
+
+    // 标签容器
+    :global(.ant-space) {
+      width: 100%;
+    }
+
+    // 添加淡入动画
+    animation: fadeIn 0.4s ease-in-out;
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  }
+
+  // 统计占位符
+  .statsPlaceholder {
+    padding: 8px 0;
+    text-align: center;
+    font-size: var(--ant-font-size-sm);
+    color: var(--ant-color-text-tertiary);
+  }
+
+  // 统计网格
+  .statsGrid {
+    width: 100%;
+    animation: statsAppear 0.3s ease-in-out;
+
+    @keyframes statsAppear {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+  }
+
+  // 单个统计项
+  .statItem {
+    display: flex;
+    align-items: center;
+    padding: 6px 8px;
+    background-color: var(--ant-color-fill-quaternary);
+    border-radius: 6px;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background-color: var(--ant-color-fill-tertiary);
+    }
+  }
+
+  // 统计项骨架屏（与真实内容保持一致的布局）
+  .statItemSkeleton {
+    display: flex;
+    align-items: center;
+    padding: 6px 8px;
+    background-color: var(--ant-color-fill-quaternary);
+    border-radius: 6px;
+    min-height: 42px; // 确保高度一致
+
+    // 覆盖 Skeleton 组件的默认样式
+    :global(.ant-skeleton-element) {
+      display: flex;
+      align-items: center;
+    }
+
+    :global(.ant-skeleton-button) {
+      border-radius: 50%;
+    }
+  }
+
+  // 统计图标
+  .statIcon {
+    font-size: 18px;
+    margin-right: 8px;
+    flex-shrink: 0;
+  }
+
+  // 统计内容
+  .statContent {
+    flex: 1;
+    min-width: 0;
+  }
+
+  // 统计数值
+  .statValue {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--ant-color-text);
+  }
+
+  // 统计标签
+  .statLabel {
+    font-size: 11px;
+    line-height: 1.2;
+    color: var(--ant-color-text-secondary);
+    margin-top: 2px;
+  }
+
+  // 选择按钮容器
+  .selectButtonContainer {
+    text-align: center;
+
+    // 按钮样式
+    :global(.ant-btn) {
+      font-weight: 500;
+    }
+  }
+}
+
+// 空状态
+.emptyState {
+  padding: 48px 0;
+  text-align: center;
+  color: var(--ant-color-text-secondary);
+
+  :global(.ant-empty-description) {
+    color: var(--ant-color-text-secondary);
+  }
+}
+
+// 响应式适配
+@media (max-width: 1600px) {
+  .cardSelectorContainer {
+    // 在中等屏幕上，卡片可能显示为2列
+    .eventCard {
+      :global(.ant-card-body) {
+        padding: 14px;
+      }
+    }
+
+    .eventTitle {
+      font-size: 15px;
+    }
+
+    .flowInfo,
+    .description {
+      font-size: 13px;
+    }
+
+    // 统计数值稍微缩小
+    .statValue {
+      font-size: 15px;
+    }
+
+    .statIcon {
+      font-size: 16px;
+    }
+  }
+}
+
+@media (max-width: 1024px) {
+  .cardSelectorContainer {
+    // 在小屏幕上，卡片显示为单列
+    .eventCard {
+      :global(.ant-card-body) {
+        padding: 12px;
+      }
+    }
+
+    .statsSection {
+      padding: 8px 0;
+    }
+
+    // 统计项padding调整
+    .statItem {
+      padding: 4px 6px;
+    }
+
+    .statValue {
+      font-size: 14px;
+    }
+
+    .statIcon {
+      font-size: 14px;
+      margin-right: 6px;
+    }
+
+    .statLabel {
+      font-size: 10px;
+    }
+  }
+}

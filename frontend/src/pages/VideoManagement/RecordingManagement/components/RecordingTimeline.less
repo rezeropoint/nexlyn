@@ -1,0 +1,317 @@
+// 录像时间轴组件样式
+.timelineContainer {
+  padding: 12px;
+  background: var(--ant-color-bg-container);
+  border: 1px solid var(--ant-color-border);
+  border-radius: 6px;
+}
+
+// 空状态
+.emptyState {
+  padding: 16px;
+  color: var(--ant-color-text-secondary);
+  text-align: center;
+  background: var(--ant-color-fill-quaternary);
+  border: 1px solid var(--ant-color-border);
+  border-radius: 6px;
+}
+
+// 头部控制区域
+.timelineHeader {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+// 标题
+.timelineTitle {
+  flex: none;
+  color: var(--ant-color-text);
+  font-weight: 500;
+  font-size: var(--ant-font-size);
+}
+
+// 缩放控制区域
+.scaleControls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  min-width: 200px;
+
+  .scaleIcon {
+    color: var(--ant-color-text-tertiary);
+  }
+
+  .scaleSlider {
+    flex: 1;
+    margin: 0;
+  }
+}
+
+// 缩放比例显示
+.scaleDisplay {
+  min-width: 40px;
+  color: var(--ant-color-text-secondary);
+  font-size: var(--ant-font-size-sm);
+}
+
+// 弹性空白区域
+.spacer {
+  flex: 1;
+}
+
+// 视口容器
+.viewportContainer {
+  position: relative;
+  height: 80px; // 固定高度确保内容可见：24px刻度 + 48px时间轴 + 8px padding
+  padding-bottom: 8px; // 滚动条与内容的间距
+  overflow-x: auto;
+  overflow-y: hidden;
+  background: var(--ant-color-fill-quaternary);
+  border: 1px solid var(--ant-color-border);
+  border-radius: 4px;
+  user-select: none;
+
+  &.dragging {
+    cursor: crosshair;
+  }
+
+  &.normal {
+    cursor: default;
+  }
+
+  // 自定义滚动条样式，适配主题
+  &::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: var(--ant-color-fill-quaternary);
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--ant-color-text-quaternary);
+    border-radius: 4px;
+    transition: background 0.2s ease;
+
+    &:hover {
+      background: var(--ant-color-text-tertiary);
+    }
+  }
+
+  // Firefox 滚动条样式
+  scrollbar-width: thin;
+  scrollbar-color: var(--ant-color-text-quaternary) var(--ant-color-fill-quaternary);
+}
+
+// 内容容器
+.contentWrapper {
+  position: relative;
+  height: 100%; // 继承父容器高度，确保内容区域完整显示
+  min-height: 74px; // 24px刻度 + 2px margin + 48px时间轴
+}
+
+// 顶部刻度区域
+.markersContainer {
+  position: relative; // 修改为 relative，确保作为刻度标签的定位基准
+  height: 24px;
+  background: var(--ant-color-fill-quaternary);
+  border-bottom: 1px solid var(--ant-color-border);
+}
+
+// 刻度标签
+.markerLabel {
+  position: absolute;
+  top: 0;
+  color: var(--ant-color-text-tertiary);
+  font-size: var(--ant-font-size-sm);
+  transform: translateX(-50%);
+}
+
+// 时间轴区域
+.timelineArea {
+  position: relative;
+  height: 48px;
+  margin-top: 2px;
+}
+
+// 网格线
+.gridLine {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--ant-color-border-secondary);
+}
+
+// 悬停时间游标线
+.hoverCursor {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 5;
+  width: 1px;
+  background: var(--ant-color-primary);
+  pointer-events: none;
+}
+
+// 悬停时间提示
+.hoverTimeTooltip {
+  position: absolute;
+  top: -2px;
+  z-index: 15;
+  padding: 2px 6px;
+  color: #fff; // 主题色背景上必须使用白色文字
+  font-weight: 500;
+  font-size: var(--ant-font-size-sm);
+  white-space: nowrap;
+  background: var(--ant-color-primary);
+  border-radius: 3px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); // 轻微阴影，可接受的特殊需求
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+// 空录像提示
+.noRecordingHint {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  color: var(--ant-color-text-tertiary);
+  font-size: var(--ant-font-size-sm);
+  transform: translate(-50%, -50%);
+}
+
+// 录像时间段
+.recordingSegment {
+  position: absolute;
+  top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 24px;
+  padding: 0 6px;
+  overflow: hidden;
+  color: #fff; // 有色背景上必须使用白色文字
+  font-weight: 500;
+  font-size: var(--ant-font-size-sm);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  border: 1px solid rgba(0, 0, 0, 0.08); // 轻微边框，可接受的特殊需求
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); // 轻微阴影，可接受的特殊需求
+  cursor: pointer;
+  opacity: 0.9;
+  transition: all 0.2s ease;
+
+  // 普通录像
+  &.normal {
+    background: linear-gradient(
+      135deg,
+      var(--ant-color-primary) 0%,
+      var(--ant-color-primary-hover) 100%
+    );
+  }
+
+  // 报警录像
+  &.alarm {
+    background: linear-gradient(
+      135deg,
+      var(--ant-color-error) 0%,
+      var(--ant-color-error-hover) 100%
+    );
+  }
+
+  // 混合录像
+  &.mixed {
+    background: linear-gradient(
+      135deg,
+      var(--ant-color-warning) 0%,
+      var(--ant-color-warning-hover) 100%
+    );
+  }
+
+  // 正在播放
+  &.playing {
+    font-weight: 600;
+    border: 2px solid var(--ant-color-primary-active);
+    box-shadow: 0 2px 8px rgba(24, 144, 255, 0.35); // 主题色阴影，可接受的特殊需求
+    opacity: 1;
+  }
+
+  // 悬停效果
+  &:not(.playing):hover {
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15); // 轻微阴影，可接受的特殊需求
+    transform: translateY(-1px);
+    opacity: 1;
+  }
+}
+
+// 时间范围选择框
+.timeSelection {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 10;
+  background: rgba(24, 144, 255, 0.2); // 主题色半透明背景，可接受的特殊需求
+  border: 1px solid var(--ant-color-primary);
+  border-radius: 2px;
+  pointer-events: none;
+
+  .selectionDuration {
+    position: absolute;
+    top: 2px;
+    right: 4px;
+    left: 4px;
+    padding: 1px 2px;
+    color: var(--ant-color-primary);
+    font-weight: 600;
+    font-size: var(--ant-font-size-sm);
+    text-align: center;
+    background: rgba(255, 255, 255, 0.9); // 半透明白色背景，可接受的特殊需求
+    border-radius: 2px;
+  }
+}
+
+// 图例区域
+.legendContainer {
+  display: flex;
+  gap: 16px;
+  margin-top: 8px;
+  color: var(--ant-color-text-secondary);
+  font-size: var(--ant-font-size-sm);
+}
+
+// 图例项
+.legendItem {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+
+  .legendColor {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+
+    &.normal {
+      background: var(--ant-color-primary);
+    }
+
+    &.alarm {
+      background: var(--ant-color-error);
+    }
+
+    &.mixed {
+      background: var(--ant-color-warning);
+    }
+  }
+}
+
+// 提示文本
+.hintText {
+  margin-left: 16px;
+  color: var(--ant-color-text-tertiary);
+  font-size: var(--ant-font-size-sm);
+}

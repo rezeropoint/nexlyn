@@ -1,0 +1,89 @@
+syntax = "v1"
+
+// ===== 组织映射相关类型定义 =====
+type (
+	// 组织映射（租户级别全局配置）
+	OrgMapping {
+		Id             string `json:"id"` // 映射UUID
+		TenantId       string `json:"tenantId"` // 租户ID
+		RemoteOrgValue string `json:"remoteOrgValue"` // 远程组织字段值
+		LocalOrgId     string `json:"localOrgId"` // 本地组织ID
+		LocalOrgName   string `json:"localOrgName,optional"` // 本地组织名称（通过LEFT JOIN查询）
+		CreatedAt      string `json:"createdAt,optional"` // 创建时间
+		UpdatedAt      string `json:"updatedAt,optional"` // 更新时间
+	}
+)
+
+// ===== 路径参数相关类型 =====
+type (
+	OrgMappingIdPathRequest {
+		Id string `path:"id"` // 组织映射ID
+	}
+)
+
+// ===== 组织映射管理相关类型 =====
+type (
+	// 创建组织映射请求（租户级别）
+	CreateOrgMappingRequest {
+		RemoteOrgValue string `json:"remoteOrgValue"` // 远程组织值（必填）
+		LocalOrgId     string `json:"localOrgId"` // 本地组织ID（必填）
+	}
+
+	// 创建组织映射响应
+	CreateOrgMappingResponse {
+		BaseResponse // 基础响应
+		Data {
+			Id string `json:"id"` // 组织映射UUID
+		} `json:"data,omitempty"`
+	}
+
+	// 获取组织映射列表请求（租户的所有映射）
+	GetOrgMappingListRequest {
+		PageParamsRequest                       // 分页参数
+		Keyword string `form:"keyword,optional"` // 关键词搜索（远程组织值或本地组织名称）
+	}
+
+	// 获取组织映射列表响应
+	GetOrgMappingListResponse {
+		BaseResponse // 基础响应
+		PageParams   // 分页参数
+		Data {
+			List []OrgMapping `json:"list"` // 组织映射列表
+		} `json:"data,omitempty"`
+	}
+
+	// 获取单个组织映射请求
+	GetOrgMappingRequest {
+		OrgMappingIdPathRequest // 路径参数
+	}
+
+	// 获取单个组织映射响应
+	GetOrgMappingResponse {
+		BaseResponse // 基础响应
+		Data         OrgMapping `json:"data,omitempty"` // 组织映射详情
+	}
+
+	// 更新组织映射请求
+	UpdateOrgMappingRequest {
+		OrgMappingIdPathRequest // 路径参数
+
+		RemoteOrgValue string `json:"remoteOrgValue,optional"` // 远程组织值
+		LocalOrgId     string `json:"localOrgId,optional"` // 本地组织ID
+		// 注意：TenantId 不允许修改
+	}
+
+	// 更新组织映射响应
+	UpdateOrgMappingResponse {
+		BaseResponse // 基础响应
+	}
+
+	// 删除组织映射请求
+	DeleteOrgMappingRequest {
+		OrgMappingIdPathRequest // 路径参数
+	}
+
+	// 删除组织映射响应
+	DeleteOrgMappingResponse {
+		BaseResponse // 基础响应
+	}
+)

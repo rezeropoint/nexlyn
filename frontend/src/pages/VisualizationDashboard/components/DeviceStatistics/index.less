@@ -1,0 +1,595 @@
+.device-statistics {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: 100%;
+  padding: 16px;
+  overflow-y: auto;
+  background: transparent;
+  border-radius: 12px;
+
+  // 空数据卡片
+  .empty-card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    min-height: 200px;
+    background: var(--ant-color-bg-container);
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+  }
+
+  // 公共卡片样式
+  :global(.ant-card) {
+    background: var(--ant-color-bg-container) !important;
+    border: none !important;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+
+    :global(.ant-card-head) {
+      min-height: 36px;
+      padding: 12px 16px;
+      background: transparent !important;
+      border-bottom: 1px solid var(--ant-color-border) !important;
+
+      :global(.ant-card-head-title) {
+        color: var(--ant-color-text) !important;
+        font-weight: 600;
+        font-size: var(--ant-font-size-lg);
+        line-height: 20px;
+      }
+    }
+
+    :global(.ant-card-body) {
+      padding: 16px;
+      color: var(--ant-color-text) !important;
+      background: transparent !important;
+    }
+  }
+
+  // 概览卡片
+  .overview-card {
+    flex: 0 0 auto;
+
+    // 统一的设备和通道统计行
+    .stats-row-unified {
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      margin-bottom: 4px;
+      padding: 8px 0;
+
+      .stat-item {
+        flex: 1;
+        text-align: center;
+
+        .stat-value {
+          margin-bottom: 4px;
+          font-weight: bold;
+          font-size: var(--ant-font-size-heading-3);
+          line-height: 1;
+        }
+
+        .stat-label {
+          color: var(--ant-color-text-secondary) !important;
+          font-size: var(--ant-font-size-sm);
+        }
+
+        // 设备统计颜色
+        &.total:not(.channel) .stat-value {
+          color: var(--ant-color-primary);
+        }
+
+        &.online:not(.channel) .stat-value {
+          color: var(--ant-color-success);
+        }
+
+        &.offline:not(.channel) .stat-value {
+          color: var(--ant-color-text-quaternary);
+        }
+
+        // 通道统计颜色（紫色主题）
+        &.channel {
+          &.total .stat-value {
+            color: var(--ant-color-link);
+          }
+
+          &.online .stat-value {
+            color: var(--ant-color-link);
+          }
+
+          &.offline .stat-value {
+            color: var(--ant-color-link-hover);
+          }
+        }
+      }
+
+      // 垂直分隔线
+      .vertical-divider {
+        flex-shrink: 0;
+        width: 1px;
+        height: 40px;
+        margin: 0 8px;
+        background: linear-gradient(
+          180deg,
+          transparent,
+          var(--ant-color-border) 20%,
+          var(--ant-color-border) 80%,
+          transparent
+        );
+      }
+    }
+
+    // 水平分隔线
+    .horizontal-divider {
+      height: 1px;
+      margin: 4px 0 8px 0;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        var(--ant-color-border) 10%,
+        var(--ant-color-border) 90%,
+        transparent
+      );
+    }
+
+    // 统一在线率进度条容器
+    .progress-container {
+      .progress-item {
+        .progress-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-bottom: 8px;
+
+          .progress-label {
+            color: var(--ant-color-text-secondary) !important;
+            font-weight: 500;
+            font-size: var(--ant-font-size-sm);
+
+            .progress-detail {
+              margin-left: 4px;
+              color: var(--ant-color-text-tertiary);
+              font-weight: 400;
+              font-size: var(--ant-font-size-sm);
+            }
+          }
+
+          .progress-value {
+            color: var(--ant-color-success);
+            font-weight: bold;
+            font-size: var(--ant-font-size-lg);
+          }
+        }
+
+        :global(.ant-progress) {
+          margin: 0;
+        }
+      }
+    }
+
+    // 卡片头部和分组切换按钮
+    :global(.ant-card-head-wrapper) {
+      align-items: center;
+    }
+
+    :global(.ant-card-extra) {
+      :global(.ant-radio-group) {
+        :global(.ant-radio-button-wrapper) {
+          height: 24px;
+          padding: 0 10px;
+          font-size: var(--ant-font-size-sm);
+          line-height: 22px;
+          border-color: var(--ant-color-border);
+
+          &:hover {
+            color: var(--ant-color-primary);
+          }
+
+          &:global(.ant-radio-button-wrapper-checked) {
+            color: #fff;
+            background: var(--ant-color-primary);
+            border-color: var(--ant-color-primary);
+
+            &:hover {
+              background: var(--ant-color-primary-hover);
+              border-color: var(--ant-color-primary-hover);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // 分组统计卡片
+  .groups-card {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    overflow: hidden;
+    animation: fadeInCard 0.3s ease-in-out;
+
+    :global(.ant-card-body) {
+      flex: 1;
+      padding: 12px;
+      overflow-y: auto;
+    }
+
+    // 饼图容器样式
+    .groups-chart {
+      margin-bottom: 16px;
+      padding: 12px 8px;
+      background: var(--ant-color-fill-quaternary);
+      border-radius: 8px;
+      transition: all 0.3s ease;
+
+      &:hover {
+        background: var(--ant-color-fill-tertiary);
+        box-shadow: 0 2px 12px rgba(59, 130, 246, 0.1);
+      }
+
+      // 确保图表容器不会溢出
+      > div {
+        width: 100%;
+        height: 100%;
+      }
+    }
+
+    .groups-list {
+      .group-item {
+        margin-bottom: 8px;
+        padding: 10px 12px;
+        background: var(--ant-color-fill-quaternary);
+        border: none;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+
+        &:hover {
+          background: var(--ant-color-fill-tertiary);
+          box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+          transform: translateX(4px);
+        }
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+
+        .group-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-bottom: 8px;
+
+          .group-name {
+            flex: 1;
+            margin-right: 8px;
+            overflow: hidden;
+            color: var(--ant-color-text);
+            font-weight: 600;
+            font-size: var(--ant-font-size);
+            white-space: nowrap;
+            text-overflow: ellipsis;
+          }
+
+          .group-summary {
+            color: var(--ant-color-link);
+            font-weight: bold;
+            font-size: var(--ant-font-size-sm);
+            white-space: nowrap;
+          }
+        }
+
+        // 统一的设备和通道统计
+        .group-stats-unified {
+          display: flex;
+          gap: 6px;
+          align-items: center;
+          justify-content: space-between;
+          margin-bottom: 8px;
+
+          .group-stat {
+            flex: 1;
+            padding: 5px 4px;
+            text-align: center;
+            background: var(--ant-color-bg-container);
+            border-radius: 6px;
+            transition: all 0.2s ease;
+
+            &:hover {
+              transform: scale(1.05);
+            }
+
+            .label {
+              display: block;
+              margin-bottom: 3px;
+              color: var(--ant-color-text-secondary);
+              font-weight: 500;
+              font-size: var(--ant-font-size-sm);
+            }
+
+            .value {
+              display: block;
+              font-weight: 700;
+              font-size: var(--ant-font-size-lg);
+              line-height: 1;
+            }
+
+            &.online:not(.channel) {
+              .value {
+                color: var(--ant-color-success);
+              }
+              &:hover {
+                background: var(--ant-color-success-bg);
+              }
+            }
+
+            &.offline:not(.channel) {
+              .value {
+                color: var(--ant-color-text-quaternary);
+              }
+              &:hover {
+                background: var(--ant-color-fill-quaternary);
+              }
+            }
+
+            // 通道统计样式
+            &.channel {
+              background: var(--ant-color-primary-bg-hover);
+
+              &.online {
+                .value {
+                  color: var(--ant-color-link);
+                }
+                &:hover {
+                  background: var(--ant-color-link-hover-bg);
+                }
+              }
+
+              &.offline {
+                .value {
+                  color: var(--ant-color-link-hover);
+                }
+                &:hover {
+                  background: var(--ant-color-link-hover-bg);
+                }
+              }
+            }
+          }
+
+          // 分隔线
+          .stat-divider {
+            flex-shrink: 0;
+            width: 1px;
+            height: 30px;
+            background: linear-gradient(
+              180deg,
+              transparent,
+              var(--ant-color-border) 20%,
+              var(--ant-color-border) 80%,
+              transparent
+            );
+          }
+        }
+
+        // 进度条容器
+        .group-progress-container {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+
+          .progress-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+
+            .progress-label {
+              flex-shrink: 0;
+              width: 32px;
+              color: var(--ant-color-text-secondary);
+              font-weight: 500;
+              font-size: var(--ant-font-size-sm);
+              text-align: right;
+            }
+
+            :global(.ant-progress) {
+              flex: 1;
+            }
+
+            .progress-percent {
+              flex-shrink: 0;
+              width: 32px;
+              color: var(--ant-color-text-secondary);
+              font-weight: bold;
+              font-size: var(--ant-font-size-sm);
+              text-align: left;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // 空分组数据卡片
+  .empty-groups-card {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    min-height: 150px;
+    animation: fadeInCard 0.3s ease-in-out;
+  }
+
+  // 设备类型统计卡片
+  .type-stats-card {
+    flex: 0 0 auto;
+    animation: fadeInCard 0.3s ease-in-out;
+
+    // 空数据状态
+    :global(.ant-empty) {
+      padding: 32px 0;
+    }
+
+    // 类别饼图容器样式
+    .category-chart {
+      margin-bottom: 16px;
+      padding: 12px 8px;
+      background: var(--ant-color-fill-quaternary);
+      border-radius: 8px;
+      transition: all 0.3s ease;
+
+      &:hover {
+        background: var(--ant-color-fill-tertiary);
+        box-shadow: 0 2px 12px rgba(59, 130, 246, 0.1);
+      }
+
+      // 确保图表容器不会溢出
+      > div {
+        width: 100%;
+        height: 100%;
+      }
+    }
+
+    .type-stats-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+
+      .type-stat-item {
+        padding: 8px 12px;
+        background: var(--ant-color-fill-quaternary);
+        border: none;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+
+        &:hover {
+          background: var(--ant-color-fill-tertiary);
+          box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+          transform: translateX(4px);
+        }
+
+        .type-header {
+          display: flex;
+          align-items: center;
+          margin-bottom: 6px;
+
+          .type-name {
+            flex: 1;
+            color: var(--ant-color-text);
+            font-weight: 600;
+            font-size: var(--ant-font-size);
+          }
+
+          .type-total {
+            color: var(--ant-color-link);
+            font-weight: bold;
+            font-size: var(--ant-font-size-sm);
+          }
+        }
+
+        .type-detail {
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 6px;
+          font-weight: 500;
+          font-size: var(--ant-font-size-sm);
+
+          .online-count {
+            color: var(--ant-color-success);
+          }
+
+          .offline-count {
+            color: var(--ant-color-text-tertiary);
+          }
+        }
+      }
+    }
+  }
+
+  // 滚动条样式
+  &::-webkit-scrollbar,
+  .groups-list::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track,
+  .groups-list::-webkit-scrollbar-track {
+    background: var(--ant-color-fill-secondary);
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb,
+  .groups-list::-webkit-scrollbar-thumb {
+    background: var(--ant-color-fill);
+    border-radius: 3px;
+
+    &:hover {
+      background: var(--ant-color-text-tertiary);
+    }
+  }
+
+  // 响应式适配
+  @media (max-width: 1400px) {
+    gap: 10px;
+
+    .overview-card {
+      .stats-row {
+        .stat-item {
+          .stat-value {
+            font-size: var(--ant-font-size-xl);
+          }
+
+          .stat-label {
+            font-size: var(--ant-font-size-sm);
+          }
+        }
+      }
+    }
+
+    .groups-card {
+      .groups-list {
+        .group-item {
+          padding: 8px;
+
+          .group-header {
+            .group-name {
+              font-size: var(--ant-font-size-sm);
+            }
+
+            .group-total {
+              font-size: var(--ant-font-size-sm);
+            }
+          }
+
+          .group-stats {
+            .group-stat {
+              .label {
+                font-size: var(--ant-font-size-sm);
+              }
+
+              .value {
+                font-size: var(--ant-font-size-sm);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// 卡片淡入动画
+@keyframes fadeInCard {
+  0% {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

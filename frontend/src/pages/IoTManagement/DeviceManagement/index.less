@@ -1,0 +1,25 @@
+.splitterContainer {
+  height: calc(100vh - 200px);
+  min-height: 600px;
+
+  // 面板样式
+  .leftPanel,
+  .rightPanel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+
+    // ProCard 填充整个面板
+    :global(.ant-pro-card) {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      border: none;
+
+      :global(.ant-pro-card-body) {
+        flex: 1;
+        overflow: auto;
+      }
+    }
+  }
+}

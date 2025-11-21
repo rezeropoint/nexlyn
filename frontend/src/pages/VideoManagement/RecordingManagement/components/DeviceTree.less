@@ -1,0 +1,111 @@
+/**
+ * 设备树组件样式
+ */
+
+// 主容器
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+// 顶部控制区域容器
+.controls {
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+// 全宽度控件
+.fullWidth {
+  width: 100%;
+}
+
+// 选中通道信息显示
+.selectedChannelInfo {
+  margin-bottom: 8px;
+  padding: 8px;
+  color: var(--ant-color-text);
+  font-size: var(--ant-font-size-sm);
+  background-color: var(--ant-color-primary-bg);
+  border: 1px solid var(--ant-color-primary-border);
+  border-radius: 4px;
+}
+
+// 树容器
+.treeContainer {
+  flex: 1;
+  max-height: calc(75vh - 220px);
+  overflow: auto;
+}
+
+// 树透明背景
+.treeTransparent {
+  background: transparent;
+}
+
+// 分页器容器
+.paginationContainer {
+  padding: 8px 0;
+  text-align: center;
+  border-top: 1px solid var(--ant-color-border);
+}
+
+// 通道节点容器（基础样式）
+.channelItem {
+  padding: 2px 4px;
+  background-color: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+  // 禁用状态
+  &.disabled {
+    cursor: default;
+  }
+
+  // 选中状态
+  &.selected {
+    background-color: var(--ant-color-primary-bg);
+    border: 1px solid var(--ant-color-primary-border);
+  }
+
+  // 悬停状态（非选中）
+  &.hoverable:hover:not(.selected) {
+    background-color: var(--ant-color-fill-tertiary);
+  }
+}
+
+// 选中标签
+.selectedTag {
+  color: var(--ant-color-primary);
+  font-size: var(--ant-font-size-sm);
+}
+
+// 设备图标颜色
+.deviceIconOnline {
+  color: var(--ant-color-success);
+}
+
+.deviceIconOffline {
+  color: var(--ant-color-text-tertiary);
+}
+
+// 通道图标颜色
+.channelIconOnline {
+  color: var(--ant-color-primary);
+}
+
+.channelIconOffline {
+  color: var(--ant-color-text-tertiary);
+}
+
+// 节点渲染容器
+.nodeRenderContainer {
+  width: 100%;
+}
+
+// 加载图标
+.loadingIcon {
+  margin-right: 8px;
+}

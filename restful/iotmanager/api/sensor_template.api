@@ -1,0 +1,195 @@
+syntax = "v1"
+
+// ===== 设备模板相关类型定义 =====
+type (
+	// 字段映射规则
+	FieldMapping {
+		StandardField string  `json:"standardField"` // 平台标准字段名
+		SourcePath    string  `json:"sourcePath"` // 源字段路径（点分隔）
+		FieldType     string  `json:"fieldType,optional"` // 字段类型
+		Scale         float64 `json:"scale,optional"` // 缩放因子
+		Offset        float64 `json:"offset,optional"` // 偏移量
+		DefaultValue  string  `json:"defaultValue,optional"` // 默认值
+	}
+
+	// 过滤条件
+	Condition {
+		Field    string      `json:"field"` // 字段名（对应StandardField）
+		Operator string      `json:"operator"` // 操作符：eq/ne/gt/lt/gte/lte/contains/in/not_in
+		Value    interface{} `json:"value"` // 比较值
+	}
+
+	// 过滤规则（简化版，无嵌套）
+	FilterRule {
+		Conditions []Condition `json:"conditions"` // 过滤条件列表
+		Logic      string      `json:"logic,optional"` // 逻辑关系：AND/OR，默认AND
+	}
+
+	// 分发配置
+	DispatchConfig {
+		Type        string              `json:"type"` // 分发类型：skylark_flows/skylark_forms/log/save
+		PlatformID  string              `json:"platformID,optional"` // 平台配置ID（关联平台配置）
+		FlowID      int64               `json:"flowID,optional"` // Skylark流程ID（type=skylark_flows时必填）
+		FormID      int64               `json:"formID,optional"` // Skylark表单ID（type=skylark_forms时必填）
+		ExtraParams map[string]interface{} `json:"extraParams,optional"` // 扩展参数（其他平台使用）
+	}
+
+	// 字段检查规则（用于在线检测）
+	FieldCheck {
+		Field    string   `json:"field"` // 字段路径（点分隔）
+		Operator string   `json:"operator,optional"` // 检查操作：exists/equals/in（默认exists）
+		Value    string   `json:"value,optional"` // 期望值（operator=equals时使用）
+		Values   []string `json:"values,optional"` // 期望值列表（operator=in时使用）
+	}
+
+	// 在线检测配置（独立配置，存储在Etcd）
+	OnlineDetectionConfig {
+		Category       string       `json:"category"` // 设备类别
+		Model          string       `json:"model"` // 设备型号
+		TopicSuffix    string       `json:"topicSuffix"` // 主题后缀
+		Strategy       string       `json:"strategy"` // 检测策略：field_check/any_data
+		TimeoutSeconds int          `json:"timeoutSeconds"` // 超时时间（秒）
+		FieldChecks    []FieldCheck `json:"fieldChecks,optional"` // 字段检查规则（strategy=field_check时必填）
+	}
+
+	// 业务数据处理配置（独立配置，存储在Etcd）
+	DataProcessingConfig {
+		Category        string           `json:"category"` // 设备类别
+		Model           string           `json:"model"` // 设备型号
+		TopicSuffix     string           `json:"topicSuffix"` // 主题后缀
+		TimestampPath   string           `json:"timestampPath,optional"` // 时间戳路径
+		TimestampFormat string           `json:"timestampFormat,optional"` // 时间戳格式
+		FieldMappings   []FieldMapping   `json:"fieldMappings"` // 字段映射规则
+		FilterRules     *FilterRule      `json:"filterRules,optional"` // 数据过滤规则（用于分发前筛选）
+		DispatchConfigs []DispatchConfig `json:"dispatchConfigs,optional"` // 分发配置
+	}
+
+	// 设备控制配置（独立配置，存储在Etcd）
+	DeviceControlConfig {
+		Category       string `json:"category"` // 设备类别
+		Model          string `json:"model"` // 设备型号
+		CommandSuffix  string `json:"commandSuffix"` // 命令主题后缀
+		ResponseSuffix string `json:"responseSuffix"` // 响应主题后缀
+	}
+
+	// 设备模板实体（PostgreSQL中的元数据）
+	SensorTemplate {
+		Id           string   `json:"id"` // 模板UUID
+		Model        string   `json:"model"` // 设备型号标识（业务标识）
+		Name         string   `json:"name"` // 模板显示名称
+		Category     string   `json:"category"` // 设备类别
+		Manufacturer string   `json:"manufacturer"` // 设备厂商
+		Description  string   `json:"description"` // 模板描述
+		Version      string   `json:"version"` // 模板版本号
+		Enabled      bool     `json:"enabled"` // 是否启用
+		DeviceCount  int      `json:"deviceCount"` // 使用该模板的设备数量
+		TenantId     string   `json:"tenantId"` // 租户ID
+		CreatedBy    string   `json:"createdBy"` // 创建者用户ID
+		UpdatedBy    string   `json:"updatedBy"` // 最后修改者用户ID
+		CreatedAt    string   `json:"createdAt"` // 创建时间（ISO 8601）
+		UpdatedAt    string   `json:"updatedAt"` // 更新时间（ISO 8601）
+	}
+
+	// 设备模板完整信息（包含Etcd配置）
+	SensorTemplateDetail {
+		SensorTemplate // 基础元数据
+		OnlineConfig   OnlineDetectionConfig `json:"onlineConfig,optional"`   // 在线检测配置
+		BusinessConfig DataProcessingConfig  `json:"businessConfig,optional"` // 业务数据处理配置
+		ControlConfig  DeviceControlConfig   `json:"controlConfig,optional"`  // 设备控制配置
+	}
+)
+
+// ===== 路径参数相关类型 =====
+type (
+	SensorTemplateIdPathRequest {
+		Id string `path:"id"` // 模板ID
+	}
+)
+
+// ===== 设备模板管理相关类型 =====
+type (
+	// 获取模板列表请求
+	GetSensorTemplateListRequest {
+		PageParamsRequest // 分页参数
+		Model        string `form:"model,optional"` // 型号筛选
+		Name         string `form:"name,optional"` // 名称模糊查询
+		Category     string `form:"category,optional"` // 类别筛选
+		Manufacturer string `form:"manufacturer,optional"` // 厂商筛选
+		Enabled      string `form:"enabled,optional"` // 启用状态筛选（true/false）
+	}
+
+	// 获取模板列表响应
+	GetSensorTemplateListResponse {
+		BaseResponse // 基础响应
+		PageParams // 分页参数
+		Data {
+			List []SensorTemplate `json:"list"` // 模板列表
+		} `json:"data,omitempty"`
+	}
+
+	// 获取模板详情请求
+	GetSensorTemplateRequest {
+		SensorTemplateIdPathRequest // 路径参数
+	}
+
+	// 获取模板详情响应
+	GetSensorTemplateResponse {
+		BaseResponse // 基础响应
+		Data SensorTemplateDetail `json:"data,omitempty"` // 模板详情（包含Etcd配置）
+	}
+
+	// 创建模板请求
+	CreateSensorTemplateRequest {
+		Model           string                  `json:"model"` // 设备型号标识（必填，唯一）
+		Name            string                  `json:"name"` // 模板显示名称（必填）
+		Category        string                  `json:"category"` // 设备类别（必填）
+		Manufacturer    string                  `json:"manufacturer,optional"` // 设备厂商
+		Description     string                  `json:"description,optional"` // 模板描述
+		Version         string                  `json:"version,optional"` // 模板版本号
+		Enabled         bool                    `json:"enabled,optional"` // 是否启用（默认true）
+		OnlineConfig    OnlineDetectionConfig   `json:"onlineConfig,optional"` // 在线检测配置（可选，创建时可不配置）
+		BusinessConfig  DataProcessingConfig    `json:"businessConfig,optional"` // 业务数据处理配置（可选，创建时可不配置）
+		ControlConfig   DeviceControlConfig     `json:"controlConfig,optional"` // 设备控制配置（可选，创建时可不配置）
+	}
+
+	// 创建模板响应
+	CreateSensorTemplateResponse {
+		BaseResponse // 基础响应
+		Data {
+			Id    string `json:"id"` // 模板ID
+			Model string `json:"model"` // 设备型号
+			Name  string `json:"name"` // 模板名称
+		} `json:"data,omitempty"`
+	}
+
+	// 更新模板请求
+	// 注意：Model和Category是模板核心标识，前端必须传递但不允许修改
+	UpdateSensorTemplateRequest {
+		SensorTemplateIdPathRequest // 路径参数
+		Model           string                   `json:"model"` // 设备型号（必填，不允许修改）
+		Name            string                   `json:"name,optional"` // 模板显示名称
+		Category        string                   `json:"category"` // 设备类别（必填，不允许修改）
+		Manufacturer    string                   `json:"manufacturer,optional"` // 设备厂商
+		Description     string                   `json:"description,optional"` // 模板描述
+		Version         string                   `json:"version,optional"` // 模板版本号
+		Enabled         bool                     `json:"enabled,optional"` // 是否启用
+		OnlineConfig    *OnlineDetectionConfig   `json:"onlineConfig,optional"` // 在线检测配置（nil=删除）
+		BusinessConfig  *DataProcessingConfig    `json:"businessConfig,optional"` // 业务数据处理配置（nil=删除）
+		ControlConfig   *DeviceControlConfig     `json:"controlConfig,optional"` // 设备控制配置（nil=删除）
+	}
+
+	// 更新模板响应
+	UpdateSensorTemplateResponse {
+		BaseResponse // 基础响应
+	}
+
+	// 删除模板请求
+	DeleteSensorTemplateRequest {
+		SensorTemplateIdPathRequest // 路径参数
+	}
+
+	// 删除模板响应
+	DeleteSensorTemplateResponse {
+		BaseResponse // 基础响应
+	}
+)

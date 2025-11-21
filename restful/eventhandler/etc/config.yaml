@@ -1,0 +1,144 @@
+# 服务名称，用于标识服务
+Name: eventhandler-service
+# 日志配置，定义了日志模式、格式、路径、级别等
+Log:
+  # 服务名称
+  ServiceName: "eventhandler-service"
+  # 日志模式（可选项：console, file, volume）
+  Mode: "console"
+  # 日志格式（可选项：json, plain）
+  Encoding: "json"
+  # 日志文件路径
+  Path: "./logs"
+  # 日志级别（可选项：debug, info, error, severe）
+  Level: "debug"
+  # 最大日志内容长度
+  MaxContentLength: 4096
+  # 是否压缩日志
+  Compress: true
+  # 启用日志统计
+  Stat: true
+  # 日志保留天数
+  KeepDays: 7
+  # 堆栈打印冷却时间（毫秒）
+  StackCooldownMillis: 100
+  # 最大日志备份数量
+  MaxBackups: 5
+  # 单个日志文件最大大小（MB）
+  MaxSize: 100
+  # 日志文件分割模式（可选项：daily, size）
+  Rotation: "size"
+
+# 运行模式（可选项：dev, test, rt, pre, pro）
+Mode: "dev"
+
+# 链路追踪配置，定义了追踪服务的端点和采样率
+Telemetry:
+  # 服务名称
+  Name: "eventhandler-service"
+  # Jaeger 追踪端点
+  Endpoint: "http://jaeger:14268/api/traces"
+  # 采样率
+  Sampler: 1.0
+  # 批处理方式（可选项：jaeger, zipkin, otlpgrpc, otlphttp）
+  Batcher: "jaeger"
+
+# 开发服务器配置，包含健康检查和指标监控的端口和路径设置
+DevServer:
+  # 启用开发服务器
+  Enabled: true
+  # 开发服务器端口
+  Port: 6060
+  # 健康检查路径
+  HealthPath: "/healthz"
+  # 指标监控路径
+  MetricsPath: "/metrics"
+
+# grpc服务器端口
+ListenOn: 0.0.0.0:9999
+
+# 服务器监听地址
+Host: 0.0.0.0
+# 服务器监听端口
+Port: 8888
+# 最大并发连接数限制
+MaxConns: 10000
+# 最大请求体大小
+MaxBytes: 1048576
+# 请求处理超时时间（毫秒）
+Timeout: 3000
+# CPU 使用率阈值，范围是 0 到 1000，表示 0% 到 100%
+CpuThreshold: 900
+
+# 请求超时时间
+RequestTimeout: 30s
+
+# Redis 配置
+RedisConf:
+  Host: "redis:6379"
+  Pass: "Quanmate.2025"
+  Type: "node"
+
+# 数据库配置（用于 Skylark 远程数据库连接）
+DataSource:
+  # 数据库驱动
+  Driver: "postgres"
+  # 数据库主机
+  Host: "postgres"
+  # 数据库端口
+  Port: 5432
+  # 数据库名
+  Database: "nexlyn"
+  # 用户名
+  Username: "nexlyn"
+  # 密码
+  Password: "Quanmate.2025"
+
+# JWT 认证配置
+Auth:
+  AccessSecret: "Rezeropoint"
+  AccessExpire: 86400  # 24小时，单位：秒
+
+# Casbin Watcher 配置
+WatcherConfig:
+  # Redis 配置
+  Redis:
+    network: "tcp"
+    # Redis 服务器地址
+    Addr: "redis:6379"
+    # Redis 密码
+    Password: "Quanmate.2025"
+    # 数据库索引
+    DB: 0
+    channel: "casbinx"
+    ignoreself: true
+
+# Skylark 查询引擎配置
+SkylarkEngine:
+  # ========== 查询限制 ==========
+  # 最大分页大小（防止单次查询数据量过大）
+  MaxPageSize: 1000
+  # 默认分页大小（当请求未指定时使用）
+  DefaultPageSize: 20
+  # 查询超时时间（防止慢查询阻塞）
+  QueryTimeout: 30s
+
+  # ========== 远程数据库连接池配置 ==========
+  # 最大打开连接数
+  MaxOpenConns: 10
+  # 最大空闲连接数
+  MaxIdleConns: 5
+  # 连接最大生命周期
+  ConnMaxLifetime: 30m
+  # 连接最大空闲时间
+  ConnMaxIdleTime: 10m
+
+  # ========== Redis缓存配置 ==========
+  # 是否启用Redis缓存
+  EnableCache: true
+  # 用户名缓存过期时间（key: skylark:users:{tenant_id}:{user_id}）
+  UserCacheTTL: 24h
+  # flows列表缓存过期时间（key: skylark:flows:{tenant_id}:{namespace_id}）
+  FlowListCacheTTL: 1h
+  # flow字段列表缓存过期时间（key: skylark:flow_fields:{tenant_id}:{flow_id}）
+  FlowFieldCacheTTL: 1h

@@ -1,0 +1,29 @@
+{
+  "project_name": "Nexlyn融合管理平台",
+  "documents": {
+    "全家桶文档": {
+      "local_path": "documentation/Nexlyn 融合管理平台建设全家桶.md",
+      "feishu_url": "https://skylarkly.feishu.cn/docx/LvyldTlbSoDGKCxSk5gcs9BXnFF",
+      "feishu_token": "LvyldTlbSoDGKCxSk5gcs9BXnFF",
+      "type": "docx",
+      "description": "项目管理全家桶主文档（包含项目背景、进度、重点事项、会议纪要、需求文档、问题清单、项目资料等）",
+      "created_at": "2025-01-04",
+      "last_updated": "2025-01-04",
+      "version": "2"
+    },
+    "需求-事件管理-Skylark完全整合": {
+      "local_path": "documentation/需求文档/事件管理：Skylark完全整合需求文档.md",
+      "feishu_url": "https://skylarkly.feishu.cn/docx/GwEUdXCJ1ocIS6xqbOucSGQnnWe",
+      "feishu_token": "GwEUdXCJ1ocIS6xqbOucSGQnnWe",
+      "type": "docx",
+      "description": "事件管理Skylark完全整合的方案分析文档（包含两种方案对比、风险评估、关键问题清单等）",
+      "parent_doc": "全家桶文档",
+      "created_at": "2025-01-05"
+    }
+  },
+  "notes": [
+    "本文件用于管理本地文档与飞书文档的映射关系",
+    "当需要更新飞书文档时，可以通过feishu_token定位到具体文档",
+    "MCP工具暂不支持更新已有文档，需手动在飞书中编辑或删除后重新导入"
+  ]
+}

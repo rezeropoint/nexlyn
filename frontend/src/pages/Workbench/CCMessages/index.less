@@ -1,0 +1,215 @@
+// 抄送消息页面样式
+
+.flowCell {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.flowTitle {
+  font-weight: 600;
+  color: var(--ant-color-text);
+}
+
+.flowMeta {
+  display: flex;
+  gap: 12px;
+  font-size: 12px;
+  color: var(--ant-color-text-tertiary);
+}
+
+// 流程详情 Drawer 样式
+.flowDetailDrawer {
+  :global(.ant-drawer-header) {
+    border-bottom: 1px solid var(--ant-color-border);
+  }
+
+  :global(.ant-drawer-body) {
+    padding: 24px;
+  }
+}
+
+.detailSection {
+  margin-bottom: 24px;
+
+  .sectionTitle {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--ant-color-text);
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--ant-color-border);
+  }
+
+  .sectionContent {
+    padding: 8px 0;
+  }
+}
+
+// 审批历史时间线样式
+.timelineContainer {
+  padding: 16px 0;
+
+  :global(.ant-timeline-item) {
+    padding-bottom: 20px;
+  }
+
+  :global(.ant-timeline-item-content) {
+    margin-left: 24px;
+  }
+
+  .timelineHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+
+    .operatorInfo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      .operatorName {
+        font-weight: 500;
+        color: var(--ant-color-text);
+      }
+
+      .operatorAction {
+        color: var(--ant-color-text-secondary);
+        font-size: 12px;
+      }
+    }
+
+    .timeInfo {
+      color: var(--ant-color-text-tertiary);
+      font-size: 12px;
+    }
+  }
+
+  .timelineComment {
+    padding: 12px;
+    background-color: var(--ant-color-fill-quaternary);
+    border-radius: 4px;
+    color: var(--ant-color-text-secondary);
+    font-size: 13px;
+    margin-top: 8px;
+  }
+
+  .timelineDuration {
+    color: var(--ant-color-text-tertiary);
+    font-size: 12px;
+    margin-top: 4px;
+  }
+}
+
+// 当前处理人列表
+.processingUsersList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.processingUserCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid var(--ant-color-border);
+  border-radius: 4px;
+  background-color: var(--ant-color-fill-quaternary);
+  min-width: 200px;
+
+  .userAvatar {
+    flex-shrink: 0;
+  }
+
+  .userInfo {
+    flex: 1;
+
+    .userName {
+      font-weight: 500;
+      color: var(--ant-color-text);
+      font-size: 14px;
+    }
+
+    .userMeta {
+      color: var(--ant-color-text-tertiary);
+      font-size: 12px;
+      margin-top: 4px;
+    }
+  }
+}
+
+// 业务数据展示
+.businessDataList {
+  :global(.ant-descriptions-item-label) {
+    color: var(--ant-color-text-secondary);
+    font-weight: 500;
+  }
+
+  :global(.ant-descriptions-item-content) {
+    color: var(--ant-color-text);
+  }
+}
+
+// 附件列表
+.attachmentsList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px 0;
+}
+
+.attachmentItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  border: 1px solid var(--ant-color-border);
+  border-radius: 4px;
+  background-color: var(--ant-color-fill-quaternary);
+
+  &:hover {
+    background-color: var(--ant-color-fill-tertiary);
+  }
+
+  .attachmentInfo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+
+    .attachmentIcon {
+      font-size: 24px;
+      color: var(--ant-color-primary);
+    }
+
+    .attachmentDetails {
+      flex: 1;
+
+      .attachmentName {
+        font-weight: 500;
+        color: var(--ant-color-text);
+        font-size: 14px;
+      }
+
+      .attachmentMeta {
+        color: var(--ant-color-text-tertiary);
+        font-size: 12px;
+        margin-top: 4px;
+      }
+    }
+  }
+
+  .attachmentActions {
+    flex-shrink: 0;
+  }
+}
+
+// 响应式布局
+@media (max-width: 768px) {
+  .processingUserCard {
+    min-width: 100%;
+  }
+}

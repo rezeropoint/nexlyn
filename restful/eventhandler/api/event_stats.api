@@ -1,0 +1,186 @@
+syntax = "v1"
+
+// ===== 事件统计分析相关类型定义 =====
+
+// ===== 通用统计请求参数 =====
+type (
+	// 统计查询通用参数
+	StatsQueryParams {
+		EventIds []string `form:"eventIds,optional"` // 事件配置ID列表（必填，支持单个或多个ID）
+		OrgId    string   `form:"orgId"` // 组织ID（必填，前端指定，后端验证权限）
+		DateFrom string   `form:"dateFrom,optional"` // 开始日期（ISO格式，可选）
+		DateTo   string   `form:"dateTo,optional"` // 结束日期（ISO格式，可选）
+		Status   string   `form:"status,optional"` // 按状态筛选（可选，如"completed"）
+	}
+)
+
+// ===== 处理时长统计 =====
+type (
+	// 处理时长统计请求
+	GetDurationStatsRequest {
+		StatsQueryParams // 通用查询参数
+	}
+
+	// 处理时长统计响应
+	GetDurationStatsResponse {
+		BaseResponse // 基础响应
+		Data {
+			AvgDuration    float64 `json:"avgDuration"` // 平均处理时长（秒）
+			MinDuration    float64 `json:"minDuration"` // 最短处理时长（秒）
+			MaxDuration    float64 `json:"maxDuration"` // 最长处理时长（秒）
+			TotalCount     int64   `json:"totalCount"` // 统计范围内的总事件数
+			CompletedCount int64   `json:"completedCount"` // 已完成事件数
+		} `json:"data,omitempty"`
+	}
+)
+
+// ===== 状态统计 =====
+type (
+	// 状态统计请求
+	GetStatusStatsRequest {
+		StatsQueryParams // 通用查询参数
+	}
+
+	// 状态统计响应
+	GetStatusStatsResponse {
+		BaseResponse // 基础响应
+		Data {
+			StatusCounts []StatusCount `json:"statusCounts"` // 各状态数量（按数量降序）
+			Total        int64         `json:"total"` // 总事件数量
+		} `json:"data,omitempty"`
+	}
+
+	// 单个状态统计项
+	StatusCount {
+		Status     string  `json:"status"` // 状态显示名称（中文）
+		StatusKey  string  `json:"statusKey"` // 状态原始值（英文）
+		Count      int64   `json:"count"` // 该状态的事件数量
+		Percentage float64 `json:"percentage"` // 占比（0-100）
+	}
+)
+
+// ===== 趋势统计 =====
+type (
+	// 趋势统计请求
+	GetTrendStatsRequest {
+		StatsQueryParams // 通用查询参数
+		GroupBy string `form:"groupBy,optional,options=day|week|month"` // 聚合维度（day/week/month，默认day）
+	}
+
+	// 趋势统计响应
+	GetTrendStatsResponse {
+		BaseResponse // 基础响应
+		Data {
+			TimePoints []TrendPoint `json:"timePoints"` // 时间点数据（按时间正序）
+		} `json:"data,omitempty"`
+	}
+
+	// 单个时间点统计数据
+	TrendPoint {
+		Date           string  `json:"date"` // 日期（YYYY-MM-DD 或 YYYY-WW 或 YYYY-MM）
+		TotalCount     int64   `json:"totalCount"` // 该时间段新增的总事件数
+		CompletedCount int64   `json:"completedCount"` // 该时间段完成的事件数
+		CompletionRate float64 `json:"completionRate"` // 完成率（0-100）
+	}
+)
+
+// ===== 节点统计 =====
+type (
+	// 节点统计请求
+	GetNodeStatsRequest {
+		StatsQueryParams // 通用查询参数
+	}
+
+	// 节点统计响应
+	GetNodeStatsResponse {
+		BaseResponse // 基础响应
+		Data {
+			NodeMetrics []NodeMetric `json:"nodeMetrics"` // 节点指标列表（按事件数量降序）
+		} `json:"data,omitempty"`
+	}
+
+	// 单个节点统计指标
+	NodeMetric {
+		VertexId    int     `json:"vertexId"` // 节点ID
+		VertexName  string  `json:"vertexName"` // 节点名称
+		Count       int64   `json:"count"` // 该节点的事件数量
+		AvgDuration float64 `json:"avgDuration"` // 该节点平均停留时长（秒）
+	}
+)
+
+// ===== 处理人统计 =====
+type (
+	// 处理人统计请求
+	GetUserStatsRequest {
+		StatsQueryParams // 通用查询参数
+		TopN int `form:"topN,optional"` // Top N数量（默认10）
+	}
+
+	// 处理人统计响应
+	GetUserStatsResponse {
+		BaseResponse // 基础响应
+		Data {
+			UserMetrics []UserMetric `json:"userMetrics"` // 用户指标列表（按处理数量降序）
+			Total       int64        `json:"total"` // 统计范围内的总处理人数
+		} `json:"data,omitempty"`
+	}
+
+	// 单个处理人统计指标
+	UserMetric {
+		UserId   string `json:"userId"` // 用户ID
+		UserName string `json:"userName"` // 用户姓名
+		Count    int64  `json:"count"` // 处理的事件数量
+		Rank     int    `json:"rank"` // 排名（1开始）
+	}
+)
+
+// ===== 组织统计 =====
+type (
+	// 组织统计请求
+	GetOrgStatsRequest {
+		StatsQueryParams // 通用查询参数
+	}
+
+	// 组织统计响应
+	GetOrgStatsResponse {
+		BaseResponse // 基础响应
+		Data {
+			OrgMetrics []OrgMetric `json:"orgMetrics"` // 组织指标列表（按事件数量降序）
+		} `json:"data,omitempty"`
+	}
+
+	// 单个组织统计指标
+	OrgMetric {
+		OrgValue    string  `json:"orgValue"` // 组织字段值
+		Count       int64   `json:"count"` // 该组织的事件数量
+		AvgDuration float64 `json:"avgDuration"` // 该组织的平均处理时长（秒）
+	}
+)
+
+// ===== 待处理事件统计 =====
+type (
+	// 待处理事件统计请求
+	GetPendingStatsRequest {
+		StatsQueryParams // 通用查询参数
+	}
+
+	// 待处理事件统计响应
+	GetPendingStatsResponse {
+		BaseResponse // 基础响应
+		Data {
+			EventStats      []EventPendingStats `json:"eventStats"` // 按事件配置分组的统计（按事件名称排序）
+			TotalPending    int64               `json:"totalPending"` // 所有事件的未开始总数
+			TotalProcessing int64               `json:"totalProcessing"` // 所有事件的处理中总数
+			Total           int64               `json:"total"` // 总事件数（未完成的事件）
+		} `json:"data,omitempty"`
+	}
+
+	// 单个事件的待处理统计
+	EventPendingStats {
+		EventConfigID   string `json:"eventConfigId"` // 事件配置ID
+		EventName       string `json:"eventName"` // 事件名称
+		PendingCount    int64  `json:"pendingCount"` // 未开始事件数（只有发起节点）
+		ProcessingCount int64  `json:"processingCount"` // 处理中事件数（有多个节点）
+		Total           int64  `json:"total"` // 该事件的总数（未完成的事件）
+	}
+)

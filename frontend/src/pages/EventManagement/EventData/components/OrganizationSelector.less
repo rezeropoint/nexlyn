@@ -1,0 +1,29 @@
+// EventManagement/EventData/OrganizationSelector 样式文件
+// 符合Ant Design 5主题适配规范
+
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.toolbar {
+  display: flex;
+  gap: 4px;
+  justify-content: flex-end;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--ant-color-border);
+}
+
+.treeContent {
+  flex: 1;
+  padding: 12px;
+  overflow: auto;
+}
+
+// 无工具栏时的树内容区域（移除顶部边距）
+.treeContentNoToolbar {
+  flex: 1;
+  padding: 12px;
+  overflow: auto;
+}

@@ -1,0 +1,118 @@
+syntax = "v1"
+
+// ===== InfoAtom 共用类型定义 =====
+type (
+	// 字段类型枚举
+	FieldType {
+		Value string `json:"value"` // string, int, float, bool
+	}
+	// 字段配置
+	FieldConfig {
+		FieldKey  string    `json:"fieldKey"` // 字段键
+		FieldPath string    `json:"fieldPath"` // 字段路径
+		FieldType FieldType `json:"fieldType"` // 字段类型
+	}
+	// 数据格式描述
+	DataFormat {
+		DataPlural bool          `json:"dataPlural"` // 数据是否为复数
+		FieldStart string        `json:"fieldStart"` // 数据是复数时，数组的字段
+		Fields     []FieldConfig `json:"fields"` // 字段配置列表
+	}
+	// 信息原子类型基础信息
+	InfoAtomType {
+		ID         string     `json:"id"` // 信息原子类型ID
+		TenantId   string     `json:"tenantId"` // 租户ID
+		Name       string     `json:"name"` // Type 名称，如 "face.detected"
+		Version    string     `json:"version"` // 版本，便于灰度/演进
+		Tags       []string   `json:"tags"` // 标签，用于分类
+		DataFormat DataFormat `json:"dataFormat"` // 数据格式
+		CreatedAt  int64      `json:"createdAt"` // 创建时间（Unix时间戳）
+		UpdatedAt  int64      `json:"updatedAt"` // 更新时间（Unix时间戳）
+	}
+)
+
+// ===== 路径参数相关类型 =====
+type (
+	// InfoAtomType ID路径参数
+	InfoAtomTypeIdPathRequest {
+		Id string `path:"id"` // 信息原子类型ID
+	}
+)
+
+// ===== InfoAtom 管理相关类型 =====
+type (
+	// 检查信息原子类型是否存在请求
+	CheckInfoAtomTypeRequest {
+		InfoAtomTypeIdPathRequest // 路径参数
+	}
+	// 检查信息原子类型是否存在响应
+	CheckInfoAtomTypeResponse {
+		BaseResponse // 基础响应
+		Data {
+			Exists bool `json:"exists"` // 是否存在
+		} `json:"data,omitempty"`
+	}
+	// 获取信息原子类型请求
+	GetInfoAtomTypeRequest {
+		InfoAtomTypeIdPathRequest // 路径参数
+	}
+	// 获取信息原子类型响应
+	GetInfoAtomTypeResponse {
+		BaseResponse // 基础响应
+		Data InfoAtomType `json:"data,omitempty"` // 信息原子类型数据
+	}
+	// 信息原子类型列表查询请求
+	GetInfoAtomTypeListRequest {
+		PageParamsRequest // 分页请求参数
+		TenantId string   `form:"tenantId,optional"` // 租户ID过滤
+		Name     string   `form:"name,optional"` // 名称过滤
+		Tags     []string `form:"tags,optional"` // 标签过滤，包含任一标签的记录
+	}
+	// 信息原子类型列表数据
+	InfoAtomTypeListData {
+		List []InfoAtomType `json:"list"` // 信息原子类型列表
+	}
+	// 信息原子类型列表响应
+	GetInfoAtomTypeListResponse {
+		BaseResponse // 基础响应
+		PageParams // 分页参数
+		Data InfoAtomTypeListData `json:"data,omitempty"` // 信息原子类型列表数据
+	}
+	// 创建信息原子类型请求
+	CreateInfoAtomTypeRequest {
+		TenantId   string     `json:"tenantId"` // 租户ID
+		Name       string     `json:"name"` // Type 名称，如 "face.detected"
+		Version    string     `json:"version"` // 版本，便于灰度/演进
+		Tags       []string   `json:"tags"` // 标签，用于分类
+		DataFormat DataFormat `json:"dataFormat"` // 数据格式
+	}
+	// 创建信息原子类型响应
+	CreateInfoAtomTypeResponse {
+		BaseResponse // 基础响应
+		Data {
+			ID string `json:"id"` // 新创建的信息原子类型ID
+		} `json:"data,omitempty"`
+	}
+	// 更新信息原子类型请求
+	UpdateInfoAtomTypeRequest {
+		InfoAtomTypeIdPathRequest // 路径参数
+		TenantId   string     `json:"tenantId,optional"` // 租户ID
+		Name       string     `json:"name,optional"` // Type 名称，如 "face.detected"
+		Version    string     `json:"version,optional"` // 版本，便于灰度/演进
+		Tags       []string   `json:"tags,optional"` // 标签，用于分类
+		DataFormat DataFormat `json:"dataFormat,optional"` // 数据格式
+	}
+	// 更新信息原子类型响应
+	UpdateInfoAtomTypeResponse {
+		BaseResponse // 基础响应
+	}
+	// 删除信息原子类型请求
+	DeleteInfoAtomTypeRequest {
+		InfoAtomTypeIdPathRequest // 路径参数
+	}
+	// 删除信息原子类型响应
+	DeleteInfoAtomTypeResponse {
+		BaseResponse // 基础响应
+	}
+)
+

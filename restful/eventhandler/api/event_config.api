@@ -1,0 +1,144 @@
+syntax = "v1"
+
+// ===== 事件配置相关类型定义 =====
+type (
+	// 事件配置元数据
+	EventConfig {
+		Id           string `json:"id"` // 配置UUID
+		Name         string `json:"name"` // 事件显示名称（自定义）
+		FlowId       int    `json:"flowId"` // 远程流程ID
+		FlowTitle    string `json:"flowTitle,optional"` // 远程流程名称（冗余）
+		OrgFieldName string `json:"orgFieldName,optional"` // 组织字段名（可选）
+		Description  string `json:"description,optional"` // 描述
+		Enabled      bool   `json:"enabled"` // 是否启用
+		TenantId     string `json:"tenantId"` // 租户ID
+		CreatedBy    string `json:"createdBy,optional"` // 创建者
+		UpdatedBy    string `json:"updatedBy,optional"` // 更新者
+		CreatedAt    string `json:"createdAt,optional"` // 创建时间
+		UpdatedAt    string `json:"updatedAt,optional"` // 更新时间
+	}
+
+	// 字段配置
+	FieldConfig {
+		Id            string `json:"id"` // 配置UUID
+		EventConfigId string `json:"eventConfigId"` // 关联事件配置ID
+		FieldName     string `json:"fieldName"` // 远程表字段名
+		DisplayName   string `json:"displayName"` // 展示名称
+		FieldType     string `json:"fieldType"` // 字段类型：string/number/date/datetime/boolean
+		IsVisible     bool   `json:"isVisible"` // 是否在列表页展示
+		DisplayOrder  int    `json:"displayOrder"` // 展示顺序
+		IsSearchable  bool   `json:"isSearchable"` // 是否可搜索
+		CreatedAt     string `json:"createdAt,optional"` // 创建时间
+		UpdatedAt     string `json:"updatedAt,optional"` // 更新时间
+	}
+
+	// 事件配置+字段（聚合结构）
+	EventConfigWithFields {
+		Id           string        `json:"id"` // 配置UUID
+		Name         string        `json:"name"` // 事件显示名称
+		FlowId       int           `json:"flowId"` // 远程流程ID
+		FlowTitle    string        `json:"flowTitle,optional"` // 远程流程名称
+		OrgFieldName string        `json:"orgFieldName,optional"` // 组织字段名
+		Description  string        `json:"description,optional"` // 描述
+		Enabled      bool          `json:"enabled"` // 是否启用
+		TenantId     string        `json:"tenantId"` // 租户ID
+		CreatedBy    string        `json:"createdBy,optional"` // 创建者
+		UpdatedBy    string        `json:"updatedBy,optional"` // 更新者
+		CreatedAt    string        `json:"createdAt,optional"` // 创建时间
+		UpdatedAt    string        `json:"updatedAt,optional"` // 更新时间
+		Fields       []FieldConfig `json:"fields"` // 字段配置列表
+	}
+
+	// 字段配置输入
+	FieldConfigInput {
+		FieldName    string `json:"fieldName"` // 字段名（必填）
+		DisplayName  string `json:"displayName"` // 展示名称（必填）
+		FieldType    string `json:"fieldType"` // 字段类型（必填）
+		IsVisible    bool   `json:"isVisible"` // 是否可见
+		DisplayOrder int    `json:"displayOrder"` // 展示顺序
+		IsSearchable bool   `json:"isSearchable"` // 是否可搜索
+	}
+)
+
+// ===== 路径参数相关类型 =====
+type (
+	EventIdPathRequest {
+		Id string `path:"id"` // 事件配置ID
+	}
+)
+
+// ===== 事件配置管理相关类型（聚合接口） =====
+type (
+	// 创建事件配置请求（包含字段，事务保证）
+	CreateEventConfigWithFieldsRequest {
+		Name         string             `json:"name"` // 事件名称（必填）
+		FlowId       int                `json:"flowId"` // 远程流程ID（必填）
+		OrgFieldName string             `json:"orgFieldName,optional"` // 组织字段名（可选）
+		Description  string             `json:"description,optional"` // 描述
+		Enabled      bool               `json:"enabled,optional"` // 是否启用（默认true）
+		Fields       []FieldConfigInput `json:"fields"` // 字段配置列表（必填）
+	}
+
+	// 创建事件配置响应
+	CreateEventConfigWithFieldsResponse {
+		BaseResponse // 基础响应
+		Data {
+			Id   string `json:"id"` // 事件配置UUID
+			Name string `json:"name"` // 事件名称
+		} `json:"data,omitempty"`
+	}
+
+	// 更新事件配置请求（包含字段，完整替换策略）
+	UpdateEventConfigWithFieldsRequest {
+		EventIdPathRequest // 路径参数
+
+		Name         string             `json:"name,optional"` // 事件名称
+		OrgFieldName string             `json:"orgFieldName,optional"` // 组织字段名
+		Description  string             `json:"description,optional"` // 描述
+		Enabled      bool               `json:"enabled,optional"` // 是否启用
+		Fields       []FieldConfigInput `json:"fields"` // 字段配置列表（完整替换）
+		// 注意：FlowId 不允许修改
+	}
+
+	// 更新事件配置响应
+	UpdateEventConfigWithFieldsResponse {
+		BaseResponse // 基础响应
+	}
+
+	// 获取事件配置详情请求
+	GetEventConfigWithFieldsRequest {
+		EventIdPathRequest // 路径参数
+	}
+
+	// 获取事件配置详情响应（包含字段）
+	GetEventConfigWithFieldsResponse {
+		BaseResponse // 基础响应
+		Data         EventConfigWithFields `json:"data,omitempty"` // 事件配置+字段
+	}
+
+	// 获取事件配置列表请求（包含字段）
+	GetEventConfigListWithFieldsRequest {
+		PageParamsRequest                       // 分页参数
+		Keyword string `form:"keyword,optional"` // 关键词搜索（名称）
+		Enabled *bool  `form:"enabled,optional"` // 启用状态筛选（nil=全部, true=已启用, false=未启用）
+	}
+
+	// 获取事件配置列表响应（包含字段）
+	GetEventConfigListWithFieldsResponse {
+		BaseResponse // 基础响应
+		PageParams   // 分页参数
+		Data {
+			List []EventConfigWithFields `json:"list"` // 事件配置列表（包含字段）
+		} `json:"data,omitempty"`
+	}
+
+	// 删除事件配置请求
+	DeleteEventConfigRequest {
+		EventIdPathRequest // 路径参数
+	}
+
+	// 删除事件配置响应
+	DeleteEventConfigResponse {
+		BaseResponse // 基础响应
+	}
+)

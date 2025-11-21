@@ -1,0 +1,100 @@
+syntax = "v1"
+
+// ===== 标签相关类型定义 =====
+type (
+	// 标签信息
+	LynxTag {
+		Id          string `json:"id"` // 标签ID（UUID）
+		Name        string `json:"name"` // 标签名称
+		Description string `json:"description"` // 标签描述
+		Scope       string `json:"scope"` // 标签作用域：info_atom / logic_graph
+		TenantId    string `json:"tenantId"` // 租户ID
+		CreatedBy   string `json:"createdBy"` // 创建者用户ID
+		UpdatedBy   string `json:"updatedBy"` // 最后修改者用户ID
+		CreatedAt   int64  `json:"createdAt"` // 创建时间（Unix秒）
+		UpdatedAt   int64  `json:"updatedAt"` // 更新时间（Unix秒）
+	}
+	// 标签摘要（列表展示）
+	LynxTagSummary {
+		Id          string `json:"id"`
+		Name        string `json:"name"`
+		Description string `json:"description"`
+		Scope       string `json:"scope"`
+		CreatedAt   int64  `json:"createdAt"`
+		UpdatedAt   int64  `json:"updatedAt"`
+	}
+	// 创建标签请求
+	CreateTagRequest {
+		Name        string `json:"name"` // 标签名称（必填）
+		Description string `json:"description,optional"` // 标签描述
+		Scope       string `json:"scope"` // 标签作用域（必填）：info_atom / logic_graph
+		TenantId    string `json:"tenantId"` // 租户ID（必填）
+		CreatedBy   string `json:"createdBy,optional"` // 创建者用户ID
+	}
+	// 更新标签请求
+	UpdateTagRequest {
+		Id          string `path:"id"` // 标签ID
+		Name        string `json:"name,optional"`
+		Description string `json:"description,optional"`
+	}
+	// 查询标签列表请求
+	ListTagsRequest {
+		TenantId string `form:"tenantId"` // 租户ID（必填）
+		Scope    string `form:"scope,optional"` // 作用域筛选（可选）
+		Keyword  string `form:"keyword,optional"` // 关键词搜索
+		Page     int    `form:"page,default=1"`
+		PageSize int    `form:"pageSize,default=10"`
+	}
+	// 查询标签列表数据
+	ListTagsData {
+		List []LynxTagSummary `json:"list"`
+	}
+	// 查询标签列表响应
+	ListTagsResponse {
+		BaseResponse
+		PageParams
+		Data ListTagsData `json:"data"`
+	}
+	// 获取标签请求
+	GetTagRequest {
+		Id string `path:"id"` // 标签ID
+	}
+	// 批量查询标签请求
+	BatchQueryTagsRequest {
+		TenantId string   `json:"tenantId"` // 租户ID（必填）
+		Scope    string   `json:"scope"` // 作用域（必填）
+		Names    []string `json:"names"` // 标签名称列表
+	}
+	// 创建标签响应数据
+	CreateTagData {
+		Id string `json:"id"` // 新创建的标签ID
+	}
+	// 创建标签响应
+	CreateTagResponse {
+		BaseResponse
+		Data CreateTagData `json:"data,omitempty"`
+	}
+	// 获取标签响应
+	GetTagResponse {
+		BaseResponse
+		Data LynxTag `json:"data,omitempty"`
+	}
+	// 更新标签响应
+	UpdateTagResponse {
+		BaseResponse
+	}
+	// 删除标签请求
+	DeleteTagRequest {
+		Id string `path:"id"` // 标签ID
+	}
+	// 删除标签响应
+	DeleteTagResponse {
+		BaseResponse
+	}
+	// 批量查询标签响应
+	BatchQueryTagsResponse {
+		BaseResponse
+		Data []LynxTagSummary `json:"data"`
+	}
+)
+

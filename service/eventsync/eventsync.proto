@@ -1,0 +1,258 @@
+syntax = "proto3";
+
+package eventsync;
+
+option go_package = "github.com/rezeropoint/nexlyn/service/eventsync/pb";
+
+// AdminSync gRPC服务
+// 负责将本地用户和组织同步到Skylark平台
+service AdminSync {
+  // 同步单个用户到Skylark
+  rpc SyncUser(SyncUserReq) returns (SyncUserResp);
+
+  // 同步单个组织到Skylark（自动判断根组织或子组织）
+  rpc SyncOrganization(SyncOrganizationReq) returns (SyncOrganizationResp);
+
+  // 删除组织同步
+  rpc DeleteOrganization(DeleteOrganizationReq) returns (DeleteOrganizationResp);
+
+  // 健康检查
+  rpc HealthCheck(HealthCheckReq) returns (HealthCheckResp);
+
+  // 查询用户同步状态
+  rpc GetUserSyncStatus(GetUserSyncStatusReq) returns (GetUserSyncStatusResp);
+
+  // 查询组织同步状态
+  rpc GetOrgSyncStatus(GetOrgSyncStatusReq) returns (GetOrgSyncStatusResp);
+
+  // 绑定已存在的远程组织
+  rpc BindOrganization(BindOrganizationReq) returns (BindOrganizationResp);
+
+  // 解绑组织映射
+  rpc UnbindOrganization(UnbindOrganizationReq) returns (UnbindOrganizationResp);
+
+  // 绑定已存在的远程用户
+  rpc BindUser(BindUserReq) returns (BindUserResp);
+
+  // 解绑用户映射
+  rpc UnbindUser(UnbindUserReq) returns (UnbindUserResp);
+
+  // 更新组织信息（支持设置管理员）
+  rpc UpdateOrganization(UpdateOrganizationReq) returns (UpdateOrganizationResp);
+
+  // 添加成员到组织
+  rpc AddMember(AddMemberReq) returns (AddMemberResp);
+
+  // 从组织移除成员
+  rpc RemoveMember(RemoveMemberReq) returns (RemoveMemberResp);
+}
+
+// ============================================================================
+// 用户同步
+// ============================================================================
+
+message SyncUserReq {
+  string tenant_id = 1;      // 租户ID
+  string local_user_id = 2;  // 本地用户ID
+  string name = 3;           // 用户姓名
+  string identifier = 4;     // 用户标识符（邮箱等，可选）
+  string phone = 5;          // 手机号（可选）
+  string openid = 6;         // OpenID（可选）
+}
+
+message SyncUserResp {
+  bool success = 1;          // 是否成功
+  string message = 2;        // 响应消息
+  string remote_user_id = 3; // Skylark用户ID
+  string error_code = 4;     // 错误码（可选）
+}
+
+// ============================================================================
+// 组织同步
+// ============================================================================
+
+message SyncOrganizationReq {
+  string tenant_id = 1;          // 租户ID
+  string local_org_id = 2;       // 本地组织ID
+  string parent_local_org_id = 3; // 父组织本地ID（空字符串表示根组织）
+  string name = 4;               // 组织名称
+  string description = 5;        // 组织描述
+  string founder_id = 6;         // 创建人本地用户ID
+}
+
+message SyncOrganizationResp {
+  bool success = 1;
+  string message = 2;
+  string remote_org_id = 3;      // Skylark组织ID
+  string error_code = 4;
+}
+
+// ============================================================================
+// 删除组织
+// ============================================================================
+
+message DeleteOrganizationReq {
+  string tenant_id = 1;
+  string local_org_id = 2;
+}
+
+message DeleteOrganizationResp {
+  bool success = 1;
+  string message = 2;
+  string error_code = 3;
+}
+
+// ============================================================================
+// 健康检查
+// ============================================================================
+
+message HealthCheckReq {}
+
+message HealthCheckResp {
+  bool healthy = 1;
+}
+
+// ============================================================================
+// 用户同步状态查询
+// ============================================================================
+
+message GetUserSyncStatusReq {
+  string tenant_id = 1;              // 租户ID
+  repeated string user_ids = 2;      // 用户ID列表
+}
+
+message GetUserSyncStatusResp {
+  bool success = 1;
+  string message = 2;
+  map<string, bool> sync_status = 3;   // key: 用户ID, value: 是否已同步
+}
+
+// ============================================================================
+// 组织同步状态查询
+// ============================================================================
+
+message GetOrgSyncStatusReq {
+  string tenant_id = 1;              // 租户ID
+  repeated string org_ids = 2;       // 组织ID列表
+}
+
+message GetOrgSyncStatusResp {
+  bool success = 1;
+  string message = 2;
+  map<string, bool> sync_status = 3;     // key: 组织ID, value: 是否已同步
+}
+
+// ============================================================================
+// 绑定组织
+// ============================================================================
+
+message BindOrganizationReq {
+  string tenant_id = 1;       // 租户ID
+  string local_org_id = 2;    // 本地组织ID
+  int32 remote_org_id = 3;    // 远程组织ID（Skylark中已存在的组织ID）
+}
+
+message BindOrganizationResp {
+  bool success = 1;
+  string message = 2;
+  string error_code = 3;
+}
+
+// ============================================================================
+// 解绑组织
+// ============================================================================
+
+message UnbindOrganizationReq {
+  string tenant_id = 1;       // 租户ID
+  string local_org_id = 2;    // 本地组织ID
+}
+
+message UnbindOrganizationResp {
+  bool success = 1;
+  string message = 2;
+  string error_code = 3;
+}
+
+// ============================================================================
+// 绑定用户
+// ============================================================================
+
+message BindUserReq {
+  string tenant_id = 1;       // 租户ID
+  string local_user_id = 2;   // 本地用户ID
+  int32 remote_user_id = 3;   // 远程用户ID（Skylark中已存在的用户ID）
+}
+
+message BindUserResp {
+  bool success = 1;
+  string message = 2;
+  string error_code = 3;
+}
+
+// ============================================================================
+// 解绑用户
+// ============================================================================
+
+message UnbindUserReq {
+  string tenant_id = 1;       // 租户ID
+  string local_user_id = 2;   // 本地用户ID
+}
+
+message UnbindUserResp {
+  bool success = 1;
+  string message = 2;
+  string error_code = 3;
+}
+
+// ============================================================================
+// 更新组织信息
+// ============================================================================
+
+message UpdateOrganizationReq {
+  string tenant_id = 1;       // 租户ID
+  string local_org_id = 2;    // 本地组织ID
+  string name = 3;            // 组织名称（可选）
+  string description = 4;     // 组织描述（可选）
+  string manager_id = 5;      // 管理员本地用户ID（可选）
+  bool update_name = 6;       // 是否更新名称
+  bool update_description = 7; // 是否更新描述
+  bool update_manager = 8;     // 是否更新管理员
+}
+
+message UpdateOrganizationResp {
+  bool success = 1;
+  string message = 2;
+  string error_code = 3;
+}
+
+// ============================================================================
+// 添加成员到组织
+// ============================================================================
+
+message AddMemberReq {
+  string tenant_id = 1;       // 租户ID
+  string local_org_id = 2;    // 本地组织ID
+  string local_member_id = 3; // 成员本地用户ID
+}
+
+message AddMemberResp {
+  bool success = 1;
+  string message = 2;
+  string error_code = 3;
+}
+
+// ============================================================================
+// 从组织移除成员
+// ============================================================================
+
+message RemoveMemberReq {
+  string tenant_id = 1;       // 租户ID
+  string local_org_id = 2;    // 本地组织ID
+  string local_member_id = 3; // 成员本地用户ID
+}
+
+message RemoveMemberResp {
+  bool success = 1;
+  string message = 2;
+  string error_code = 3;
+}

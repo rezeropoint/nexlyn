@@ -1,0 +1,182 @@
+syntax = "v1"
+
+// ===== 权限管理类型定义 =====
+type (
+	// 添加权限请求
+	AddPermissionRequest {
+		UserKey  string `json:"userKey"` // 用户Key
+		TenantKey string `json:"tenantKey"` // 租户ID
+		Resource string `json:"resource"` // 资源 (如: user:read, graph:write)
+		Action   string `json:"action"` // 操作 (read, write, delete, admin)
+	}
+	// 移除权限请求
+	RemovePermissionRequest {
+		UserKey  string `json:"userKey"` // 用户Key
+		TenantKey string `json:"tenantKey"` // 租户ID
+		Resource string `json:"resource"` // 资源
+		Action   string `json:"action"` // 操作
+	}
+	// 添加角色请求
+	AddRoleRequest {
+		UserKey  string `json:"userKey"` // 用户Key
+		RoleKey  string `json:"roleKey"` // 角色键 (super_admin, admin, user)
+		TenantKey string `json:"tenantKey"` // 租户ID
+	}
+	// 移除角色请求
+	RemoveRoleRequest {
+		UserKey  string `json:"userKey"` // 用户Key
+		RoleKey  string `json:"roleKey"` // 角色键
+		TenantKey string `json:"tenantKey"` // 租户ID
+	}
+	// 检查权限请求
+	CheckPermissionRequest {
+		UserKey  string `json:"userKey"` // 用户Key
+		TenantKey string `json:"tenantKey"` // 租户Key
+		Resource string `json:"resource"` // 资源
+		Action   string `json:"action"` // 操作
+	}
+	// 检查权限响应
+	CheckPermissionResponse {
+		BaseResponse // 基础响应
+		HasPermission bool `json:"hasPermission"` // 是否有权限
+	}
+	// 获取用户权限响应
+	GetUserPermissionsResponse {
+		BaseResponse // 基础响应
+		Permissions []string `json:"permissions"` // 权限列表
+		Roles       []string `json:"roles"` // 角色列表
+	}
+	// 权限规则信息
+	PermissionRule {
+		Ptype    string `json:"ptype"` // 规则类型 (p, g)
+		UserKey  string `json:"userKey"` // 用户Key
+		TenantKey string `json:"tenantKey"` // 租户ID
+		Resource string `json:"resource"` // 资源
+		Action   string `json:"action"` // 操作
+		RoleKey  string `json:"roleKey,omitempty"` // 角色键 (用于角色关联规则)
+	}
+	// 获取权限规则列表请求
+	GetPermissionRulesRequest {
+		UserKey  string `form:"userKey,optional"` // 用户Key筛选
+		TenantKey string `form:"tenantId,optional"` // 租户ID筛选
+		Resource string `form:"resource,optional"` // 资源筛选
+		Action   string `form:"action,optional"` // 操作筛选
+		Ptype    string `form:"ptype,optional"` // 规则类型筛选
+		PageParamsRequest // 分页参数
+	}
+	// 获取权限规则列表响应
+	GetPermissionRulesResponse {
+		BaseResponse // 基础响应
+		Data []PermissionRule `json:"data"` // 权限规则列表
+		PageParams // 分页信息
+	}
+	// 角色信息
+	RoleInfo {
+		RoleKey     string   `json:"roleKey"` // 角色键
+		RoleName    string   `json:"roleName"` // 角色显示名称
+		Description string   `json:"description"` // 角色描述
+		Permissions []string `json:"permissions"` // 角色拥有的权限列表
+	}
+	// 创建角色请求
+	CreateRoleRequest {
+		RoleKey     string   `json:"roleKey"` // 角色键
+		RoleName    string   `json:"roleName"` // 角色显示名称
+		Description string   `json:"description,optional"` // 角色描述
+		Permissions []string `json:"permissions"` // 角色权限列表
+	}
+	// 更新角色请求
+	UpdateRoleRequest {
+		RoleKey     string   `path:"roleKey"` // 角色键
+		RoleName    string   `json:"roleName,optional"` // 角色显示名称
+		Description string   `json:"description,optional"` // 角色描述
+		Permissions []string `json:"permissions,optional"` // 角色权限列表
+	}
+	// 删除角色请求
+	DeleteRoleRequest {
+		RoleKey string `path:"roleKey"` // 角色键
+	}
+	// 获取角色列表请求
+	GetRoleListRequest {
+		RoleKey  string `form:"roleKey,optional"` // 角色键筛选
+		RoleName string `form:"roleName,optional"` // 角色名称筛选
+		PageParamsRequest // 分页参数
+	}
+	// 获取角色列表响应
+	GetRoleListResponse {
+		BaseResponse // 基础响应
+		Data []RoleInfo `json:"data"` // 角色列表
+		PageParams // 分页信息
+	}
+	// 获取角色详情请求
+	GetRoleRequest {
+		RoleKey string `path:"roleKey"` // 角色键
+	}
+	// 获取角色详情响应
+	GetRoleResponse {
+		BaseResponse // 基础响应
+		Data RoleInfo `json:"data"` // 角色信息
+	}
+	// 为角色添加权限请求
+	AddRolePermissionRequest {
+		RoleKey  string `json:"roleKey"` // 角色键
+		Resource string `json:"resource"` // 资源
+		Action   string `json:"action"` // 操作
+		TenantKey string `json:"tenantKey"` // 租户ID（*表示所有租户）
+	}
+	// 为角色移除权限请求
+	RemoveRolePermissionRequest {
+		RoleKey  string `json:"roleKey"` // 角色键
+		Resource string `json:"resource"` // 资源
+		Action   string `json:"action"` // 操作
+		TenantKey string `json:"tenantKey"` // 租户ID
+	}
+	// 获取可用权限列表响应
+	GetAvailablePermissionsResponse {
+		BaseResponse // 基础响应
+		Data []PermissionItem `json:"data"` // 权限项列表
+	}
+	// 权限项
+	PermissionItem {
+		Resource    string `json:"resource"` // 资源
+		Action      string `json:"action"` // 操作
+		Description string `json:"description"` // 权限描述
+		Category    string `json:"category"` // 权限分类
+	}
+	// 添加权限响应
+	AddPermissionResponse {
+		BaseResponse // 基础响应
+	}
+	// 移除权限响应
+	RemovePermissionResponse {
+		BaseResponse // 基础响应
+	}
+	// 为用户添加角色响应
+	AddRoleForUserResponse {
+		BaseResponse // 基础响应
+	}
+	// 为用户移除角色响应
+	RemoveRoleForUserResponse {
+		BaseResponse // 基础响应
+	}
+	// 创建角色响应
+	CreateRoleResponse {
+		BaseResponse // 基础响应
+	}
+	// 更新角色响应
+	UpdateRoleResponse {
+		BaseResponse // 基础响应
+	}
+	// 删除角色响应
+	DeleteRoleResponse {
+		BaseResponse // 基础响应
+	}
+	// 为角色添加权限响应
+	AddRolePermissionResponse {
+		BaseResponse // 基础响应
+	}
+	// 为角色移除权限响应
+	RemoveRolePermissionResponse {
+		BaseResponse // 基础响应
+	}
+)
+

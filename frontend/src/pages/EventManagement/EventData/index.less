@@ -1,0 +1,40 @@
+// EventManagement/EventData 主页面样式文件
+// 符合Ant Design 5主题适配规范
+
+// Splitter 容器样式
+.splitterContainer {
+  height: calc(100vh - 200px); // 减去页头高度
+  min-height: 600px;
+
+  // Splitter 内部面板样式
+  .leftPanel,
+  .rightPanel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+
+    // ProCard 填充整个面板
+    :global(.ant-pro-card) {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      border: none;
+
+      :global(.ant-pro-card-body) {
+        flex: 1;
+        overflow: auto;
+      }
+    }
+  }
+}
+
+// 事件配置选择器区域
+.eventConfigSelector {
+  padding: 16px;
+}
+
+.emptyState {
+  padding: 40px;
+  color: var(--ant-color-text-tertiary);
+  text-align: center;
+}

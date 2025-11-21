@@ -1,0 +1,54 @@
+.editor-toolbar {
+  padding: 8px 16px;
+  background-color: var(--ant-color-bg-container);
+  border-bottom: 1px solid var(--ant-color-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between; // 左侧操作按钮，右侧帮助按钮
+
+  :global {
+    .ant-space-item {
+      display: flex;
+      align-items: center;
+    }
+
+    .ant-divider-vertical {
+      margin: 0 12px;
+      height: 20px;
+      border-color: var(--ant-color-border-secondary);
+    }
+
+    .ant-badge-dot {
+      background-color: var(--ant-color-error);
+    }
+
+    .ant-btn {
+      font-size: 13px;
+    }
+  }
+}
+
+// 帮助提示样式
+.help-content {
+  max-width: 300px;
+
+  .help-title {
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: var(--ant-color-text);
+  }
+
+  .help-list {
+    padding-left: 20px;
+    margin: 0;
+    color: var(--ant-color-text-secondary);
+
+    li {
+      margin-bottom: 4px;
+
+      strong {
+        color: var(--ant-color-text);
+      }
+    }
+  }
+}

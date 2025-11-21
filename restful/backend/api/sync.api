@@ -1,0 +1,119 @@
+syntax = "v1"
+
+
+// ===== 用户同步相关类型 =====
+type (
+	// 同步单个用户请求
+	SyncUserRequest {
+		Id string `path:"id"` // 用户ID（路径参数）
+	}
+
+	// 同步单个用户响应
+	SyncUserResponse {
+		BaseResponse // 基础响应
+		Data {
+			RemoteUserId string `json:"remoteUserId"` // Skylark用户ID
+		} `json:"data,omitempty"`
+	}
+
+	// 查询用户同步状态请求
+	GetUserSyncStatusRequest {
+		UserIds []string `form:"userIds"` // 用户ID列表
+	}
+
+	// 查询用户同步状态响应
+	GetUserSyncStatusResponse {
+		BaseResponse // 基础响应
+		Data {
+			SyncStatus map[string]bool `json:"syncStatus"` // key: 用户ID, value: 是否已同步
+		} `json:"data,omitempty"`
+	}
+)
+
+// ===== 组织同步相关类型 =====
+type (
+	// 同步单个组织请求
+	SyncOrganizationRequest {
+		Id string `path:"id"` // 组织ID（路径参数）
+	}
+
+	// 同步单个组织响应
+	SyncOrganizationResponse {
+		BaseResponse // 基础响应
+		Data {
+			RemoteOrgId string `json:"remoteOrgId"` // Skylark组织ID
+		} `json:"data,omitempty"`
+	}
+
+	// 查询组织同步状态请求
+	GetOrgSyncStatusRequest {
+		OrgIds []string `form:"orgIds"` // 组织ID列表
+	}
+
+	// 查询组织同步状态响应
+	GetOrgSyncStatusResponse {
+		BaseResponse // 基础响应
+		Data {
+			SyncStatus map[string]bool `json:"syncStatus"` // key: 组织ID, value: 是否已同步
+		} `json:"data,omitempty"`
+	}
+)
+
+// ===== 用户绑定/解绑相关类型 =====
+type (
+	// 绑定用户请求
+	BindUserRequest {
+		Id           string `path:"id"`           // 用户ID（路径参数）
+		RemoteUserId int32  `json:"remoteUserId"` // 远程用户ID
+	}
+
+	// 绑定用户响应
+	BindUserResponse {
+		BaseResponse // 基础响应
+	}
+
+	// 解绑用户请求
+	UnbindUserRequest {
+		Id string `path:"id"` // 用户ID（路径参数）
+	}
+
+	// 解绑用户响应
+	UnbindUserResponse {
+		BaseResponse // 基础响应
+	}
+)
+
+// ===== 组织绑定/解绑相关类型 =====
+type (
+	// 绑定组织请求
+	BindOrganizationRequest {
+		Id          string `path:"id"`          // 组织ID（路径参数）
+		RemoteOrgId int32  `json:"remoteOrgId"` // 远程组织ID
+	}
+
+	// 绑定组织响应
+	BindOrganizationResponse {
+		BaseResponse // 基础响应
+	}
+
+	// 解绑组织请求
+	UnbindOrganizationRequest {
+		Id string `path:"id"` // 组织ID（路径参数）
+	}
+
+	// 解绑组织响应
+	UnbindOrganizationResponse {
+		BaseResponse // 基础响应
+	}
+)
+
+// ===== 健康检查相关类型 =====
+type (
+	// 健康检查响应
+	SyncHealthCheckResponse {
+		BaseResponse // 基础响应
+		Data {
+			Healthy bool `json:"healthy"` // 服务是否健康
+		} `json:"data,omitempty"`
+	}
+)

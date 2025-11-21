@@ -1,0 +1,77 @@
+syntax = "v1"
+
+// ===== 事件数据查询相关类型定义 =====
+type (
+	// 列信息
+	ColumnInfo {
+		Field       string `json:"field"` // 字段名
+		DisplayName string `json:"displayName"` // 展示名称
+		Type        string `json:"type"` // 字段类型
+	}
+
+	// 流程节点信息（用于展示流转历史时间线）
+	// 注意：按 VertexID 合并后的节点，支持同一节点多人处理
+	FlowNode {
+		VertexId     int      `json:"vertexId"` // 节点ID
+		VertexName   string   `json:"vertexName"` // 节点名称
+		VertexAlias  string   `json:"vertexAlias"` // 节点别名
+		UserIds      []string `json:"userIds"` // 处理人ID列表（支持同一节点多人处理）
+		UserNames    []string `json:"userNames"` // 处理人姓名列表（引擎已转换，与UserIds一一对应）
+		CreatedAt    string   `json:"createdAt"` // 节点第一次创建时间
+		UpdatedAt    string   `json:"updatedAt"` // 节点最后更新时间
+	}
+)
+
+// ===== 路径参数相关类型 =====
+type (
+	EventDataPathRequest {
+		EventId   string `path:"eventId"` // 事件配置ID
+		JourneyId int    `path:"journeyId"` // Journey ID（事件实例ID）
+	}
+)
+
+// ===== 事件数据查询相关类型 =====
+type (
+	// 查询事件数据请求
+	QueryEventDataRequest {
+		EventId string `path:"eventId"` // 事件配置ID（路径参数）
+
+		OrgId     string   `json:"orgId"` // 组织ID（必填，前端指定，后端验证权限）
+		Page      int      `json:"page,optional"` // 页码（从1开始）
+		PageSize  int      `json:"pageSize,optional"` // 每页数量
+		Keyword   string   `json:"keyword,optional"` // 关键词搜索
+		SortField string   `json:"sortField,optional"` // 排序字段
+		SortOrder string   `json:"sortOrder,optional"` // 排序方向：asc/desc
+		Status    []string `json:"status,optional"` // 状态筛选（可选，支持多个状态：processing/finished/cancelled等）
+		// Filters map[string]interface{} `json:"filters,optional"` // 额外过滤条件（预留）
+	}
+
+	// 查询事件数据响应
+	QueryEventDataResponse {
+		BaseResponse // 基础响应
+		Data {
+			Columns []ColumnInfo               `json:"columns"` // 列定义
+			Records []map[string]interface{} `json:"records"` // 数据记录（动态字段）
+			Total   int64                      `json:"total"` // 总记录数
+		} `json:"data,omitempty"`
+	}
+
+	// 获取事件详情请求（返回Journey的所有Assignment）
+	GetEventDetailRequest {
+		EventDataPathRequest // 路径参数
+	}
+
+	// 获取事件详情响应（匹配pkg/skylarkq的DetailResponse）
+	GetEventDetailResponse {
+		BaseResponse // 基础响应
+		Data {
+			JourneyId          int                    `json:"journeyId"` // Journey ID
+			CurrentStatus      string                 `json:"currentStatus"` // 当前流程状态
+			InitiatorUserId    string                 `json:"initiatorUserId"` // 发起人ID
+			InitiatorUserName  string                 `json:"initiatorUserName"` // 发起人姓名（引擎已转换）
+			InitiatedAt        string                 `json:"initiatedAt"` // 发起时间
+			LatestBusinessData map[string]interface{} `json:"latestBusinessData"` // 最新业务数据（当前快照）
+			FlowHistory        []FlowNode             `json:"flowHistory"` // 流转历史（所有Assignment的节点信息）
+		} `json:"data,omitempty"`
+	}
+)

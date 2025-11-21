@@ -1,0 +1,129 @@
+syntax = "v1"
+
+// ===== 逻辑图配置相关定义 =====
+type (
+	// 节点配置
+	NodeConfig {
+		Id                        string   `json:"id"` // 节点ID
+		Type                      string   `json:"type"` // 节点类型（entry/action/filter等）
+		BlockType                 string   `json:"blockType"` // 逻辑块类型
+		BlockVersion              string   `json:"blockVersion"` // 逻辑块版本
+		IsEntryPoint              bool     `json:"isEntryPoint"` // 是否为入口节点
+		SubscribedInfoAtomTypeIDs []string `json:"subscribedInfoAtomTypeIDs,optional"` // 订阅的信息原子类型ID列表
+		SubscribedSource          string   `json:"subscribedSource,optional"` // 订阅的数据来源
+		SubscribedLabels          []string `json:"subscribedLabels,optional"` // 订阅的标签列表
+		BlockConfig               string   `json:"blockConfig,optional"` // 逻辑块配置（JSON字符串）
+		X                         float64  `json:"x,optional"` // 画布X坐标
+		Y                         float64  `json:"y,optional"` // 画布Y坐标
+	}
+	// 边配置
+	EdgeConfig {
+		Id        string `json:"id"` // 边ID
+		SourceID  string `json:"sourceID"` // 源节点ID
+		TargetID  string `json:"targetID"` // 目标节点ID
+		Condition string `json:"condition,optional"` // 条件表达式
+	}
+	// 逻辑图配置元数据
+	GraphConfigMetadata {
+		Id          string           `json:"id"` // 逻辑图ID（UUID）
+		TenantId    string           `json:"tenantId"` // 租户ID
+		OrgId       string           `json:"orgId"` // 所属组织ID（用于权限控制）
+		Name        string           `json:"name"` // 图名称
+		Version     string           `json:"version"` // 版本号
+		Description string           `json:"description,optional"` // 描述
+		Tags        []LynxTagSummary `json:"tags,optional"` // 标签列表（Phase 2.5: 完整对象）
+		IsEnabled   bool             `json:"isEnabled"` // 是否启用
+		Icon        string           `json:"icon,optional"` // 图标名称（如 'FaRobot', 'MdSensors'）
+		IconColor   string           `json:"iconColor,optional"` // 图标颜色（可选，默认使用主题色）
+		CreatedAt   int64            `json:"createdAt,optional"` // 创建时间（Unix毫秒）
+		UpdatedAt   int64            `json:"updatedAt,optional"` // 更新时间（Unix毫秒）
+		CreatedBy   string           `json:"createdBy,optional"` // 创建人ID
+		UpdatedBy   string           `json:"updatedBy,optional"` // 更新人ID
+	}
+	// 逻辑图配置详情
+	GraphConfigDetail {
+		GraphConfigMetadata
+		Nodes []NodeConfig `json:"nodes"` // 节点列表
+		Edges []EdgeConfig `json:"edges"` // 边列表
+	}
+)
+
+type (
+	// 创建逻辑图配置请求
+	CreateGraphConfigRequest {
+		TenantId    string       `json:"tenantId"` // 租户ID
+		OrgId       string       `json:"orgId,optional"` // 所属组织ID（可选，后端从JWT自动填充）
+		Name        string       `json:"name"` // 图名称
+		Version     string       `json:"version"` // 版本号
+		Description string       `json:"description,optional"` // 描述
+		TagIds      []string     `json:"tagIds,optional"` // 标签ID列表
+		IsEnabled   bool         `json:"isEnabled,optional"` // 是否启用（默认true）
+		Icon        string       `json:"icon,optional"` // 图标名称
+		IconColor   string       `json:"iconColor,optional"` // 图标颜色
+		Nodes       []NodeConfig `json:"nodes,optional"` // 节点列表（可选，在详情页编辑）
+		Edges       []EdgeConfig `json:"edges,optional"` // 边列表（可选，在详情页编辑）
+	}
+	// 创建逻辑图配置响应数据
+	CreateGraphConfigData {
+		Id string `json:"id"` // 创建的逻辑图ID
+	}
+	// 创建逻辑图配置响应
+	CreateGraphConfigResponse {
+		BaseResponse
+		Data CreateGraphConfigData `json:"data,omitempty"`
+	}
+	// 查询逻辑图配置列表请求
+	GetGraphConfigListRequest {
+		Page      int      `form:"page,default=1"`
+		PageSize  int      `form:"pageSize,default=10"`
+		TenantId  string   `form:"tenantId"` // 租户ID（必填）
+		Name      string   `form:"name,optional"` // 图名称筛选（模糊匹配）
+		Tags      []string `form:"tags,optional"` // 标签筛选
+		IsEnabled *bool    `form:"isEnabled,optional"` // 启用状态筛选
+	}
+	// 查询逻辑图配置列表响应数据
+	GetGraphConfigListData {
+		List []GraphConfigMetadata `json:"list"` // 逻辑图元数据列表
+	}
+	// 查询逻辑图配置列表响应
+	GetGraphConfigListResponse {
+		BaseResponse
+		PageParams
+		Data GetGraphConfigListData `json:"data,omitempty"`
+	}
+	// 获取逻辑图配置详情请求
+	GetGraphConfigRequest {
+		Id string `path:"id"` // 逻辑图ID
+	}
+	// 获取逻辑图配置详情响应
+	GetGraphConfigResponse {
+		BaseResponse
+		Data GraphConfigDetail `json:"data,omitempty"` // 逻辑图详情
+	}
+	// 更新逻辑图配置请求
+	UpdateGraphConfigRequest {
+		Id          string       `path:"id"` // 逻辑图ID
+		TenantId    string       `json:"tenantId"` // 租户ID
+		Name        string       `json:"name"` // 图名称
+		Version     string       `json:"version"` // 版本号
+		Description string       `json:"description,optional"` // 描述
+		TagIds      []string     `json:"tagIds,optional"` // 标签ID列表
+		IsEnabled   bool         `json:"isEnabled,optional"` // 是否启用
+		Icon        string       `json:"icon,optional"` // 图标名称
+		IconColor   string       `json:"iconColor,optional"` // 图标颜色
+		Nodes       []NodeConfig `json:"nodes"` // 节点列表
+		Edges       []EdgeConfig `json:"edges"` // 边列表
+	}
+	// 更新逻辑图配置响应
+	UpdateGraphConfigResponse {
+		BaseResponse
+	}
+	// 删除逻辑图配置请求
+	DeleteGraphConfigRequest {
+		Id string `path:"id"` // 逻辑图ID
+	}
+	// 删除逻辑图配置响应
+	DeleteGraphConfigResponse {
+		BaseResponse
+	}
+)

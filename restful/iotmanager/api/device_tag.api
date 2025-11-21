@@ -1,0 +1,113 @@
+syntax = "v1"
+
+// ===== 设备标签相关类型定义 =====
+type (
+	// 设备标签完整信息
+	DeviceTag {
+		Id          string `json:"id"`          // 标签ID(UUID)
+		Name        string `json:"name"`        // 标签名称
+		Color       string `json:"color"`       // 标签颜色(HEX格式,如:#FF5733)
+		Icon        string `json:"icon"`        // 标签图标
+		Description string `json:"description"` // 标签描述
+		TenantId    string `json:"tenantId"`    // 所属租户ID(UUID)
+		DeviceCount int    `json:"deviceCount"` // 使用该标签的设备数量
+		CreatedBy   string `json:"createdBy"`   // 创建者用户ID(UUID)
+		UpdatedBy   string `json:"updatedBy"`   // 最后修改者用户ID(UUID)
+		CreatedAt   string `json:"createdAt"`   // 创建时间
+		UpdatedAt   string `json:"updatedAt"`   // 更新时间
+	}
+
+	// 设备标签元数据(用于创建)
+	DeviceTagMetadata {
+		Name        string `json:"name"`                  // 标签名称(必填)
+		Color       string `json:"color,optional"`        // 标签颜色
+		Icon        string `json:"icon,optional"`         // 标签图标
+		Description string `json:"description,optional"`  // 标签描述
+	}
+
+	// 设备标签更新信息
+	DeviceTagUpdate {
+		Name        string `json:"name,optional"`        // 标签名称
+		Color       string `json:"color,optional"`       // 标签颜色
+		Icon        string `json:"icon,optional"`        // 标签图标
+		Description string `json:"description,optional"` // 标签描述
+	}
+)
+
+// ===== 路径参数相关类型 =====
+type (
+	TagIdPathRequest {
+		TagId string `path:"tagId"` // 标签ID
+	}
+)
+
+// ===== 设备标签管理相关类型 =====
+type (
+	// 创建标签请求
+	CreateTagRequest {
+		Name        string `json:"name"`                 // 标签名称(必填)
+		Color       string `json:"color,optional"`       // 标签颜色
+		Icon        string `json:"icon,optional"`        // 标签图标
+		Description string `json:"description,optional"` // 标签描述
+	}
+
+	// 创建标签响应
+	CreateTagResponse {
+		BaseResponse
+		Data {
+			Id   string `json:"id"`   // 标签ID
+			Name string `json:"name"` // 标签名称
+		} `json:"data,omitempty"`
+	}
+
+	// 获取标签详情请求
+	GetTagRequest {
+		TagIdPathRequest
+	}
+
+	// 获取标签详情响应
+	GetTagResponse {
+		BaseResponse
+		Data DeviceTag `json:"data,omitempty"` // 标签详情
+	}
+
+	// 获取标签列表请求
+	ListTagsRequest {
+		PageParamsRequest
+		Name    string `form:"name,optional"`    // 名称模糊查询
+		Keyword string `form:"keyword,optional"` // 关键词搜索(名称、描述)
+	}
+
+	// 获取标签列表响应
+	ListTagsResponse {
+		BaseResponse
+		PageParams
+		Data {
+			List []DeviceTagSummary `json:"list"` // 标签列表
+		} `json:"data,omitempty"`
+	}
+
+	// 更新标签请求
+	UpdateTagRequest {
+		TagIdPathRequest
+		Name        string `json:"name,optional"`        // 标签名称
+		Color       string `json:"color,optional"`       // 标签颜色
+		Icon        string `json:"icon,optional"`        // 标签图标
+		Description string `json:"description,optional"` // 标签描述
+	}
+
+	// 更新标签响应
+	UpdateTagResponse {
+		BaseResponse
+	}
+
+	// 删除标签请求
+	DeleteTagRequest {
+		TagIdPathRequest
+	}
+
+	// 删除标签响应
+	DeleteTagResponse {
+		BaseResponse
+	}
+)

@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- Favicon 优化版本 - 针对16x16和32x32小尺寸优化 -->
+
+  <!-- 圆形背景 -->
+  <circle cx="16" cy="16" r="15" fill="#1890ff"/>
+
+  <!-- 简化的节点网络 - 更粗的线条以适应小尺寸 -->
+  <g stroke="#ffffff" stroke-width="2" fill="none">
+    <path d="M 10 12 L 16 8 L 22 12" stroke-linecap="round"/>
+    <path d="M 16 8 L 16 16" stroke-linecap="round"/>
+    <path d="M 10 12 L 12 20" stroke-linecap="round"/>
+    <path d="M 22 12 L 20 20" stroke-linecap="round"/>
+    <path d="M 12 20 L 16 24 L 20 20" stroke-linecap="round"/>
+  </g>
+
+  <!-- 节点 - 更大以便在小尺寸下可见 -->
+  <circle cx="16" cy="8" r="2.5" fill="#ffffff"/>
+  <circle cx="10" cy="12" r="2" fill="#52c41a"/>
+  <circle cx="22" cy="12" r="2" fill="#52c41a"/>
+  <circle cx="16" cy="16" r="2" fill="#faad14"/>
+  <circle cx="12" cy="20" r="2" fill="#52c41a"/>
+  <circle cx="20" cy="20" r="2" fill="#52c41a"/>
+  <circle cx="16" cy="24" r="2.5" fill="#ffffff"/>
+</svg>

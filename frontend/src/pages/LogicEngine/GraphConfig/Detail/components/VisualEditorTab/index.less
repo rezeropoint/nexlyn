@@ -1,0 +1,61 @@
+.visual-editor-tab {
+  height: calc(100vh - 240px);
+  min-height: 600px;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--ant-color-bg-layout);
+
+  // 全局滚动条主题适配（应用于所有子元素）
+  * {
+    // Firefox 滚动条
+    scrollbar-width: thin;
+    scrollbar-color: var(--ant-color-border) transparent;
+  }
+
+  // Webkit 浏览器（Chrome, Safari, Edge）滚动条
+  *::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: var(--ant-color-fill-quaternary);
+    border-radius: 4px;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background: var(--ant-color-border);
+    border-radius: 4px;
+    transition: background 0.2s;
+
+    &:hover {
+      background: var(--ant-color-text-tertiary);
+    }
+
+    &:active {
+      background: var(--ant-color-text-secondary);
+    }
+  }
+
+  *::-webkit-scrollbar-corner {
+    background: var(--ant-color-fill-quaternary);
+  }
+
+  .editor-content {
+    flex: 1;
+    overflow: hidden; // 防止编辑器整体滚动
+
+    // Splitter容器全高
+    :global(.ant-splitter) {
+      height: 100%;
+    }
+
+    // 面板内容全高
+    :global(.ant-splitter-panel) {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden; // 每个面板控制自己的滚动
+      background-color: var(--ant-color-bg-container) !important; // 面板背景色（强制）
+    }
+  }
+}

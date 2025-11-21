@@ -1,0 +1,122 @@
+syntax = "v1"
+
+// ===== Skylark平台对接相关类型定义 =====
+type (
+	// Skylark平台配置
+	PlatformConfig {
+		Id          string `json:"id"` // 配置UUID
+		TenantId    string `json:"tenantId"` // 租户ID
+		Host        string `json:"host"` // 数据库地址
+		Port        int    `json:"port"` // 端口
+		Database    string `json:"database"` // 数据库名
+		Username    string `json:"username"` // 用户名
+		Password    string `json:"password,omitempty"` // 密码（敏感，查询时不返回）
+		NamespaceId int    `json:"namespaceId"` // 命名空间ID
+		ApiBaseUrl  string `json:"apiBaseUrl"` // Skylark API基础地址（纯域名，如：skylark.example.com）
+		ApiToken    string `json:"apiToken,omitempty"` // API认证Token（敏感，查询时不返回）
+		CreatedBy   string `json:"createdBy,optional"` // 创建者
+		UpdatedBy   string `json:"updatedBy,optional"` // 更新者
+		CreatedAt   string `json:"createdAt,optional"` // 创建时间
+		UpdatedAt   string `json:"updatedAt,optional"` // 更新时间
+	}
+
+	// 流程信息（来自远程flows表）
+	FlowInfo {
+		Id          int    `json:"id"` // 流程ID
+		Title       string `json:"title"` // 流程名称
+		NamespaceId int    `json:"namespaceId"` // 命名空间ID
+	}
+
+	// 字段元数据（来自远程表结构）
+	FieldMetadata {
+		FieldName string `json:"fieldName"` // 字段名
+		DataType  string `json:"dataType"` // 数据类型
+		IsSystem  bool   `json:"isSystem"` // 是否为系统字段（slp_前缀）
+	}
+)
+
+// ===== 平台配置管理接口 =====
+type (
+	// 获取平台配置请求（按租户）
+	GetPlatformConfigRequest {
+		// 通过JWT自动获取tenant_id，无需传参
+	}
+
+	// 获取平台配置响应
+	GetPlatformConfigResponse {
+		BaseResponse                            // 基础响应
+		Data         PlatformConfig `json:"data,omitempty"` // 平台配置（密码不返回）
+	}
+
+	// 创建/更新平台配置请求
+	SavePlatformConfigRequest {
+		Host        string `json:"host"` // 数据库地址（必填）
+		Port        int    `json:"port"` // 端口（必填）
+		Database    string `json:"database"` // 数据库名（必填）
+		Username    string `json:"username"` // 用户名（必填）
+		Password    string `json:"password"` // 密码（必填）
+		NamespaceId int    `json:"namespaceId"` // 命名空间ID（必填）
+		ApiBaseUrl  string `json:"apiBaseUrl"` // Skylark API基础地址（纯域名，必填）
+		ApiToken    string `json:"apiToken"` // API认证Token（必填）
+	}
+
+	// 创建/更新平台配置响应
+	SavePlatformConfigResponse {
+		BaseResponse // 基础响应
+		Data {
+			Id string `json:"id"` // 平台配置UUID
+		} `json:"data,omitempty"`
+	}
+
+	// 测试平台连接请求
+	TestPlatformConnectionRequest {
+		Host        string `json:"host"` // 数据库地址
+		Port        int    `json:"port"` // 端口
+		Database    string `json:"database"` // 数据库名
+		Username    string `json:"username"` // 用户名
+		Password    string `json:"password"` // 密码
+		NamespaceId int    `json:"namespaceId"` // 命名空间ID
+		ApiBaseUrl  string `json:"apiBaseUrl"` // Skylark API基础地址（纯域名）
+		ApiToken    string `json:"apiToken"` // API认证Token
+	}
+
+	// 测试平台连接响应
+	TestPlatformConnectionResponse {
+		BaseResponse // 基础响应
+		Data {
+			Success    bool   `json:"success"` // 连接是否成功
+			FlowsCount int    `json:"flowsCount,optional"` // flows数量
+			Message    string `json:"message,optional"` // 消息
+		} `json:"data,omitempty"`
+	}
+)
+
+// ===== 流程管理接口 =====
+type (
+	// 获取流程列表请求
+	GetFlowListRequest {
+		// 通过JWT获取租户，自动加载该租户的platform_config
+	}
+
+	// 获取流程列表响应
+	GetFlowListResponse {
+		BaseResponse // 基础响应
+		Data {
+			List []FlowInfo `json:"list"` // 流程列表
+		} `json:"data,omitempty"`
+	}
+
+	// 获取流程字段列表请求
+	GetFlowFieldsRequest {
+		FlowId int `path:"flowId"` // 流程ID（路径参数）
+	}
+
+	// 获取流程字段列表响应
+	GetFlowFieldsResponse {
+		BaseResponse // 基础响应
+		Data {
+			SystemFields   []FieldMetadata `json:"systemFields"` // 系统字段列表（slp_前缀）
+			BusinessFields []FieldMetadata `json:"businessFields"` // 业务字段列表
+		} `json:"data,omitempty"`
+	}
+)

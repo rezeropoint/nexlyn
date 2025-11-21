@@ -1,0 +1,154 @@
+syntax = "v1"
+
+// ===== 平台配置相关类型定义 =====
+type (
+	// 平台配置元数据（PostgreSQL存储）
+	PlatformMetadata {
+		Id          string `json:"id"` // 配置UUID（系统自动生成）
+		Type        string `json:"type"` // 平台类型：skylark/webhook/kafka
+		Name        string `json:"name"` // 配置显示名称
+		Description string `json:"description,optional"` // 配置描述
+		Enabled     bool   `json:"enabled"` // 是否启用
+		TenantId    string `json:"tenantId"` // 租户ID
+		CreatedBy   string `json:"createdBy,optional"` // 创建者
+		UpdatedBy   string `json:"updatedBy,optional"` // 更新者
+		CreatedAt   string `json:"createdAt,optional"` // 创建时间
+		UpdatedAt   string `json:"updatedAt,optional"` // 更新时间
+	}
+
+	// Skylark平台配置
+	SkylarkConfig {
+		SkylarkDomain     string `json:"skylarkDomain"` // Skylark域名
+		SkylarkAuthHeader string `json:"skylarkAuthHeader"` // Skylark认证头
+		SkylarkUserID     int64  `json:"skylarkUserID"` // Skylark用户ID
+	}
+
+	// Webhook平台配置（预留）
+	WebhookConfig {
+		WebhookURL     string            `json:"webhookUrl"` // Webhook URL
+		WebhookHeaders map[string]string `json:"webhookHeaders,optional"` // 自定义请求头
+		WebhookMethod  string            `json:"webhookMethod,optional"` // HTTP方法
+	}
+
+	// Kafka平台配置（预留）
+	KafkaConfig {
+		KafkaBrokers []string `json:"kafkaBrokers"` // Kafka Brokers
+		KafkaTopic   string   `json:"kafkaTopic"` // Kafka Topic
+	}
+
+	// 平台配置完整信息
+	PlatformDetail {
+		PlatformMetadata            // 基础元数据
+		Config           interface{} `json:"config,optional"` // 平台特定配置（根据type解析）
+	}
+)
+
+// ===== 路径参数相关类型 =====
+type (
+	PlatformIdPathRequest {
+		Id string `path:"id"` // 平台配置ID
+	}
+)
+
+// ===== 平台配置管理相关类型 =====
+type (
+	// 获取平台配置列表请求
+	GetPlatformListRequest {
+		PageParamsRequest        // 分页参数
+		Type    string `form:"type,optional"` // 平台类型筛选
+		Keyword string `form:"keyword,optional"` // 关键词搜索（ID或名称）
+	}
+
+	// 获取平台配置列表响应
+	GetPlatformListResponse {
+		BaseResponse // 基础响应
+		PageParams // 分页参数
+		Data {
+			List []PlatformMetadata `json:"list"` // 平台配置列表（仅元数据）
+		} `json:"data,omitempty"`
+	}
+
+	// 获取平台配置详情请求
+	GetPlatformRequest {
+		PlatformIdPathRequest // 路径参数
+	}
+
+	// 获取平台配置详情响应
+	GetPlatformResponse {
+		BaseResponse // 基础响应
+		Data PlatformDetail `json:"data,omitempty"` // 平台配置详情（含敏感配置）
+	}
+
+	// 创建平台配置请求（统一所有平台类型）
+	CreatePlatformRequest {
+		// 基础字段
+		Type        string `json:"type"` // 平台类型：skylark/webhook/kafka（必填）
+		Name        string `json:"name"` // 配置名称（必填）
+		Description string `json:"description,optional"` // 配置描述
+		Enabled     bool   `json:"enabled,optional"` // 是否启用（默认true）
+
+		// Skylark平台配置（type=skylark时必填）
+		SkylarkDomain     string `json:"skylarkDomain,optional"` // Skylark域名
+		SkylarkAuthHeader string `json:"skylarkAuthHeader,optional"` // Skylark认证头
+		SkylarkUserID     int64  `json:"skylarkUserID,optional"` // Skylark用户ID
+
+		// Webhook平台配置（type=webhook时必填）
+		WebhookURL     string            `json:"webhookUrl,optional"` // Webhook URL
+		WebhookHeaders map[string]string `json:"webhookHeaders,optional"` // 自定义请求头
+		WebhookMethod  string            `json:"webhookMethod,optional"` // HTTP方法
+
+		// Kafka平台配置（type=kafka时必填）
+		KafkaBrokers []string `json:"kafkaBrokers,optional"` // Kafka Brokers
+		KafkaTopic   string   `json:"kafkaTopic,optional"` // Kafka Topic
+	}
+
+	// 创建平台配置响应
+	CreatePlatformResponse {
+		BaseResponse // 基础响应
+		Data {
+			Type string `json:"type"` // 平台类型
+			Id   string `json:"id"` // 平台配置UUID（系统自动生成）
+			Name string `json:"name"` // 配置名称
+		} `json:"data,omitempty"`
+	}
+
+	// 更新平台配置请求（统一所有平台类型）
+	UpdatePlatformRequest {
+		PlatformIdPathRequest // 路径参数
+
+		// 基础字段
+		Type        string `json:"type"` // 平台类型：skylark/webhook/kafka（必填，不可修改）
+		Name        string `json:"name,optional"` // 配置名称
+		Description string `json:"description,optional"` // 配置描述
+		Enabled     bool   `json:"enabled,optional"` // 是否启用
+
+		// Skylark平台配置（type=skylark时可选更新）
+		SkylarkDomain     string `json:"skylarkDomain,optional"` // Skylark域名
+		SkylarkAuthHeader string `json:"skylarkAuthHeader,optional"` // Skylark认证头
+		SkylarkUserID     int64  `json:"skylarkUserID,optional"` // Skylark用户ID
+
+		// Webhook平台配置（type=webhook时可选更新）
+		WebhookURL     string            `json:"webhookUrl,optional"` // Webhook URL
+		WebhookHeaders map[string]string `json:"webhookHeaders,optional"` // 自定义请求头
+		WebhookMethod  string            `json:"webhookMethod,optional"` // HTTP方法
+
+		// Kafka平台配置（type=kafka时可选更新）
+		KafkaBrokers []string `json:"kafkaBrokers,optional"` // Kafka Brokers
+		KafkaTopic   string   `json:"kafkaTopic,optional"` // Kafka Topic
+	}
+
+	// 更新平台配置响应
+	UpdatePlatformResponse {
+		BaseResponse // 基础响应
+	}
+
+	// 删除平台配置请求
+	DeletePlatformRequest {
+		PlatformIdPathRequest // 路径参数
+	}
+
+	// 删除平台配置响应
+	DeletePlatformResponse {
+		BaseResponse // 基础响应
+	}
+)

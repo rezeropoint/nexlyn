@@ -1,0 +1,168 @@
+# 服务名称，用于标识服务
+Name: backend-service
+# 日志配置，定义了日志模式、格式、路径、级别等
+Log:
+  # 服务名称
+  ServiceName: "backend-service"
+  # 日志模式（可选项：console, file, volume）
+  Mode: "console"
+  # 日志格式（可选项：json, plain）
+  Encoding: "json"
+  # 日志文件路径
+  Path: "./logs"
+  # 日志级别（可选项：debug, info, error, severe）
+  Level: "debug"
+  # 最大日志内容长度
+  MaxContentLength: 4096
+  # 是否压缩日志
+  Compress: true
+  # 启用日志统计
+  Stat: true
+  # 日志保留天数
+  KeepDays: 7
+  # 堆栈打印冷却时间（毫秒）
+  StackCooldownMillis: 100
+  # 最大日志备份数量
+  MaxBackups: 5
+  # 单个日志文件最大大小（MB）
+  MaxSize: 100
+  # 日志文件分割模式（可选项：daily, size）
+  Rotation: "size"
+
+# 运行模式（可选项：dev, test, rt, pre, pro）
+Mode: "dev"
+
+# 链路追踪配置，定义了追踪服务的端点和采样率
+Telemetry:
+  # 服务名称
+  Name: "backend-service"
+  # Jaeger 追踪端点
+  Endpoint: "http://jaeger:14268/api/traces"
+  # 采样率
+  Sampler: 1.0
+  # 批处理方式（可选项：jaeger, zipkin, otlpgrpc, otlphttp）
+  Batcher: "jaeger"
+
+# 开发服务器配置，包含健康检查和指标监控的端口和路径设置
+DevServer:
+  # 启用开发服务器
+  Enabled: true
+  # 开发服务器端口
+  Port: 6060
+  # 健康检查路径
+  HealthPath: "/healthz"
+  # 指标监控路径
+  MetricsPath: "/metrics"
+
+# grpc服务器端口
+ListenOn: 0.0.0.0:9999
+
+# 服务器监听地址
+Host: 0.0.0.0
+# 服务器监听端口
+Port: 8888
+# 最大并发连接数限制
+MaxConns: 10000
+# 最大请求体大小
+MaxBytes: 1048576
+# 请求处理超时时间（毫秒）
+Timeout: 3000
+# CPU 使用率阈值，范围是 0 到 1000，表示 0% 到 100%
+CpuThreshold: 900
+
+# 缓存配置
+CacheConf:
+  - Host: "redis:6379"
+    Pass: "Quanmate.2025"
+    Type: "node"
+
+# 数据库配置
+DataSource:
+  # 数据库驱动
+  Driver: "postgres"
+  # 数据库主机
+  Host: "postgres"
+  # 数据库端口
+  Port: 5432
+  # 数据库名
+  Database: "nexlyn"
+  # 用户名
+  Username: "nexlyn"
+  # 密码
+  Password: "Quanmate.2025"
+  # 最大连接数
+  MaxConns: 10
+  # 缓存配置
+
+# JWT 认证配置
+Auth:
+  AccessSecret: "Rezeropoint"
+  AccessExpire: 86400  # 24小时，单位：秒
+
+# MongoDB 配置
+MongoDBConfig:
+  # MongoDB 连接 URI
+  URI: "mongodb://nexlyn:Quanmate.2025@mongo:27017/nexlyn?authSource=admin"
+  # 数据库名称
+  DB: "nexlyn"
+  # 缓存配置
+  CacheConf:
+    - Host: "redis:6379"
+      Pass: "Quanmate.2025"
+      Type: "node"
+
+# Etcd 配置
+EtcdConfig:
+  # 监听的配置键前缀
+  Key: "/nexlyn/triggers"
+  # Etcd 服务器端点列表
+  endpoints:
+    - "etcd:2379"
+  # 连接超时时间
+  dial_timeout: 5s
+  # Etcd 用户名（可选）
+  username: ""
+  # Etcd 密码（可选）
+  password: ""
+
+# Casbin Watcher 配置
+WatcherConfig:
+  # Redis 配置
+  Redis:
+    network: "tcp"
+    # Redis 服务器地址
+    Addr: "redis:6379"
+    # Redis 密码
+    Password: "Quanmate.2025"
+    # 数据库索引
+    DB: 0
+    channel: "casbinx"
+    ignoreself: true
+
+# OSS对象存储配置（用于头像上传等功能，仅支持阿里云OSS）
+OSSConfig:
+  # 是否启用OSS功能（默认关闭，需要配置后才能启用）
+  Enabled: false
+  # OSS端点（示例：oss-cn-hangzhou.aliyuncs.com）
+  Endpoint: ""
+  # 访问密钥ID
+  AccessKeyID: ""
+  # 访问密钥Secret
+  AccessKeySecret: ""
+  # 存储桶名称
+  BucketName: ""
+  # CDN域名（可选，如果配置了CDN加速）
+  CDNDomain: ""
+  # 最大文件大小（字节），默认5MB
+  MaxFileSize: 5242880
+
+# Skylark同步配置（用于将用户和组织同步到Skylark平台）
+SkylarkSyncEnabled: false  # 是否启用Skylark同步功能（默认关闭）
+
+# AdminSync gRPC客户端配置
+AdminSyncClient:
+  # eventsync服务地址列表（Docker环境使用服务名）
+  Endpoints:
+    - "eventsync:9998"
+  # 请求超时时间（毫秒）
+  Timeout: 5000

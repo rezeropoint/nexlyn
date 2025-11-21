@@ -1,0 +1,20 @@
+syntax = "v1"
+
+// ===== 认证相关类型 =====
+type (
+	// 登录请求
+	LoginRequest {
+		UserName  string `json:"userName,optional"` // 用户名
+		Password  string `json:"password,optional"` // 密码
+		AutoLogin bool   `json:"autoLogin,optional"` // 是否自动登录
+		Type      string `json:"type,optional"` // 登录类型
+	}
+	// 登录响应
+	LoginResponse {
+		BaseResponse // 基础响应
+		Status string `json:"status,omitempty"` // 登录状态
+		Type   string `json:"type,omitempty"`   // 登录类型
+		Token  string `json:"token,omitempty"`  // 认证令牌
+	}
+)
+

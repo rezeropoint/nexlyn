@@ -1,0 +1,114 @@
+.dynamic-block-config-form {
+  box-sizing: border-box;
+  // 强制所有内容在容器内，绝对不超出
+  width: 100%;
+
+  :global {
+    // 确保Form本身不超出
+    .ant-form {
+      width: 100%;
+    }
+
+    .ant-form-item {
+      width: 100%;
+      margin-bottom: 8px; // 减小行间距，使其更紧凑
+
+      .ant-form-item-label > label {
+        display: flex;
+        // 标签文本允许换行
+        flex-wrap: wrap;
+        gap: 4px;
+        align-items: center;
+        word-break: break-word;
+      }
+    }
+
+    // 所有输入控件强制100%宽度
+    .ant-input,
+    .ant-input-number,
+    .ant-select,
+    .ant-select-selector,
+    .ant-picker,
+    .ant-input-textarea-wrapper,
+    textarea {
+      box-sizing: border-box;
+      width: 100% !important;
+      transition: border-color 0.3s;
+
+      &:hover {
+        border-color: var(--ant-color-primary);
+      }
+    }
+
+    // Alert组件也要强制自适应
+    .ant-alert {
+      box-sizing: border-box;
+      width: 100%;
+      word-break: break-word;
+    }
+  }
+}
+
+// 完整宽度输入框容器
+.fullWidthInput {
+  :global {
+    .ant-input-number {
+      width: 100%;
+    }
+  }
+}
+
+// JSON编辑器容器
+.jsonEditorContainer {
+  :global {
+    // 确保TextArea获得正确的样式
+  }
+}
+
+// JSON编辑器样式
+.jsonEditor {
+  font-size: 12px !important;
+  font-family: "Monaco", "Menlo", "Ubuntu Mono", "Consolas", "source-code-pro",
+    monospace !important;
+}
+
+// 防止Alert组件溢出
+:global(.ant-alert) {
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+// 配置验证提示容器
+.validationTip {
+  margin-top: 8px;
+
+  :global(.ant-alert) {
+    margin: 0;
+    padding: 8px 12px;
+    font-size: 12px;
+    border-radius: 2px;
+
+    :global(.ant-alert-message) {
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    :global(.ant-alert-description) {
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    :global(.ant-alert-icon) {
+      font-size: 12px;
+      margin-right: 8px;
+    }
+  }
+}
+
+// 紧凑提示警告框
+.compactAlert {
+  :global(.ant-alert) {
+    background-color: var(--ant-color-warning-bg);
+    border: 1px solid var(--ant-color-warning-border);
+  }
+}

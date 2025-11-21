@@ -1,0 +1,166 @@
+syntax = "v1"
+
+// ===== 设备绑定相关类型定义 =====
+type (
+	// 设备标签摘要（用于设备列表展示）
+	DeviceTagSummary {
+		Id          string `json:"id"`          // 标签ID
+		Name        string `json:"name"`        // 标签名称
+		Color       string `json:"color"`       // 标签颜色
+		Description string `json:"description"` // 标签描述
+	}
+
+	// 设备绑定完整信息
+	DeviceBinding {
+		Id             string             `json:"id"`             // 设备绑定记录ID(UUID)
+		DeviceId       string             `json:"deviceId"`       // 设备唯一标识符
+		DeviceName     string             `json:"deviceName"`     // 设备名称
+		DeviceAlias    string             `json:"deviceAlias"`    // 设备别名
+		DeviceModel    string             `json:"deviceModel"`    // 设备型号(关联iot_sensor_templates.model)
+		DeviceCategory string             `json:"deviceCategory"` // 设备类别(冗余字段)
+		Description      string             `json:"description"`      // 设备描述
+		Location         string             `json:"location"`         // 安装位置
+		InstallationDate string             `json:"installationDate"` // 安装日期(YYYY-MM-DD)
+		Status           string             `json:"status"`           // 设备状态(active/inactive/maintenance/error/decommissioned)
+		IsOnline         bool               `json:"isOnline"`         // 当前在线状态(从Redis实时查询)
+		LastDataAt       string             `json:"lastDataAt"`       // 最后接收数据时间
+		TenantId         string             `json:"tenantId"`         // 所属租户ID(UUID)
+		OrgId            string             `json:"orgId"`            // 所属组织ID(UUID)
+		OrgName          string             `json:"orgName"`          // 所属组织名称
+		Tags             []DeviceTagSummary `json:"tags"`             // 关联的标签列表
+		CreatedBy        string             `json:"createdBy"`        // 创建者用户ID(UUID)
+		UpdatedBy        string             `json:"updatedBy"`        // 最后修改者用户ID(UUID)
+		CreatedAt        string             `json:"createdAt"`        // 创建时间
+		UpdatedAt        string             `json:"updatedAt"`        // 更新时间
+	}
+
+	// 设备绑定摘要信息(用于列表展示)
+	DeviceBindingSummary {
+		Id             string             `json:"id"`             // 设备绑定记录ID
+		DeviceId       string             `json:"deviceId"`       // 设备唯一标识符
+		DeviceName     string             `json:"deviceName"`     // 设备名称
+		DeviceAlias    string             `json:"deviceAlias"`    // 设备别名
+		DeviceModel    string             `json:"deviceModel"`    // 设备型号
+		DeviceCategory string             `json:"deviceCategory"` // 设备类别
+		Location       string             `json:"location"`       // 安装位置
+		Status         string             `json:"status"`         // 设备状态
+		IsOnline       bool               `json:"isOnline"`       // 当前在线状态(从Redis实时查询)
+		LastDataAt     string             `json:"lastDataAt"`     // 最后接收数据时间
+		OrgId          string             `json:"orgId"`          // 所属组织ID
+		OrgName        string             `json:"orgName"`        // 所属组织名称
+		Tags           []DeviceTagSummary `json:"tags"`           // 关联的标签列表
+		CreatedAt      string             `json:"createdAt"`      // 创建时间
+	}
+
+	// 未绑定设备信息
+	UnboundDevice {
+		DeviceId  string `json:"deviceId"`  // 设备ID
+		Category  string `json:"category"`  // 设备类别
+		IsOnline  bool   `json:"isOnline"`  // 在线状态
+		LastSeen  string `json:"lastSeen"`  // 最后上报时间
+	}
+)
+
+// ===== 路径参数相关类型 =====
+type (
+	DeviceIdPathRequest {
+		DeviceId string `path:"deviceId"` // 设备ID
+	}
+)
+
+// ===== 设备绑定管理相关类型 =====
+type (
+	// 绑定设备请求
+	BindDeviceRequest {
+		DeviceId         string   `json:"deviceId"`                   // 设备唯一标识符(必填)
+		DeviceName       string   `json:"deviceName"`                 // 设备名称(必填)
+		DeviceAlias      string   `json:"deviceAlias,optional"`       // 设备别名
+		DeviceModel      string   `json:"deviceModel"`                // 设备型号(必填,关联模板)
+		Description      string   `json:"description,optional"`       // 设备描述
+		Location         string   `json:"location,optional"`          // 安装位置
+		InstallationDate string   `json:"installationDate,optional"`  // 安装日期
+		Status           string   `json:"status,optional"`            // 设备状态(默认active)
+		TagIds           []string `json:"tagIds,optional"`            // 标签ID列表(绑定时)
+	}
+
+	// 绑定设备响应
+	BindDeviceResponse {
+		BaseResponse
+		Data {
+			Id       string `json:"id"`       // 设备绑定记录ID
+			DeviceId string `json:"deviceId"` // 设备ID
+		} `json:"data,omitempty"`
+	}
+
+	// 获取设备详情请求
+	GetDeviceRequest {
+		DeviceIdPathRequest
+		OrgId string `form:"orgId"` // 组织ID(必填)
+	}
+
+	// 获取设备详情响应
+	GetDeviceResponse {
+		BaseResponse
+		Data DeviceBinding `json:"data,omitempty"` // 设备详情(含实时在线状态)
+	}
+
+	// 获取设备列表请求
+	ListDevicesRequest {
+		PageParamsRequest
+		OrgId          string `form:"orgId"`                   // 组织ID筛选(必填)
+		DeviceModel    string `form:"deviceModel,optional"`    // 设备型号筛选
+		DeviceCategory string `form:"deviceCategory,optional"` // 设备类别筛选
+		Status         string `form:"status,optional"`         // 设备状态筛选
+		IsOnline       string `form:"isOnline,optional"`       // 在线状态筛选(true/false)
+		Keyword        string `form:"keyword,optional"`        // 关键词搜索(设备ID、名称、别名)
+	}
+
+	// 获取设备列表响应
+	ListDevicesResponse {
+		BaseResponse
+		PageParams
+		Data {
+			List []DeviceBindingSummary `json:"list"` // 设备列表(含实时在线状态)
+		} `json:"data,omitempty"`
+	}
+
+	// 获取未绑定设备列表请求
+	ListUnboundDevicesRequest {}
+
+	// 获取未绑定设备列表响应
+	ListUnboundDevicesResponse {
+		BaseResponse
+		Data {
+			List []UnboundDevice `json:"list"` // 未绑定设备列表
+		} `json:"data,omitempty"`
+	}
+
+	// 更新设备请求
+	UpdateDeviceRequest {
+		DeviceIdPathRequest
+		OrgId            string   `json:"orgId"`                     // 组织ID(必填)
+		DeviceName       string   `json:"deviceName,optional"`       // 设备名称
+		DeviceAlias      string   `json:"deviceAlias,optional"`      // 设备别名
+		Description      string   `json:"description,optional"`      // 设备描述
+		Location         string   `json:"location,optional"`         // 安装位置
+		InstallationDate string   `json:"installationDate,optional"` // 安装日期
+		Status           string   `json:"status,optional"`           // 设备状态
+		TagIds           []string `json:"tagIds,optional"`           // 更新标签列表(完全替换)
+	}
+
+	// 更新设备响应
+	UpdateDeviceResponse {
+		BaseResponse
+	}
+
+	// 解绑设备请求
+	UnbindDeviceRequest {
+		DeviceIdPathRequest
+		OrgId string `json:"orgId"` // 组织ID(必填)
+	}
+
+	// 解绑设备响应
+	UnbindDeviceResponse {
+		BaseResponse
+	}
+)
