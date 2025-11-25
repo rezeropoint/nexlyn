@@ -24,7 +24,6 @@ import {
   Form,
   Input,
   Popconfirm,
-  Select,
   Space,
   Spin,
   Tag,
@@ -37,14 +36,10 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import React, { useEffect, useMemo, useState } from "react";
 import {
   abortJourney,
-  getCurrentProcessingUsers,
-  getFlowDetail,
-  getFlowJourneyDetail,
-  getJourneyMoments,
+  getJourneyFullDetail,
   updateFlowJourneyStatus,
 } from "@/services/workbench";
 import type {
-  FlowDetailData,
   JourneyDetail,
   Moment,
   ProcessingUser,
@@ -98,7 +93,6 @@ const FlowDetailDrawer: React.FC<FlowDetailDrawerProps> = ({
   const [detail, setDetail] = useState<JourneyDetail | null>(null);
   const [moments, setMoments] = useState<Moment[]>([]);
   const [processingUsers, setProcessingUsers] = useState<ProcessingUser[]>([]);
-  const [flowMetadata, setFlowMetadata] = useState<FlowDetailData | null>(null);
   const [transferModalVisible, setTransferModalVisible] = useState(false);
   const [showRefuseVertex, setShowRefuseVertex] = useState(false);
 
@@ -118,26 +112,33 @@ const FlowDetailDrawer: React.FC<FlowDetailDrawerProps> = ({
     if (!flowId || !journeyId) return;
     setLoading(true);
     try {
-      const [detailRes, momentsRes, usersRes, metadataRes] = await Promise.all([
-        getFlowJourneyDetail({ flowId, journeyId }),
-        getJourneyMoments({ flowId, journeyId }),
-        getCurrentProcessingUsers({ flowId, journeyId }),
-        getFlowDetail({ flowId }),
-      ]);
+      const res = await getJourneyFullDetail({ flowId, journeyId });
 
-      if (detailRes.code === 0) {
-        setDetail(detailRes.data);
+      if (res.code === 0) {
+        const { basicInfo, history, pendingNodes } = res.data;
+
+        // 设置基础信息和审批历史
+        setDetail(basicInfo);
+        setMoments(history || []);
+
+        // 从 pendingNodes 提取处理人信息
+        const users: ProcessingUser[] = [];
+        pendingNodes?.forEach(node => {
+          node.assigneeIds?.forEach((id, index) => {
+            users.push({
+              id,
+              name: node.assigneeNames?.[index] || id,
+              nickname: '',
+              phone: '',
+              identifier: '',
+              headimgurl: '',
+              tags: [],
+            });
+          });
+        });
+        setProcessingUsers(users);
       } else {
-        message.error(detailRes.msg || "加载流程详情失败");
-      }
-      if (momentsRes.code === 0) {
-        setMoments(momentsRes.data || []);
-      }
-      if (usersRes.code === 0) {
-        setProcessingUsers(usersRes.data || []);
-      }
-      if (metadataRes.code === 0) {
-        setFlowMetadata(metadataRes.data);
+        message.error(res.msg || "加载流程详情失败");
       }
     } catch (error) {
       message.error("加载流程详情失败");
@@ -158,7 +159,6 @@ const FlowDetailDrawer: React.FC<FlowDetailDrawerProps> = ({
       setDetail(null);
       setMoments([]);
       setProcessingUsers([]);
-      setFlowMetadata(null);
       if (shouldShowForm) {
         form.resetFields();
       }
@@ -532,7 +532,6 @@ const FlowDetailDrawer: React.FC<FlowDetailDrawerProps> = ({
         flowId={flowId}
         journeyId={journeyId}
         assignmentId={assignmentId}
-        vertices={[]}
         onSuccess={handleTransferSuccess}
         onCancel={() => setTransferModalVisible(false)}
       />

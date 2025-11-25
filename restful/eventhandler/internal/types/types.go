@@ -172,6 +172,13 @@ type FieldMetadata struct {
 	IsSystem  bool   `json:"isSystem"`  // 是否为系统字段（slp_前缀）
 }
 
+type FieldOption struct {
+	Id       int                    `json:"id"`                // 选项ID
+	Value    string                 `json:"value"`             // 选项值
+	Settings map[string]interface{} `json:"settings,optional"` // 选项设置
+	Position int                    `json:"position"`          // 选项位置
+}
+
 type FlowDetailData struct {
 	Id       int64        `json:"id"`       // 流程ID
 	Title    string       `json:"title"`    // 流程标题
@@ -223,16 +230,6 @@ type FlowVertex struct {
 	Title       string `json:"title"`                // 节点标题
 	Type        string `json:"type"`                 // 节点类型：start/end/approve/cc等
 	Description string `json:"description,optional"` // 节点描述
-}
-
-type GetCurrentProcessingUsersRequest struct {
-	FlowId    int64 `path:"flowId"`    // 流程ID
-	JourneyId int64 `path:"journeyId"` // Journey ID
-}
-
-type GetCurrentProcessingUsersResponse struct {
-	BaseResponse
-	Data []ProcessingUser `json:"data"`
 }
 
 type GetDurationStatsRequest struct {
@@ -311,26 +308,6 @@ type GetFlowFieldsResponse struct {
 	} `json:"data,omitempty"`
 }
 
-type GetFlowJourneyBySNRequest struct {
-	FlowId int64  `path:"flowId"` // 流程ID
-	Sn     string `form:"sn"`     // 流程编号（查询参数）
-}
-
-type GetFlowJourneyBySNResponse struct {
-	BaseResponse
-	Data Journey `json:"data"`
-}
-
-type GetFlowJourneyDetailRequest struct {
-	FlowId    int64 `path:"flowId"`    // 流程ID
-	JourneyId int64 `path:"journeyId"` // Journey ID
-}
-
-type GetFlowJourneyDetailResponse struct {
-	BaseResponse
-	Data JourneyDetail `json:"data"`
-}
-
 type GetFlowListRequest struct {
 }
 
@@ -341,14 +318,14 @@ type GetFlowListResponse struct {
 	} `json:"data,omitempty"`
 }
 
-type GetJourneyMomentsRequest struct {
+type GetJourneyFullDetailRequest struct {
 	FlowId    int64 `path:"flowId"`    // 流程ID
 	JourneyId int64 `path:"journeyId"` // Journey ID
 }
 
-type GetJourneyMomentsResponse struct {
+type GetJourneyFullDetailResponse struct {
 	BaseResponse
-	Data []Moment `json:"data"`
+	Data JourneyFullDetail `json:"data"`
 }
 
 type GetNodeStatsRequest struct {
@@ -503,6 +480,13 @@ type JourneyDetail struct {
 	Attachments              []Attachment           `json:"attachments,optional"`              // 附件列表
 }
 
+type JourneyFullDetail struct {
+	BasicInfo    JourneyDetail         `json:"basicInfo"`    // 基础信息
+	History      []Moment              `json:"history"`      // 审批历史
+	PendingNodes []PendingNode         `json:"pendingNodes"` // 待处理节点
+	Vertices     map[string]FlowVertex `json:"vertices"`     // 节点映射（key为节点ID字符串）
+}
+
 type JourneyListData struct {
 	List  []Journey `json:"list"`  // 流程列表
 	Total int       `json:"total"` // 总数
@@ -569,6 +553,15 @@ type PageParams struct {
 type PageParamsRequest struct {
 	Current  int64 `form:"current,optional"`  // 当前页码
 	PageSize int64 `form:"pageSize,optional"` // 每页大小
+}
+
+type PendingNode struct {
+	VertexId      int64         `json:"vertexId"`      // 节点ID
+	VertexName    string        `json:"vertexName"`    // 节点名称
+	AssigneeIds   []string      `json:"assigneeIds"`   // 待处理人ID列表
+	AssigneeNames []string      `json:"assigneeNames"` // 待处理人姓名列表
+	CreatedAt     string        `json:"createdAt"`     // 任务创建时间
+	Fields        []VertexField `json:"fields"`        // 节点字段列表
 }
 
 type PlatformConfig struct {
@@ -740,4 +733,14 @@ type UserMetric struct {
 	UserName string `json:"userName"` // 用户姓名
 	Count    int64  `json:"count"`    // 处理的事件数量
 	Rank     int    `json:"rank"`     // 排名（1开始）
+}
+
+type VertexField struct {
+	Id          int64         `json:"id"`          // 字段ID
+	IdentityKey string        `json:"identityKey"` // 字段唯一标识键（用于Data参数）
+	Title       string        `json:"title"`       // 字段标题
+	Type        string        `json:"type"`        // 字段类型（如 Field::RadioButton）
+	Required    bool          `json:"required"`    // 是否必填
+	Editable    bool          `json:"editable"`    // 是否可编辑
+	Options     []FieldOption `json:"options"`     // 字段可选项
 }

@@ -84,6 +84,25 @@ type (
 		Tags       []string `json:"tags,optional"`       // 用户标签
 	}
 
+	// FieldOption 字段选项
+	FieldOption {
+		Id       int                       `json:"id"`                 // 选项ID
+		Value    string                    `json:"value"`              // 选项值
+		Settings map[string]interface{}    `json:"settings,optional"`  // 选项设置
+		Position int                       `json:"position"`           // 选项位置
+	}
+
+	// VertexField 节点字段
+	VertexField {
+		Id          int64          `json:"id"`          // 字段ID
+		IdentityKey string         `json:"identityKey"` // 字段唯一标识键（用于Data参数）
+		Title       string         `json:"title"`       // 字段标题
+		Type        string         `json:"type"`        // 字段类型（如 Field::RadioButton）
+		Required    bool           `json:"required"`    // 是否必填
+		Editable    bool           `json:"editable"`    // 是否可编辑
+		Options     []FieldOption  `json:"options"`     // 字段可选项
+	}
+
 	// JourneySearchRequest 流程搜索请求
 	JourneySearchRequest {
 		Status      string `json:"status,optional"`      // 流程状态
@@ -108,52 +127,34 @@ type (
 		BaseResponse
 	}
 
-	// 根据流程编号查询请求
-	GetFlowJourneyBySNRequest {
-		FlowId int64  `path:"flowId"` // 流程ID
-		Sn     string `form:"sn"`     // 流程编号（查询参数）
+	// PendingNode 待处理节点
+	PendingNode {
+		VertexId      int64         `json:"vertexId"`      // 节点ID
+		VertexName    string        `json:"vertexName"`    // 节点名称
+		AssigneeIds   []string      `json:"assigneeIds"`   // 待处理人ID列表
+		AssigneeNames []string      `json:"assigneeNames"` // 待处理人姓名列表
+		CreatedAt     string        `json:"createdAt"`     // 任务创建时间
+		Fields        []VertexField `json:"fields"`        // 节点字段列表
 	}
 
-	// 根据流程编号查询响应
-	GetFlowJourneyBySNResponse {
-		BaseResponse
-		Data Journey `json:"data"`
+	// JourneyFullDetail 流程完整详情（FlowVertex 定义在 flow_metadata.api 中）
+	JourneyFullDetail {
+		BasicInfo    JourneyDetail            `json:"basicInfo"`    // 基础信息
+		History      []Moment                 `json:"history"`      // 审批历史
+		PendingNodes []PendingNode            `json:"pendingNodes"` // 待处理节点
+		Vertices     map[string]FlowVertex    `json:"vertices"`     // 节点映射（key为节点ID字符串）
 	}
 
-	// 获取流程详情请求
-	GetFlowJourneyDetailRequest {
+	// 获取流程完整详情请求
+	GetJourneyFullDetailRequest {
 		FlowId    int64 `path:"flowId"`    // 流程ID
 		JourneyId int64 `path:"journeyId"` // Journey ID
 	}
 
-	// 获取流程详情响应
-	GetFlowJourneyDetailResponse {
+	// 获取流程完整详情响应
+	GetJourneyFullDetailResponse {
 		BaseResponse
-		Data JourneyDetail `json:"data"`
-	}
-
-	// 获取审批历史请求
-	GetJourneyMomentsRequest {
-		FlowId    int64 `path:"flowId"`    // 流程ID
-		JourneyId int64 `path:"journeyId"` // Journey ID
-	}
-
-	// 获取审批历史响应
-	GetJourneyMomentsResponse {
-		BaseResponse
-		Data []Moment `json:"data"`
-	}
-
-	// 获取当前处理人请求
-	GetCurrentProcessingUsersRequest {
-		FlowId    int64 `path:"flowId"`    // 流程ID
-		JourneyId int64 `path:"journeyId"` // Journey ID
-	}
-
-	// 获取当前处理人响应
-	GetCurrentProcessingUsersResponse {
-		BaseResponse
-		Data []ProcessingUser `json:"data"`
+		Data JourneyFullDetail `json:"data"`
 	}
 
 	// SearchJourneysData 搜索流程响应数据

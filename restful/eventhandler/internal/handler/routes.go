@@ -10,7 +10,6 @@ import (
 	eventdata "github.com/rezeropoint/nexlyn/restful/eventhandler/internal/handler/eventdata"
 	eventstats "github.com/rezeropoint/nexlyn/restful/eventhandler/internal/handler/eventstats"
 	flowjourney "github.com/rezeropoint/nexlyn/restful/eventhandler/internal/handler/flowjourney"
-	flowmetadata "github.com/rezeropoint/nexlyn/restful/eventhandler/internal/handler/flowmetadata"
 	orgmapping "github.com/rezeropoint/nexlyn/restful/eventhandler/internal/handler/orgmapping"
 	platform "github.com/rezeropoint/nexlyn/restful/eventhandler/internal/handler/platform"
 	userassignments "github.com/rezeropoint/nexlyn/restful/eventhandler/internal/handler/userassignments"
@@ -140,47 +139,16 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Handler: flowjourney.UpdateFlowJourneyStatusHandler(serverCtx),
 			},
 			{
-				// 获取流程详情
+				// 获取流程完整详情（一站式接口，包含基础信息、审批历史、待处理节点）
 				Method:  http.MethodGet,
-				Path:    "/flows/:flowId/journeys/:journeyId/detail",
-				Handler: flowjourney.GetFlowJourneyDetailHandler(serverCtx),
-			},
-			{
-				// 获取审批历史时间线
-				Method:  http.MethodGet,
-				Path:    "/flows/:flowId/journeys/:journeyId/moments",
-				Handler: flowjourney.GetJourneyMomentsHandler(serverCtx),
-			},
-			{
-				// 获取当前处理人
-				Method:  http.MethodGet,
-				Path:    "/flows/:flowId/journeys/:journeyId/processing-users",
-				Handler: flowjourney.GetCurrentProcessingUsersHandler(serverCtx),
+				Path:    "/flows/:flowId/journeys/:journeyId/full-detail",
+				Handler: flowjourney.GetJourneyFullDetailHandler(serverCtx),
 			},
 			{
 				// 高级搜索流程记录
 				Method:  http.MethodPost,
 				Path:    "/flows/:flowId/journeys/search",
 				Handler: flowjourney.SearchJourneysHandler(serverCtx),
-			},
-			{
-				// 根据流程编号查询
-				Method:  http.MethodGet,
-				Path:    "/flows/:flowId/journeys/search-by-sn",
-				Handler: flowjourney.GetFlowJourneyBySNHandler(serverCtx),
-			},
-		},
-		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
-		rest.WithPrefix("/api/v1"),
-	)
-
-	server.AddRoutes(
-		[]rest.Route{
-			{
-				// 获取流程元数据（字段、节点、边）
-				Method:  http.MethodGet,
-				Path:    "/flows/:flowId/detail",
-				Handler: flowmetadata.GetFlowDetailHandler(serverCtx),
 			},
 		},
 		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),

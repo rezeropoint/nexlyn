@@ -245,9 +245,16 @@ frontend/src/pages/Workbench/
 **接口列表**:
 - `getUserAssignments(params)` - 获取用户任务列表
 - `getProposedJourneys(params)` - 获取用户发起的流程
-- `getFlowJourneyDetail(params)` - 获取流程详情
-- `getJourneyMoments(params)` - 获取审批历史
-- `getCurrentProcessingUsers(params)` - 获取当前处理人
+- `getJourneyFullDetail(params)` - 获取流程完整详情（包含基础信息、审批历史、待处理节点）
+- `searchJourneys(params)` - 高级搜索流程记录
+- `updateFlowJourneyStatus(params)` - 更新流程状态（审批操作）
+- `abortJourney(params)` - 终止流程
+
+**注意**:
+- ~~`getFlowJourneyDetail`~~ - 已移除，使用 `getJourneyFullDetail` 替代
+- ~~`getJourneyMoments`~~ - 已移除，审批历史包含在 `getJourneyFullDetail` 响应中
+- ~~`getCurrentProcessingUsers`~~ - 已移除，待处理节点包含在 `getJourneyFullDetail` 响应中
+- ~~`getFlowDetail`~~ - 已移除，流程元数据包含在 `getJourneyFullDetail` 响应中
 
 ---
 

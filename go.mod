@@ -17,11 +17,10 @@ require (
 	github.com/disintegration/imaging v1.6.2
 	github.com/eclipse/paho.mqtt.golang v1.5.1
 	github.com/golang-jwt/jwt/v5 v5.2.3
-	github.com/json-iterator/go v1.1.12
 	github.com/rezeropoint/casbinx v1.0.6
 	github.com/rezeropoint/etcdtrigger v1.0.0
 	github.com/rezeropoint/etcdtrigger/v2 v2.0.0
-	github.com/rezeropoint/go-skylark/v2 v2.4.11-beta20251120
+	github.com/rezeropoint/go-skylark/v2 v2.5.7-beta20251125
 	go.mongodb.org/mongo-driver v1.17.4
 	golang.org/x/image v0.22.0
 	google.golang.org/grpc v1.75.0
@@ -113,6 +112,7 @@ require (
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
+	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/juju/errors v1.0.0 // indirect
 	github.com/kerberos-io/onvif v1.0.0 // indirect
 	github.com/klauspost/compress v1.18.0 // indirect

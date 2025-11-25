@@ -4,11 +4,9 @@
  */
 import UserSelect from "@/components/UserSelect";
 import { updateFlowJourneyStatus } from "@/services/workbench";
-import type { FlowVertex } from "@/services/workbench/types";
 import { useApp } from "@/utils/appContext";
 import {
   ModalForm,
-  ProFormSelect,
   ProFormTextArea,
 } from "@ant-design/pro-components";
 import React from "react";
@@ -19,7 +17,6 @@ interface ApprovalModalProps {
   flowId: number;
   journeyId: number;
   assignmentId: number;
-  vertices?: FlowVertex[]; // 节点列表（回退用）
   onSuccess: () => void;
   onCancel: () => void;
 }
@@ -43,7 +40,6 @@ const ApprovalModal: React.FC<ApprovalModalProps> = ({
   flowId,
   journeyId,
   assignmentId,
-  vertices = [],
   onSuccess,
   onCancel,
 }) => {

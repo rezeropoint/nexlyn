@@ -1,6 +1,8 @@
 package svc
 
 import (
+	"fmt"
+
 	"github.com/rezeropoint/go-skylark/v2/core"
 	"github.com/rezeropoint/nexlyn/restful/eventhandler/internal/types"
 )
@@ -797,4 +799,104 @@ func ConvertCoreProcessingUserListToTypes(users []*core.ProcessingUser) []types.
 		result = append(result, ConvertCoreProcessingUserToTypes(user))
 	}
 	return result
+}
+
+// ========== Journey Full Detail 转换 ==========
+
+// ConvertCoreFieldOptionToTypes 转换Core FieldOption为API响应
+func ConvertCoreFieldOptionToTypes(option core.FieldOption) types.FieldOption {
+	return types.FieldOption{
+		Id:       option.ID,
+		Value:    option.Value,
+		Settings: option.Settings,
+		Position: option.Position,
+	}
+}
+
+// ConvertCoreVertexFieldToTypes 转换Core VertexField为API响应
+func ConvertCoreVertexFieldToTypes(field *core.VertexField) types.VertexField {
+	// 转换选项列表
+	options := make([]types.FieldOption, 0, len(field.Options))
+	for _, opt := range field.Options {
+		options = append(options, ConvertCoreFieldOptionToTypes(opt))
+	}
+
+	return types.VertexField{
+		Id:          field.ID,
+		IdentityKey: field.IdentityKey,
+		Title:       field.Title,
+		Type:        field.Type,
+		Required:    field.Required,
+		Editable:    field.Editable,
+		Options:     options,
+	}
+}
+
+// ConvertCorePendingNodeToTypes 转换Core PendingNode为API响应
+func ConvertCorePendingNodeToTypes(node *core.PendingNode) types.PendingNode {
+	// 转换字段列表
+	var fields []types.VertexField
+	if node.Fields != nil {
+		fields = make([]types.VertexField, 0, len(node.Fields))
+		for _, field := range node.Fields {
+			if field != nil {
+				fields = append(fields, ConvertCoreVertexFieldToTypes(field))
+			}
+		}
+	} else {
+		fields = []types.VertexField{}
+	}
+
+	return types.PendingNode{
+		VertexId:      node.VertexID,
+		VertexName:    node.VertexName,
+		AssigneeIds:   node.AssigneeIDs,
+		AssigneeNames: node.AssigneeNames,
+		CreatedAt:     node.CreatedAt,
+		Fields:        fields,
+	}
+}
+
+// ConvertCorePendingNodeListToTypes 转换Core PendingNode列表为API响应
+func ConvertCorePendingNodeListToTypes(nodes []*core.PendingNode) []types.PendingNode {
+	result := make([]types.PendingNode, 0, len(nodes))
+	for _, node := range nodes {
+		result = append(result, ConvertCorePendingNodeToTypes(node))
+	}
+	return result
+}
+
+// ConvertCoreFlowVertexToTypes 转换Core FlowVertex为API响应
+// 注意：core.FlowVertex.Name 映射到 types.FlowVertex.Title
+func ConvertCoreFlowVertexToTypes(vertex *core.FlowVertex) types.FlowVertex {
+	return types.FlowVertex{
+		Id:    vertex.ID,
+		Title: vertex.Name,  // core中是Name，types中是Title
+		Type:  vertex.Type,
+	}
+}
+
+// ConvertCoreFlowVertexMapToTypes 转换Core FlowVertex Map为API响应
+// 注意：core 中的 Vertices 是 map[int64]*FlowVertex，API 中是 map[string]FlowVertex
+func ConvertCoreFlowVertexMapToTypes(vertices map[int64]*core.FlowVertex) map[string]types.FlowVertex {
+	result := make(map[string]types.FlowVertex, len(vertices))
+	for id, vertex := range vertices {
+		result[intToString(id)] = ConvertCoreFlowVertexToTypes(vertex)
+	}
+	return result
+}
+
+// ConvertCoreJourneyFullDetailToTypes 转换Core JourneyFullDetail为API响应
+func ConvertCoreJourneyFullDetailToTypes(detail *core.JourneyFullDetail) types.JourneyFullDetail {
+	return types.JourneyFullDetail{
+		BasicInfo:    ConvertCoreJourneyDetailToTypes(detail.BasicInfo),
+		History:      ConvertCoreMomentListToTypes(detail.History),
+		PendingNodes: ConvertCorePendingNodeListToTypes(detail.PendingNodes),
+		Vertices:     ConvertCoreFlowVertexMapToTypes(detail.Vertices),
+	}
+}
+
+// intToString 将 int64 转换为字符串
+func intToString(i int64) string {
+	return fmt.Sprintf("%d", i)
 }

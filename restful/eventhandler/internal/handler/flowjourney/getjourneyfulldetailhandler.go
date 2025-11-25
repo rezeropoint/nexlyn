@@ -12,17 +12,17 @@ import (
 	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
-// 获取审批历史时间线
-func GetJourneyMomentsHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+// 获取流程完整详情（一站式接口，包含基础信息、审批历史、待处理节点）
+func GetJourneyFullDetailHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req types.GetJourneyMomentsRequest
+		var req types.GetJourneyFullDetailRequest
 		if err := httpx.Parse(r, &req); err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)
 			return
 		}
 
-		l := flowjourney.NewGetJourneyMomentsLogic(r.Context(), svcCtx)
-		resp, err := l.GetJourneyMoments(&req)
+		l := flowjourney.NewGetJourneyFullDetailLogic(r.Context(), svcCtx)
+		resp, err := l.GetJourneyFullDetail(&req)
 		if err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)
 		} else {

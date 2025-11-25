@@ -64,7 +64,7 @@ export interface Attachment {
 }
 
 /**
- * JourneyDetail 流程详情
+ * JourneyDetail 流程详情（用于 JourneyFullDetail）
  */
 export interface JourneyDetail {
   id: number; // Journey ID
@@ -83,7 +83,7 @@ export interface JourneyDetail {
 }
 
 /**
- * Moment 审批历史节点
+ * Moment 审批历史节点（用于 JourneyFullDetail）
  */
 export interface Moment {
   id: number; // Moment ID
@@ -101,16 +101,71 @@ export interface Moment {
 }
 
 /**
- * ProcessingUser 当前处理人
+ * ProcessingUser 当前处理人（用于前端展示）
  */
 export interface ProcessingUser {
-  id: number; // 用户ID
+  id: string; // 用户UUID
   name: string; // 用户姓名
   nickname?: string; // 用户昵称
   phone?: string; // 手机号
   identifier?: string; // 工号/身份证号
   headimgurl?: string; // 头像URL
   tags?: string[]; // 用户标签
+}
+
+/**
+ * FieldOption 字段选项
+ */
+export interface FieldOption {
+  id: number; // 选项ID
+  value: string; // 选项值
+  settings?: Record<string, any>; // 选项设置
+  position: number; // 选项位置
+}
+
+/**
+ * VertexField 节点字段
+ */
+export interface VertexField {
+  id: number; // 字段ID
+  identityKey: string; // 字段唯一标识键（用于构建Data参数）
+  title: string; // 字段标题
+  type: string; // 字段类型（如 Field::RadioButton, Field::TextField）
+  required: boolean; // 是否必填
+  editable: boolean; // 是否可编辑
+  options: FieldOption[]; // 字段可选项
+}
+
+/**
+ * PendingNode 待处理节点
+ */
+export interface PendingNode {
+  vertexId: number; // 节点ID
+  vertexName: string; // 节点名称
+  assigneeIds: string[]; // 待处理人ID列表
+  assigneeNames: string[]; // 待处理人姓名列表
+  createdAt: string; // 任务创建时间
+  fields: VertexField[]; // 节点字段列表
+}
+
+/**
+ * FlowVertex 流程节点信息
+ */
+export interface FlowVertex {
+  id: number; // 节点ID
+  title: string; // 节点名称
+  type: string; // 节点类型
+  description?: string; // 节点描述
+}
+
+/**
+ * JourneyFullDetail 流程完整详情
+ */
+export interface JourneyFullDetail {
+  basicInfo: JourneyDetail; // 基础信息
+  history: Moment[]; // 审批历史
+  pendingNodes: PendingNode[]; // 待处理节点
+  vertices: Record<string, FlowVertex>; // 节点映射（key为节点ID字符串）
 }
 
 // ===== 请求参数类型 =====
@@ -131,30 +186,6 @@ export interface GetProposedJourneysParams {
   flowId: number; // 流程ID
   page: number; // 页码
   pageSize: number; // 每页数量
-}
-
-/**
- * 获取流程详情请求参数
- */
-export interface GetFlowJourneyDetailParams {
-  flowId: number; // 流程ID
-  journeyId: number; // Journey ID
-}
-
-/**
- * 获取审批历史请求参数
- */
-export interface GetJourneyMomentsParams {
-  flowId: number; // 流程ID
-  journeyId: number; // Journey ID
-}
-
-/**
- * 获取当前处理人请求参数
- */
-export interface GetCurrentProcessingUsersParams {
-  flowId: number; // 流程ID
-  journeyId: number; // Journey ID
 }
 
 // ===== 响应数据类型 =====
@@ -187,27 +218,6 @@ export interface GetUserAssignmentsResponse extends BaseResponse {
  */
 export interface GetProposedJourneysResponse extends BaseResponse {
   data: JourneyListData;
-}
-
-/**
- * 获取流程详情响应
- */
-export interface GetFlowJourneyDetailResponse extends BaseResponse {
-  data: JourneyDetail;
-}
-
-/**
- * 获取审批历史响应
- */
-export interface GetJourneyMomentsResponse extends BaseResponse {
-  data: Moment[];
-}
-
-/**
- * 获取当前处理人响应
- */
-export interface GetCurrentProcessingUsersResponse extends BaseResponse {
-  data: ProcessingUser[];
 }
 
 // ===== 流程元数据类型 =====
@@ -262,6 +272,13 @@ export interface FlowDetailData {
   edges: FlowEdge[]; // 边列表
 }
 
+/**
+ * 获取流程元数据响应
+ */
+export interface GetFlowDetailResponse extends BaseResponse {
+  data: FlowDetailData;
+}
+
 // ===== 流程Journey操作请求参数类型 =====
 
 /**
@@ -273,11 +290,11 @@ export interface AbortJourneyParams {
 }
 
 /**
- * 根据流程编号查询请求参数
+ * 获取流程完整详情请求参数
  */
-export interface GetFlowJourneyBySNParams {
+export interface GetJourneyFullDetailParams {
   flowId: number; // 流程ID
-  sn: string; // 流程编号
+  journeyId: number; // Journey ID
 }
 
 /**
@@ -307,13 +324,6 @@ export interface UpdateFlowJourneyStatusParams {
   data?: Record<string, TypedValue>; // 字段数据更新（可选）
 }
 
-/**
- * 获取流程元数据请求参数
- */
-export interface GetFlowDetailParams {
-  flowId: number; // 流程ID
-}
-
 // ===== 流程Journey操作响应类型 =====
 
 /**
@@ -322,10 +332,10 @@ export interface GetFlowDetailParams {
 export interface AbortJourneyResponse extends BaseResponse {}
 
 /**
- * 根据流程编号查询响应
+ * 获取流程完整详情响应
  */
-export interface GetFlowJourneyBySNResponse extends BaseResponse {
-  data: Journey;
+export interface GetJourneyFullDetailResponse extends BaseResponse {
+  data: JourneyFullDetail;
 }
 
 /**
@@ -347,13 +357,6 @@ export interface SearchJourneysResponse extends BaseResponse {
  * 更新流程状态响应
  */
 export interface UpdateFlowJourneyStatusResponse extends BaseResponse {}
-
-/**
- * 获取流程元数据响应
- */
-export interface GetFlowDetailResponse extends BaseResponse {
-  data: FlowDetailData;
-}
 
 // ===== 统计数据类型 =====
 

@@ -6,7 +6,7 @@ import { getEventConfigList } from "@/services/eventhandler";
 import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 import type { ProColumns } from "@ant-design/pro-components";
 import { type ActionType, ProTable } from "@ant-design/pro-components";
-import { Button, Popconfirm, Space, Tag } from "antd";
+import { Button, Popconfirm, Tag } from "antd";
 import React from "react";
 
 interface EventConfigTableProps {
@@ -62,22 +62,30 @@ const EventConfigTable: React.FC<EventConfigTableProps> = ({
       key: "action",
       search: false,
       render: (_, record) => (
-        <Space>
-          <a onClick={() => onEdit(record)}>
-            <EditOutlined /> 编辑
-          </a>
+        <>
+          <Button
+            type="link"
+            icon={<EditOutlined />}
+            onClick={() => onEdit(record)}
+          >
+            编辑
+          </Button>
           <Popconfirm
             title="确认删除？"
-            description="删除后无法恢复，请谨慎操作。"
+            description="删除后无法恢复,请谨慎操作。"
             onConfirm={() => onDelete(record)}
             okText="确认"
             cancelText="取消"
           >
-            <a>
-              <DeleteOutlined /> 删除
-            </a>
+            <Button
+              type="link"
+              danger
+              icon={<DeleteOutlined />}
+            >
+              删除
+            </Button>
           </Popconfirm>
-        </Space>
+        </>
       ),
     },
   ];

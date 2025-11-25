@@ -165,21 +165,9 @@ service EventHandler {
 	@handler abortJourney
 	delete /flows/:flowId/journeys/:journeyId (AbortJourneyRequest) returns (AbortJourneyResponse)
 
-	@doc "根据流程编号查询"
-	@handler getFlowJourneyBySN
-	get /flows/:flowId/journeys/search-by-sn (GetFlowJourneyBySNRequest) returns (GetFlowJourneyBySNResponse)
-
-	@doc "获取流程详情"
-	@handler getFlowJourneyDetail
-	get /flows/:flowId/journeys/:journeyId/detail (GetFlowJourneyDetailRequest) returns (GetFlowJourneyDetailResponse)
-
-	@doc "获取审批历史时间线"
-	@handler getJourneyMoments
-	get /flows/:flowId/journeys/:journeyId/moments (GetJourneyMomentsRequest) returns (GetJourneyMomentsResponse)
-
-	@doc "获取当前处理人"
-	@handler getCurrentProcessingUsers
-	get /flows/:flowId/journeys/:journeyId/processing-users (GetCurrentProcessingUsersRequest) returns (GetCurrentProcessingUsersResponse)
+	@doc "获取流程完整详情（一站式接口，包含基础信息、审批历史、待处理节点）"
+	@handler getJourneyFullDetail
+	get /flows/:flowId/journeys/:journeyId/full-detail (GetJourneyFullDetailRequest) returns (GetJourneyFullDetailResponse)
 
 	@doc "高级搜索流程记录"
 	@handler searchJourneys
@@ -207,14 +195,4 @@ service EventHandler {
 }
 
 // ===== 流程元数据接口组 =====
-@server (
-	prefix: /api/v1
-	jwt:    Auth
-	group:  flowmetadata
-)
-service EventHandler {
-	@doc "获取流程元数据（字段、节点、边）"
-	@handler getFlowDetail
-	get /flows/:flowId/detail (GetFlowDetailRequest) returns (GetFlowDetailResponse)
-}
-
+// 注意：GetFlowDetail 已被移除，流程元数据现在包含在 GetJourneyFullDetail 响应中

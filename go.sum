@@ -402,8 +402,8 @@ github.com/rezeropoint/etcdtrigger v1.0.0 h1:Up9t5PlEDuMj1JSaO6bGZZtBF2ryBE8ti45
 github.com/rezeropoint/etcdtrigger v1.0.0/go.mod h1:ECiepQN72Xjp8FyZfU2qdbsh3XT/PlOMsv3NYjlOfu8=
 github.com/rezeropoint/etcdtrigger/v2 v2.0.0 h1:A1+PTGMI1FCLypZuol3kiWSUQGKbi1SguTbwy2b+ZTU=
 github.com/rezeropoint/etcdtrigger/v2 v2.0.0/go.mod h1:fcXSxAFjHLV1QIn4IYQqIr695irY4eguXX+96U15hek=
-github.com/rezeropoint/go-skylark/v2 v2.4.11-beta20251120 h1:e9pU2Wk82U9yzjNGWMdKXtiedIxaKTjv4lKG2zxlMtw=
-github.com/rezeropoint/go-skylark/v2 v2.4.11-beta20251120/go.mod h1:bzHFneTslOSiU/A1ZxevYcm4WqE/ApRG4FHiV/D03lI=
+github.com/rezeropoint/go-skylark/v2 v2.5.7-beta20251125 h1:51NUOvhWQ2/2M+2WaTWgWmfrmkHX7Dg2nLp1K0lPBB0=
+github.com/rezeropoint/go-skylark/v2 v2.5.7-beta20251125/go.mod h1:bzHFneTslOSiU/A1ZxevYcm4WqE/ApRG4FHiV/D03lI=
 github.com/rezeropoint/monibucax/v5 v5.1.3-nx1.3.6-beta20251111 h1:8T4L8UzvrNSl4Flo6I9Yr5QwiHPqc7YgTU9+I3yZ6g8=
 github.com/rezeropoint/monibucax/v5 v5.1.3-nx1.3.6-beta20251111/go.mod h1:N3qxFNaza7Sm288SZhGF27mtv+8nay3Lxc1Gs+Em3Ho=
 github.com/rogpeppe/go-internal v1.14.1 h1:UQB4HGPB6osV0SQTLymcB4TgvyWu6ZyliaW0tI/otEQ=

@@ -14,32 +14,32 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
-type GetFlowJourneyBySNLogic struct {
+type GetJourneyFullDetailLogic struct {
 	logx.Logger
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 }
 
-// 根据流程编号查询
-func NewGetFlowJourneyBySNLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetFlowJourneyBySNLogic {
-	return &GetFlowJourneyBySNLogic{
+// 获取流程完整详情（一站式接口）
+func NewGetJourneyFullDetailLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetJourneyFullDetailLogic {
+	return &GetJourneyFullDetailLogic{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svcCtx: svcCtx,
 	}
 }
 
-func (l *GetFlowJourneyBySNLogic) GetFlowJourneyBySN(req *types.GetFlowJourneyBySNRequest) (resp *types.GetFlowJourneyBySNResponse, err error) {
+func (l *GetJourneyFullDetailLogic) GetJourneyFullDetail(req *types.GetJourneyFullDetailRequest) (resp *types.GetJourneyFullDetailResponse, err error) {
 	// 记录操作开始
 	logx.WithContext(l.ctx).WithFields(
 		logx.Field("service", l.svcCtx.Config.RestConf.Name),
 		logx.Field("pod", l.svcCtx.PodName),
 		logx.Field("module", "flow_journey"),
-		logx.Field("operation", "get_flow_journey_by_sn"),
+		logx.Field("operation", "get_journey_full_detail"),
 		logx.Field("status", "started"),
 		logx.Field("flow_id", req.FlowId),
-		logx.Field("sn", req.Sn),
-	).Info("开始根据流程编号查询")
+		logx.Field("journey_id", req.JourneyId),
+	).Info("开始获取流程完整详情")
 
 	// 1. 从JWT获取用户信息
 	jwtUser, err := auth.GetUserFromJWT(l.ctx)
@@ -48,12 +48,12 @@ func (l *GetFlowJourneyBySNLogic) GetFlowJourneyBySN(req *types.GetFlowJourneyBy
 			logx.Field("service", l.svcCtx.Config.RestConf.Name),
 			logx.Field("pod", l.svcCtx.PodName),
 			logx.Field("module", "flow_journey"),
-			logx.Field("operation", "get_flow_journey_by_sn"),
+			logx.Field("operation", "get_journey_full_detail"),
 			logx.Field("status", "failed"),
 			logx.Field("error", err.Error()),
 		).Error("获取JWT用户信息失败")
 
-		return &types.GetFlowJourneyBySNResponse{
+		return &types.GetJourneyFullDetailResponse{
 			BaseResponse: types.BaseResponse{
 				Code: 401,
 				Msg:  "未授权: " + err.Error(),
@@ -72,14 +72,14 @@ func (l *GetFlowJourneyBySNLogic) GetFlowJourneyBySN(req *types.GetFlowJourneyBy
 			logx.Field("service", l.svcCtx.Config.RestConf.Name),
 			logx.Field("pod", l.svcCtx.PodName),
 			logx.Field("module", "flow_journey"),
-			logx.Field("operation", "get_flow_journey_by_sn"),
+			logx.Field("operation", "get_journey_full_detail"),
 			logx.Field("status", "failed"),
 			logx.Field("tenant_id", jwtUser.TenantId),
 			logx.Field("user_id", jwtUser.UserId),
 			logx.Field("error", err.Error()),
 		).Error("权限检查失败")
 
-		return &types.GetFlowJourneyBySNResponse{
+		return &types.GetJourneyFullDetailResponse{
 			BaseResponse: types.BaseResponse{
 				Code: 500,
 				Msg:  "权限检查失败: " + err.Error(),
@@ -92,7 +92,7 @@ func (l *GetFlowJourneyBySNLogic) GetFlowJourneyBySN(req *types.GetFlowJourneyBy
 			logx.Field("service", l.svcCtx.Config.RestConf.Name),
 			logx.Field("pod", l.svcCtx.PodName),
 			logx.Field("module", "flow_journey"),
-			logx.Field("operation", "get_flow_journey_by_sn"),
+			logx.Field("operation", "get_journey_full_detail"),
 			logx.Field("status", "failed"),
 			logx.Field("tenant_id", jwtUser.TenantId),
 			logx.Field("user_id", jwtUser.UserId),
@@ -100,7 +100,7 @@ func (l *GetFlowJourneyBySNLogic) GetFlowJourneyBySN(req *types.GetFlowJourneyBy
 			logx.Field("required_permission", "flow:read"),
 		).Error("权限不足: 缺少 flow:read 权限")
 
-		return &types.GetFlowJourneyBySNResponse{
+		return &types.GetJourneyFullDetailResponse{
 			BaseResponse: types.BaseResponse{
 				Code: 403,
 				Msg:  "权限不足: 缺少 flow:read 权限",
@@ -108,12 +108,12 @@ func (l *GetFlowJourneyBySNLogic) GetFlowJourneyBySN(req *types.GetFlowJourneyBy
 		}, nil
 	}
 
-	// 3. 调用Skylark引擎根据SN查询流程
-	journey, err := l.svcCtx.SkylarkEngine.GetFlowJourneyBySN(
+	// 3. 调用Skylark引擎获取流程完整详情
+	fullDetail, err := l.svcCtx.SkylarkEngine.GetJourneyFullDetail(
 		l.ctx,
 		jwtUser.TenantId,
 		req.FlowId,
-		req.Sn,
+		req.JourneyId,
 	)
 
 	if err != nil {
@@ -122,15 +122,15 @@ func (l *GetFlowJourneyBySNLogic) GetFlowJourneyBySN(req *types.GetFlowJourneyBy
 			logx.Field("service", l.svcCtx.Config.RestConf.Name),
 			logx.Field("pod", l.svcCtx.PodName),
 			logx.Field("module", "flow_journey"),
-			logx.Field("operation", "get_flow_journey_by_sn"),
+			logx.Field("operation", "get_journey_full_detail"),
 			logx.Field("status", "failed"),
 			logx.Field("tenant_id", jwtUser.TenantId),
 			logx.Field("flow_id", req.FlowId),
-			logx.Field("sn", req.Sn),
+			logx.Field("journey_id", req.JourneyId),
 			logx.Field("error", err.Error()),
-		).Error("根据SN查询流程失败")
+		).Error("获取流程完整详情失败")
 
-		return &types.GetFlowJourneyBySNResponse{
+		return &types.GetJourneyFullDetailResponse{
 			BaseResponse: types.BaseResponse{
 				Code: code,
 				Msg:  msg,
@@ -139,23 +139,25 @@ func (l *GetFlowJourneyBySNLogic) GetFlowJourneyBySN(req *types.GetFlowJourneyBy
 	}
 
 	// 4. 转换结果
-	data := svc.ConvertCoreJourneyToTypes(journey)
+	data := svc.ConvertCoreJourneyFullDetailToTypes(fullDetail)
 
 	// 记录成功
 	logx.WithContext(l.ctx).WithFields(
 		logx.Field("service", l.svcCtx.Config.RestConf.Name),
 		logx.Field("pod", l.svcCtx.PodName),
 		logx.Field("module", "flow_journey"),
-		logx.Field("operation", "get_flow_journey_by_sn"),
+		logx.Field("operation", "get_journey_full_detail"),
 		logx.Field("status", "success"),
 		logx.Field("tenant_id", jwtUser.TenantId),
 		logx.Field("flow_id", req.FlowId),
-		logx.Field("sn", req.Sn),
-		logx.Field("journey_id", journey.ID),
-	).Info("根据SN查询流程成功")
+		logx.Field("journey_id", req.JourneyId),
+		logx.Field("journey_status", fullDetail.BasicInfo.Status),
+		logx.Field("history_count", len(fullDetail.History)),
+		logx.Field("pending_nodes_count", len(fullDetail.PendingNodes)),
+	).Info("获取流程完整详情成功")
 
 	// 5. 返回响应
-	return &types.GetFlowJourneyBySNResponse{
+	return &types.GetJourneyFullDetailResponse{
 		BaseResponse: types.BaseResponse{
 			Code: 0,
 			Msg:  "success",

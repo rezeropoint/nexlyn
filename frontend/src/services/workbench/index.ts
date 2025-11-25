@@ -5,16 +5,8 @@ import { request } from "umi";
 import type {
   AbortJourneyParams,
   AbortJourneyResponse,
-  GetCurrentProcessingUsersParams,
-  GetCurrentProcessingUsersResponse,
-  GetFlowDetailParams,
-  GetFlowDetailResponse,
-  GetFlowJourneyBySNParams,
-  GetFlowJourneyBySNResponse,
-  GetFlowJourneyDetailParams,
-  GetFlowJourneyDetailResponse,
-  GetJourneyMomentsParams,
-  GetJourneyMomentsResponse,
+  GetJourneyFullDetailParams,
+  GetJourneyFullDetailResponse,
   GetProposedJourneysParams,
   GetProposedJourneysResponse,
   GetUserAssignmentsParams,
@@ -65,59 +57,6 @@ export async function getProposedJourneys(
   });
 }
 
-// ===== 流程详情相关API =====
-
-/**
- * 获取流程详情
- * @param params - 请求参数
- * @param params.flowId - 流程ID
- * @param params.journeyId - Journey ID
- * @returns 流程详情数据
- */
-export async function getFlowJourneyDetail(
-  params: GetFlowJourneyDetailParams
-): Promise<GetFlowJourneyDetailResponse> {
-  const { flowId, journeyId } = params;
-  return request(`${API_PREFIX}/flows/${flowId}/journeys/${journeyId}/detail`, {
-    method: "GET",
-  });
-}
-
-/**
- * 获取审批历史时间线
- * @param params - 请求参数
- * @param params.flowId - 流程ID
- * @param params.journeyId - Journey ID
- * @returns 审批历史记录列表
- */
-export async function getJourneyMoments(
-  params: GetJourneyMomentsParams
-): Promise<GetJourneyMomentsResponse> {
-  const { flowId, journeyId } = params;
-  return request(`${API_PREFIX}/flows/${flowId}/journeys/${journeyId}/moments`, {
-    method: "GET",
-  });
-}
-
-/**
- * 获取当前处理人列表
- * @param params - 请求参数
- * @param params.flowId - 流程ID
- * @param params.journeyId - Journey ID
- * @returns 当前处理人列表
- */
-export async function getCurrentProcessingUsers(
-  params: GetCurrentProcessingUsersParams
-): Promise<GetCurrentProcessingUsersResponse> {
-  const { flowId, journeyId } = params;
-  return request(
-    `${API_PREFIX}/flows/${flowId}/journeys/${journeyId}/processing-users`,
-    {
-      method: "GET",
-    }
-  );
-}
-
 // ===== 流程Journey操作相关API =====
 
 /**
@@ -137,19 +76,18 @@ export async function abortJourney(
 }
 
 /**
- * 根据流程编号查询
+ * 获取流程完整详情（一站式接口，包含基础信息、审批历史、待处理节点）
  * @param params - 请求参数
  * @param params.flowId - 流程ID
- * @param params.sn - 流程编号
- * @returns 流程记录
+ * @param params.journeyId - Journey ID
+ * @returns 流程完整详情
  */
-export async function getFlowJourneyBySN(
-  params: GetFlowJourneyBySNParams
-): Promise<GetFlowJourneyBySNResponse> {
-  const { flowId, sn } = params;
-  return request(`${API_PREFIX}/flows/${flowId}/journeys/search-by-sn`, {
+export async function getJourneyFullDetail(
+  params: GetJourneyFullDetailParams
+): Promise<GetJourneyFullDetailResponse> {
+  const { flowId, journeyId } = params;
+  return request(`${API_PREFIX}/flows/${flowId}/journeys/${journeyId}/full-detail`, {
     method: "GET",
-    params: { sn },
   });
 }
 
@@ -199,18 +137,4 @@ export async function updateFlowJourneyStatus(
 }
 
 // ===== 流程元数据相关API =====
-
-/**
- * 获取流程元数据（字段、节点、边）
- * @param params - 请求参数
- * @param params.flowId - 流程ID
- * @returns 流程元数据
- */
-export async function getFlowDetail(
-  params: GetFlowDetailParams
-): Promise<GetFlowDetailResponse> {
-  const { flowId } = params;
-  return request(`${API_PREFIX}/flows/${flowId}/detail`, {
-    method: "GET",
-  });
-}
+// 注意：getFlowDetail 已被移除，流程元数据现在包含在 getJourneyFullDetail 响应中
