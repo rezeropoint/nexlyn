@@ -6,7 +6,7 @@ import {
   type ProColumns,
   ProTable,
 } from "@ant-design/pro-components";
-import { Button, Switch, Tooltip, Typography, theme } from "antd";
+import { Button, Popconfirm, Space, Tag, Tooltip, Typography } from "antd";
 import React from "react";
 
 interface HttpReceiveTableProps {
@@ -14,7 +14,6 @@ interface HttpReceiveTableProps {
   onCreateConfig: () => void;
   onEditConfig: (record: HttpReceiveMetadata) => void;
   onDeleteConfig: (record: HttpReceiveMetadata) => void;
-  onToggleEnabled: (record: HttpReceiveMetadata) => Promise<boolean>;
 }
 
 /**
@@ -25,9 +24,7 @@ const HttpReceiveTable: React.FC<HttpReceiveTableProps> = ({
   onCreateConfig,
   onEditConfig,
   onDeleteConfig,
-  onToggleEnabled,
 }) => {
-  const { token } = theme.useToken();
 
   // 表格列定义
   const columns: ProColumns<HttpReceiveMetadata>[] = [
@@ -61,16 +58,9 @@ const HttpReceiveTable: React.FC<HttpReceiveTableProps> = ({
       align: "center",
       hideInSearch: true,
       render: (_, record) => (
-        <Switch
-          checked={record.enabled}
-          size="small"
-          onChange={async () => {
-            const success = await onToggleEnabled(record);
-            if (success) {
-              actionRef.current?.reload();
-            }
-          }}
-        />
+        <Tag color={record.enabled ? "success" : "default"}>
+          {record.enabled ? "已启用" : "已禁用"}
+        </Tag>
       ),
     },
     {
@@ -92,20 +82,36 @@ const HttpReceiveTable: React.FC<HttpReceiveTableProps> = ({
     {
       title: "操作",
       valueType: "option",
-      width: 120,
+      width: 150,
       fixed: "right",
-      render: (_, record) => [
-        <a key="edit" onClick={() => onEditConfig(record)}>
-          <EditOutlined /> 编辑
-        </a>,
-        <a
-          key="delete"
-          onClick={() => onDeleteConfig(record)}
-          style={{ color: token.colorError }}
-        >
-          <DeleteOutlined /> 删除
-        </a>,
-      ],
+      render: (_, record) => (
+        <Space size="small">
+          <Button
+            type="link"
+            size="small"
+            icon={<EditOutlined />}
+            onClick={() => onEditConfig(record)}
+          >
+            编辑
+          </Button>
+          <Popconfirm
+            title="确认删除？"
+            description="删除后无法恢复，请谨慎操作。"
+            onConfirm={() => onDeleteConfig(record)}
+            okText="确认"
+            cancelText="取消"
+          >
+            <Button
+              type="link"
+              size="small"
+              danger
+              icon={<DeleteOutlined />}
+            >
+              删除
+            </Button>
+          </Popconfirm>
+        </Space>
+      ),
     },
   ];
 

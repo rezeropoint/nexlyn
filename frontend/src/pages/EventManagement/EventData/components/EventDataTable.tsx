@@ -4,7 +4,8 @@ import {
   type ProColumns,
   ProTable,
 } from "@ant-design/pro-components";
-import { Select, Space } from "antd";
+import { EyeOutlined } from "@ant-design/icons";
+import { Button, Select, Space } from "antd";
 import { useApp } from "@/utils/appContext";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import type {
@@ -68,7 +69,7 @@ const EventDataTable: React.FC<EventDataTableProps> = ({
       ...dynamicColumns,
       {
         title: "操作",
-        key: "action",
+        valueType: "option",
         width: 120,
         fixed: "right",
         render: (_: any, record: any) => {
@@ -76,12 +77,14 @@ const EventDataTable: React.FC<EventDataTableProps> = ({
           const journeyId = record.slp_journey_id;
           if (!journeyId) return null;
           return (
-            <a
-              className="action-link"
+            <Button
+              type="link"
+              size="small"
+              icon={<EyeOutlined />}
               onClick={() => handleViewDetail(journeyId)}
             >
               查看详情
-            </a>
+            </Button>
           );
         },
       },

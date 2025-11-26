@@ -6,7 +6,7 @@ import { getEventConfigList } from "@/services/eventhandler";
 import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 import type { ProColumns } from "@ant-design/pro-components";
 import { type ActionType, ProTable } from "@ant-design/pro-components";
-import { Button, Popconfirm, Tag } from "antd";
+import { Button, Popconfirm, Space, Tag } from "antd";
 import React from "react";
 
 interface EventConfigTableProps {
@@ -59,12 +59,14 @@ const EventConfigTable: React.FC<EventConfigTableProps> = ({
     },
     {
       title: "操作",
-      key: "action",
-      search: false,
+      valueType: "option",
+      width: 150,
+      fixed: "right",
       render: (_, record) => (
-        <>
+        <Space size="small">
           <Button
             type="link"
+            size="small"
             icon={<EditOutlined />}
             onClick={() => onEdit(record)}
           >
@@ -72,20 +74,21 @@ const EventConfigTable: React.FC<EventConfigTableProps> = ({
           </Button>
           <Popconfirm
             title="确认删除？"
-            description="删除后无法恢复,请谨慎操作。"
+            description="删除后无法恢复，请谨慎操作。"
             onConfirm={() => onDelete(record)}
             okText="确认"
             cancelText="取消"
           >
             <Button
               type="link"
+              size="small"
               danger
               icon={<DeleteOutlined />}
             >
               删除
             </Button>
           </Popconfirm>
-        </>
+        </Space>
       ),
     },
   ];
@@ -97,6 +100,18 @@ const EventConfigTable: React.FC<EventConfigTableProps> = ({
       rowKey="id"
       search={{
         labelWidth: 120,
+      }}
+      scroll={{ x: 1400 }}
+      pagination={{
+        defaultPageSize: 10,
+        showQuickJumper: true,
+        showSizeChanger: true,
+        showTotal: (total) => `共 ${total} 条`,
+      }}
+      options={{
+        reload: true,
+        setting: true,
+        density: true,
       }}
       toolBarRender={() => [
         <Button type="primary" key="primary" onClick={onCreate}>

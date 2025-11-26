@@ -66,15 +66,19 @@ const OrgMappingTable: React.FC<OrgMappingTableProps> = ({
     },
     {
       title: "操作",
-      key: "action",
-      search: false,
+      valueType: "option",
       width: 150,
       fixed: "right",
       render: (_, record) => (
-        <Space>
-          <a onClick={() => onEdit(record)}>
-            <EditOutlined /> 编辑
-          </a>
+        <Space size="small">
+          <Button
+            type="link"
+            size="small"
+            icon={<EditOutlined />}
+            onClick={() => onEdit(record)}
+          >
+            编辑
+          </Button>
           <Popconfirm
             title="确认删除？"
             description="删除后无法恢复，请谨慎操作。"
@@ -82,9 +86,14 @@ const OrgMappingTable: React.FC<OrgMappingTableProps> = ({
             okText="确认"
             cancelText="取消"
           >
-            <a>
-              <DeleteOutlined /> 删除
-            </a>
+            <Button
+              type="link"
+              size="small"
+              danger
+              icon={<DeleteOutlined />}
+            >
+              删除
+            </Button>
           </Popconfirm>
         </Space>
       ),
@@ -98,6 +107,18 @@ const OrgMappingTable: React.FC<OrgMappingTableProps> = ({
       rowKey="id"
       search={{
         labelWidth: 120,
+      }}
+      scroll={{ x: 1400 }}
+      pagination={{
+        defaultPageSize: 10,
+        showQuickJumper: true,
+        showSizeChanger: true,
+        showTotal: (total) => `共 ${total} 条`,
+      }}
+      options={{
+        reload: true,
+        setting: true,
+        density: true,
       }}
       toolBarRender={() => [
         <Button type="primary" key="primary" onClick={onCreate}>
