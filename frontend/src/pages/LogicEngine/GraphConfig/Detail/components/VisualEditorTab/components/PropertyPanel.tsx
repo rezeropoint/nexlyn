@@ -20,7 +20,9 @@ import {
   ProFormText,
   ProFormTextArea,
 } from "@ant-design/pro-components";
-import { Card, Divider, Empty, Space, Spin, Tag } from "antd";
+import { Card, Divider, Empty, Spin, Tag, Typography } from "antd";
+
+const { Text } = Typography;
 import React, { useEffect, useRef, useState } from "react";
 import DynamicBlockConfigForm from "../../DynamicBlockConfigForm";
 import styles from "./PropertyPanel.module.less";
@@ -99,14 +101,15 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
   }, [tenantId]);
 
   // 当选中项变化时，更新表单值
+  // 注意：只在节点/边 ID 变化时才重置表单，避免编辑时被覆盖
   useEffect(() => {
     if (selectedNode) {
-      // 将 subscribedLabels map 转换为 ProFormList 需要的数组格式
+      // 将 subscribedLabels ["key:value"] 转换为 ProFormList 需要的 [{key, value}] 格式
       const labelsArray = selectedNode.subscribedLabels
-        ? Object.entries(selectedNode.subscribedLabels).map(([key, value]) => ({
-            key,
-            value,
-          }))
+        ? selectedNode.subscribedLabels.map((label) => {
+            const [key, ...valueParts] = label.split(":");
+            return { key, value: valueParts.join(":") };
+          })
         : [];
 
       formRef.current?.setFieldsValue({
@@ -116,7 +119,7 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
         blockVersion: selectedNode.blockVersion,
         isEntryPoint: selectedNode.isEntryPoint,
         subscribedInfoAtomTypeIDs: selectedNode.subscribedInfoAtomTypeIDs,
-        subscribedSource: selectedNode.subscribedSource,
+        subscribedSource: selectedNode.subscribedSource || "",
         subscribedLabels: labelsArray,
       });
       configFormRef.current?.setFieldsValue(selectedNode.blockConfig || {});
@@ -131,7 +134,8 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
       formRef.current?.resetFields();
       configFormRef.current?.resetFields();
     }
-  }, [selectedNode, selectedEdge]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedNode?.id, selectedEdge?.id]);
 
   // 节点属性表单
   const renderNodeForm = () => {
@@ -156,24 +160,20 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
               : [];
           }
 
-          // 处理 subscribedLabels：现在是 [{key, value}] 数组，需要转换为 map[string]string
+          // 处理 subscribedLabels：将 [{key, value}] 转换为 ["key:value"] 字符串数组
           if (changedValues.subscribedLabels !== undefined) {
             const labelsArray = changedValues.subscribedLabels || [];
-            updates.subscribedLabels = labelsArray.reduce(
-              (
-                acc: Record<string, string>,
-                item: { key?: string; value?: string }
-              ) => {
-                if (item.key && item.value) {
-                  acc[item.key] = item.value;
-                }
-                return acc;
-              },
-              {}
-            );
+            updates.subscribedLabels = labelsArray
+              .filter(
+                (item: { key?: string; value?: string }) => item.key && item.value
+              )
+              .map(
+                (item: { key: string; value: string }) =>
+                  `${item.key}:${item.value}`
+              );
           }
 
-          // 合并其他变化的值
+          // 合并其他变化的值（subscribedSource 现在是普通字符串，无需特殊处理）
           Object.keys(changedValues).forEach((key) => {
             if (
               key !== "subscribedInfoAtomTypeIDs" &&
@@ -228,27 +228,12 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
                 }))}
               />
 
-              {/* 订阅来源 - 自定义输入 */}
-              <ProFormSelect
+              {/* 订阅来源 - 单一来源精确匹配 */}
+              <ProFormText
                 name="subscribedSource"
                 label="订阅来源"
-                mode="tags"
-                placeholder="输入设备ID（如 sensor001）"
-                tooltip="留空表示接收任何设备的数据；填入设备ID则只接收特定设备的数据"
-                fieldProps={{
-                  maxTagCount: 1,
-                  maxTagTextLength: 100,
-                  allowClear: true,
-                }}
-                options={[]}
-                extra={
-                  <div className={styles.fieldTip}>
-                    <span className={styles.tipLabel}>示例：</span>
-                    <span className={styles.tipContent}>
-                      sensor001、device_001、box_123
-                    </span>
-                  </div>
-                }
+                placeholder="留空表示匹配所有来源"
+                tooltip="空值 = 匹配所有来源的信息原子；填写值 = 精确匹配单一来源（如 mqtt、http、sensor001）。如需监听多个来源，请创建多个入口节点分别订阅"
               />
 
               {/* 订阅标签 - 键值对编辑器 */}
@@ -256,27 +241,37 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
                 name="subscribedLabels"
                 label="订阅标签（键值对）"
                 creatorButtonProps={{
+                  position: "bottom",
                   creatorButtonText: "添加标签条件",
+                  icon: false,
                 }}
+                copyIconProps={false}
+                deleteIconProps={{ tooltipText: "删除此标签" }}
                 itemRender={({ listDom, action }, { index }) => (
-                  <Space key={index} style={{ width: "100%" }} align="baseline">
+                  <Card
+                    size="small"
+                    className={styles.labelItemCard}
+                    title={<Text strong>标签 #{index + 1}</Text>}
+                    extra={action}
+                  >
                     {listDom}
-                    {action}
-                  </Space>
+                  </Card>
                 )}
               >
-                <ProFormText
-                  name="key"
-                  label="标签键"
-                  placeholder="如 region、priority"
-                  width="xs"
-                />
-                <ProFormText
-                  name="value"
-                  label="标签值"
-                  placeholder="如 north、high"
-                  width="xs"
-                />
+                <div className={styles.labelItemContainer}>
+                  <ProFormText
+                    name="key"
+                    label="标签键"
+                    placeholder="如 region、priority"
+                    width="sm"
+                  />
+                  <ProFormText
+                    name="value"
+                    label="标签值"
+                    placeholder="如 north、high"
+                    width="sm"
+                  />
+                </div>
               </ProFormList>
             </>
           )}

@@ -97,3 +97,28 @@
     word-break: break-all;
   }
 }
+
+.labelItemCard {
+  margin-bottom: 8px;
+  background-color: var(--ant-color-fill-quaternary);
+
+  :global(.ant-card-head) {
+    min-height: 32px;
+    padding: 0 12px;
+    font-size: 12px;
+  }
+
+  :global(.ant-card-body) {
+    padding: 12px;
+  }
+}
+
+.labelItemContainer {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+
+  :global(.ant-form-item) {
+    margin-bottom: 0;
+  }
+}

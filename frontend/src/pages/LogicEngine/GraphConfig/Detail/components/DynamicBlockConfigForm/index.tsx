@@ -118,7 +118,7 @@ const DynamicBlockConfigForm: React.FC<Props> = ({
           <Tooltip
             title={fieldSchema.description}
             placement="left"
-            overlayStyle={{ maxWidth: 300 }}
+            styles={{ root: { maxWidth: 300 } }}
             align={{ offset: [-10, 0] }}
           >
             <InfoCircleOutlined
@@ -337,6 +337,7 @@ const DynamicBlockConfigForm: React.FC<Props> = ({
       <Form
         form={activeForm}
         layout="vertical"
+        component={false}
         onValuesChange={(_, values) => {
           onChange?.(values);
         }}

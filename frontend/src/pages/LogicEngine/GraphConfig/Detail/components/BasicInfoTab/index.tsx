@@ -156,7 +156,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ data, loading, onUpdate }) 
             />
           </Descriptions.Item>
 
-          <Descriptions.Item label="图标">
+          <Descriptions.Item label="图标" span={2}>
             {IconComponent ? (
               <Space>
                 <IconComponent size={24} color={iconColor} />
@@ -237,7 +237,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ data, loading, onUpdate }) 
           return success;
         }}
         modalProps={{
-          destroyOnClose: true,
+          destroyOnHidden: true,
         }}
         initialValues={{
           name: data.name,
