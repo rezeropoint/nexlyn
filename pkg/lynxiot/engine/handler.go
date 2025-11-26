@@ -84,6 +84,10 @@ func newIoTClient(ctx context.Context, config Config, dbConn sqlx.SqlConn, redis
 				Path:   "control-config/", // 设备控制配置
 				Struct: &core.DeviceControlConfig{},
 			},
+			{
+				Path:   core.HttpReceiveConfigPrefix, // HTTP数据接收配置
+				Struct: &core.HttpReceiveConfig{},
+			},
 		},
 	})
 
