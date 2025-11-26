@@ -149,6 +149,14 @@ export default {
       timeout: 15000, // 15秒超时，MQTT控制可能需要时间
     },
 
+    // HTTP 接收配置管理接口
+    '/api/v1/http-receive': {
+      target: 'http://localhost:8889',
+      changeOrigin: true,
+      pathRewrite: { '^': '' },
+      timeout: 10000,
+    },
+
     // EventHandler 服务接口转发到 eventhandler 服务
     // 本地开发: eventhandler 服务的端口映射为 "8890:8888"
     '/api/v1/skylark-platform': {

@@ -184,6 +184,12 @@ SkylarkConfig:
   Mapping:
     OrgMappingCacheTTL: 168h      # 组织映射缓存时间（7天）
 
+  # 流程管理器配置
+  Flows:
+    FlowInfoCacheTTL: 3600        # Flow信息缓存时间（秒，默认1小时）
+    VertexInfoCacheTTL: 3600      # 节点信息缓存时间（秒，默认1小时）
+    VertexFieldCacheTTL: 3600     # 节点字段缓存时间（秒，默认1小时）
+
   # 远程查询管理器配置
   Query:
     FlowListCacheTTL: 1h          # flows列表缓存时间（1小时）

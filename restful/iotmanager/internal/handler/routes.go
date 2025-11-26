@@ -9,6 +9,7 @@ import (
 
 	control "github.com/rezeropoint/nexlyn/restful/iotmanager/internal/handler/control"
 	device "github.com/rezeropoint/nexlyn/restful/iotmanager/internal/handler/device"
+	httpreceive "github.com/rezeropoint/nexlyn/restful/iotmanager/internal/handler/httpreceive"
 	metadata "github.com/rezeropoint/nexlyn/restful/iotmanager/internal/handler/metadata"
 	platform "github.com/rezeropoint/nexlyn/restful/iotmanager/internal/handler/platform"
 	query "github.com/rezeropoint/nexlyn/restful/iotmanager/internal/handler/query"
@@ -88,6 +89,57 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
 		rest.WithPrefix("/api/v1"),
 		rest.WithTimeout(10000*time.Millisecond),
+	)
+
+	server.AddRoutes(
+		[]rest.Route{
+			{
+				// 创建 HTTP 接收配置
+				Method:  http.MethodPost,
+				Path:    "/http-receive",
+				Handler: httpreceive.CreateHttpReceiveHandler(serverCtx),
+			},
+			{
+				// 获取 HTTP 接收配置详情
+				Method:  http.MethodGet,
+				Path:    "/http-receive/:id",
+				Handler: httpreceive.GetHttpReceiveHandler(serverCtx),
+			},
+			{
+				// 更新 HTTP 接收配置
+				Method:  http.MethodPut,
+				Path:    "/http-receive/:id",
+				Handler: httpreceive.UpdateHttpReceiveHandler(serverCtx),
+			},
+			{
+				// 删除 HTTP 接收配置
+				Method:  http.MethodDelete,
+				Path:    "/http-receive/:id",
+				Handler: httpreceive.DeleteHttpReceiveHandler(serverCtx),
+			},
+			{
+				// 获取 HTTP 接收配置列表
+				Method:  http.MethodGet,
+				Path:    "/http-receive/list",
+				Handler: httpreceive.GetHttpReceiveListHandler(serverCtx),
+			},
+		},
+		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
+		rest.WithPrefix("/api/v1"),
+		rest.WithTimeout(10000*time.Millisecond),
+	)
+
+	server.AddRoutes(
+		[]rest.Route{
+			{
+				// 接收 HTTP 数据
+				Method:  http.MethodPost,
+				Path:    "/data-receive/:configId",
+				Handler: httpreceive.ReceiveDataHandler(serverCtx),
+			},
+		},
+		rest.WithPrefix("/api/iot/v1"),
+		rest.WithTimeout(30000*time.Millisecond),
 	)
 
 	server.AddRoutes(

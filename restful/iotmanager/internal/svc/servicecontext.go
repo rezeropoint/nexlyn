@@ -17,15 +17,17 @@ import (
 	"github.com/zeromicro/go-zero/core/stores/redis"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 
+	"github.com/rezeropoint/nexlyn/pkg/emiya"
 	iotengine "github.com/rezeropoint/nexlyn/pkg/lynxiot/engine"
 )
 
 type ServiceContext struct {
-	PodName   string
-	Config    config.Config
-	DBConn    sqlx.SqlConn
-	Casbinx   engine.CasbinX
-	IoTEngine iotengine.IoT // IoT引擎
+	PodName       string
+	Config        config.Config
+	DBConn        sqlx.SqlConn
+	Casbinx       engine.CasbinX
+	IoTEngine     iotengine.IoT     // IoT引擎
+	EmiyaRegistry emiya.Registry    // Emiya 解析器（支持嵌套JSON）
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -148,10 +150,11 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	}
 
 	return &ServiceContext{
-		Config:    c,
-		DBConn:    dbConn,
-		Casbinx:   casbinx,
-		PodName:   podName,
-		IoTEngine: iotEngine,
+		Config:        c,
+		DBConn:        dbConn,
+		Casbinx:       casbinx,
+		PodName:       podName,
+		IoTEngine:     iotEngine,
+		EmiyaRegistry: emiya.NewRegistry(),
 	}
 }

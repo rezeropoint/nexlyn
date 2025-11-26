@@ -242,6 +242,14 @@ func HandleIoTError(err error) (code int64, msg string) {
 		return 400, "平台配置正在使用中，无法删除"
 	case core.ErrPlatformUnauthorized:
 		return 403, "无权操作该平台配置"
+	case core.ErrHttpReceiveNotFound:
+		return 404, "HTTP接收配置不存在"
+	case core.ErrHttpReceiveInvalid:
+		return 400, "HTTP接收配置无效"
+	case core.ErrHttpReceiveUnauthorized:
+		return 403, "无权操作该HTTP接收配置"
+	case core.ErrHttpReceiveDisabled:
+		return 400, "HTTP接收配置已禁用"
 	default:
 		return 500, fmt.Sprintf("服务器错误: %v", err)
 	}
@@ -680,4 +688,168 @@ func ConvertCoreDeviceControlConfigToTypes(config core.DeviceControlConfig) type
 		CommandSuffix:  config.CommandSuffix,
 		ResponseSuffix: config.ResponseSuffix,
 	}
+}
+
+// ===== HTTP数据接收配置转换函数 =====
+
+// ConvertHttpReceiveRequestToCore 转换创建请求为Core类型
+func ConvertHttpReceiveRequestToCore(req *types.CreateHttpReceiveRequest, tenantID string) (core.HttpReceiveMetadata, *core.HttpReceiveConfig) {
+	metadata := core.HttpReceiveMetadata{
+		Name:        req.Name,
+		Description: req.Description,
+		Enabled:     req.Enabled,
+		TenantID:    tenantID,
+	}
+
+	// 转换字段映射（HTTP Receive 专用，使用自定义字段名）
+	fieldMappings := make([]core.HttpReceiveFieldMapping, 0, len(req.FieldMappings))
+	for _, fm := range req.FieldMappings {
+		fieldMappings = append(fieldMappings, core.HttpReceiveFieldMapping{
+			FieldName:    fm.FieldName,
+			SourcePath:   fm.SourcePath,
+			FieldType:    core.FieldType(fm.FieldType),
+			DefaultValue: fm.DefaultValue,
+		})
+	}
+
+	// 转换分发配置
+	dispatchConfigs := make([]core.DispatchConfig, 0, len(req.DispatchConfigs))
+	for _, dc := range req.DispatchConfigs {
+		dispatchConfigs = append(dispatchConfigs, core.DispatchConfig{
+			Type:           core.DispatchType(dc.Type),
+			PlatformID:     dc.PlatformID,
+			FlowID:         dc.FlowID,
+			FormID:         dc.FormID,
+			InfoAtomTypeID: dc.InfoAtomTypeID,
+			ExtraParams:    dc.ExtraParams,
+		})
+	}
+
+	// 配置对象只包含业务配置，不包含元数据字段
+	// ConfigID 和 TenantID 由 Manager 层填充
+	config := &core.HttpReceiveConfig{
+		TimestampPath:   req.TimestampPath,
+		TimestampFormat: core.TimestampFormat(req.TimestampFormat),
+		DeviceIDPath:    req.DeviceIdPath,
+		FieldMappings:   fieldMappings,
+		DispatchConfigs: dispatchConfigs,
+	}
+
+	return metadata, config
+}
+
+// ConvertHttpReceiveUpdateRequestToCore 转换更新请求为Core类型
+func ConvertHttpReceiveUpdateRequestToCore(req *types.UpdateHttpReceiveRequest, tenantID string) (core.HttpReceiveMetadata, *core.HttpReceiveConfig) {
+	metadata := core.HttpReceiveMetadata{
+		Name:        req.Name,
+		Description: req.Description,
+		Enabled:     req.Enabled,
+		TenantID:    tenantID,
+		// CreatedBy 不在更新时使用
+	}
+
+	// 转换字段映射（HTTP Receive 专用，使用自定义字段名）
+	fieldMappings := make([]core.HttpReceiveFieldMapping, 0, len(req.FieldMappings))
+	for _, fm := range req.FieldMappings {
+		fieldMappings = append(fieldMappings, core.HttpReceiveFieldMapping{
+			FieldName:    fm.FieldName,
+			SourcePath:   fm.SourcePath,
+			FieldType:    core.FieldType(fm.FieldType),
+			DefaultValue: fm.DefaultValue,
+		})
+	}
+
+	// 转换分发配置
+	dispatchConfigs := make([]core.DispatchConfig, 0, len(req.DispatchConfigs))
+	for _, dc := range req.DispatchConfigs {
+		dispatchConfigs = append(dispatchConfigs, core.DispatchConfig{
+			Type:           core.DispatchType(dc.Type),
+			PlatformID:     dc.PlatformID,
+			FlowID:         dc.FlowID,
+			FormID:         dc.FormID,
+			InfoAtomTypeID: dc.InfoAtomTypeID,
+			ExtraParams:    dc.ExtraParams,
+		})
+	}
+
+	// 配置对象只包含业务配置，不包含元数据字段
+	// ConfigID 和 TenantID 由 Manager 层填充
+	config := &core.HttpReceiveConfig{
+		TimestampPath:   req.TimestampPath,
+		TimestampFormat: core.TimestampFormat(req.TimestampFormat),
+		DeviceIDPath:    req.DeviceIdPath,
+		FieldMappings:   fieldMappings,
+		DispatchConfigs: dispatchConfigs,
+	}
+
+	return metadata, config
+}
+
+// ConvertCoreHttpReceiveToTypes 转换Core HttpReceive为API详情类型
+func ConvertCoreHttpReceiveToTypes(httpReceive *core.HttpReceive) types.HttpReceiveDetail {
+	detail := types.HttpReceiveDetail{
+		HttpReceiveMetadata: types.HttpReceiveMetadata{
+			Id:          httpReceive.ID,
+			Name:        httpReceive.Name,
+			Description: httpReceive.Description,
+			Enabled:     httpReceive.Enabled,
+			TenantId:    httpReceive.TenantID,
+			CreatedBy:   httpReceive.CreatedBy,
+			CreatedAt:   httpReceive.CreatedAt,
+			UpdatedAt:   httpReceive.UpdatedAt,
+		},
+	}
+
+	// 如果配置存在，则转换配置字段
+	if httpReceive.Config != nil {
+		config := httpReceive.Config
+
+		// 转换字段映射（HTTP Receive 专用，使用独立的 HttpReceiveFieldMapping 类型）
+		fieldMappings := make([]types.HttpReceiveFieldMapping, 0, len(config.FieldMappings))
+		for _, fm := range config.FieldMappings {
+			fieldMappings = append(fieldMappings, types.HttpReceiveFieldMapping{
+				FieldName:    fm.FieldName,
+				SourcePath:   fm.SourcePath,
+				FieldType:    string(fm.FieldType),
+				DefaultValue: fm.DefaultValue,
+			})
+		}
+
+		// 转换分发配置
+		dispatchConfigs := make([]types.HttpReceiveDispatchConfig, 0, len(config.DispatchConfigs))
+		for _, dc := range config.DispatchConfigs {
+			dispatchConfigs = append(dispatchConfigs, types.HttpReceiveDispatchConfig{
+				Type:           string(dc.Type),
+				PlatformID:     dc.PlatformID,
+				FlowID:         dc.FlowID,
+				FormID:         dc.FormID,
+				InfoAtomTypeID: dc.InfoAtomTypeID,
+				ExtraParams:    dc.ExtraParams,
+			})
+		}
+
+		detail.TimestampPath = config.TimestampPath
+		detail.TimestampFormat = string(config.TimestampFormat)
+		detail.DeviceIdPath = config.DeviceIDPath
+		detail.FieldMappings = fieldMappings
+		detail.DispatchConfigs = dispatchConfigs
+	}
+
+	return detail
+}
+
+// ConvertCoreHttpReceiveSummaryListToTypes 转换摘要列表为API类型
+func ConvertCoreHttpReceiveSummaryListToTypes(list []*core.HttpReceiveSummary) []types.HttpReceiveMetadata {
+	result := make([]types.HttpReceiveMetadata, 0, len(list))
+	for _, item := range list {
+		result = append(result, types.HttpReceiveMetadata{
+			Id:          item.ID,
+			Name:        item.Name,
+			Description: item.Description,
+			Enabled:     item.Enabled,
+			CreatedAt:   item.CreatedAt,
+			UpdatedAt:   item.UpdatedAt,
+		})
+	}
+	return result
 }

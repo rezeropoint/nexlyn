@@ -8,6 +8,7 @@ import "api/device_tag.api"
 import "api/platform.api"
 import "api/query.api"
 import "api/device_control.api"
+import "api/http_receive.api"
 
 info (
 	title:   "Nexlyn IoT 设备管理 API"
@@ -24,7 +25,7 @@ info (
 	group:   metadata
 	timeout: 10s
 )
-service Iot {
+service IotManager {
 	@doc "获取所有设备类别"
 	@handler getDeviceCategories
 	get /device-categories (GetDeviceCategoriesRequest) returns (GetDeviceCategoriesResponse)
@@ -41,7 +42,7 @@ service Iot {
 	group:   template
 	timeout: 10s
 )
-service Iot {
+service IotManager {
 	@doc "获取设备模板列表"
 	@handler getSensorTemplateList
 	get /sensor-template/list (GetSensorTemplateListRequest) returns (GetSensorTemplateListResponse)
@@ -70,7 +71,7 @@ service Iot {
 	group:   device
 	timeout: 10s
 )
-service Iot {
+service IotManager {
 	@doc "绑定设备"
 	@handler bindDevice
 	post /device-bindings (BindDeviceRequest) returns (BindDeviceResponse)
@@ -103,7 +104,7 @@ service Iot {
 	group:   tag
 	timeout: 10s
 )
-service Iot {
+service IotManager {
 	@doc "创建标签"
 	@handler createTag
 	post /device-tags (CreateTagRequest) returns (CreateTagResponse)
@@ -132,7 +133,7 @@ service Iot {
 	group:   platform
 	timeout: 10s
 )
-service Iot {
+service IotManager {
 	@doc "获取平台配置列表"
 	@handler getPlatformList
 	get /platforms/list (GetPlatformListRequest) returns (GetPlatformListResponse)
@@ -161,7 +162,7 @@ service Iot {
 	group:   query
 	timeout: 10s
 )
-service Iot {
+service IotManager {
 	@doc "查询时序数据"
 	@handler queryTimeSeries
 	post /timeseries/query (QueryTimeSeriesRequest) returns (QueryTimeSeriesResponse)
@@ -182,7 +183,7 @@ service Iot {
 	group:   control
 	timeout: 10s
 )
-service Iot {
+service IotManager {
 	@doc "查询AI Box任务列表"
 	@handler listAIBoxTasks
 	get /device-control/aibox/:deviceId/tasks (ListAIBoxTasksRequest) returns (ListAIBoxTasksResponse)
@@ -194,5 +195,46 @@ service Iot {
 	@doc "控制AI Box任务（启动/停止）"
 	@handler controlAIBoxTask
 	post /device-control/aibox/:deviceId/tasks/:taskId/control (ControlAIBoxTaskRequest) returns (ControlAIBoxTaskResponse)
+}
+
+// ===== HTTP 数据接收配置管理接口组（需 JWT 认证）=====
+@server (
+	prefix:  /api/v1
+	jwt:     Auth
+	group:   httpreceive
+	timeout: 10s
+)
+service IotManager {
+	@doc "创建 HTTP 接收配置"
+	@handler createHttpReceive
+	post /http-receive (CreateHttpReceiveRequest) returns (CreateHttpReceiveResponse)
+
+	@doc "获取 HTTP 接收配置列表"
+	@handler getHttpReceiveList
+	get /http-receive/list (GetHttpReceiveListRequest) returns (GetHttpReceiveListResponse)
+
+	@doc "获取 HTTP 接收配置详情"
+	@handler getHttpReceive
+	get /http-receive/:id (GetHttpReceiveRequest) returns (GetHttpReceiveResponse)
+
+	@doc "更新 HTTP 接收配置"
+	@handler updateHttpReceive
+	put /http-receive/:id (UpdateHttpReceiveRequest) returns (UpdateHttpReceiveResponse)
+
+	@doc "删除 HTTP 接收配置"
+	@handler deleteHttpReceive
+	delete /http-receive/:id (DeleteHttpReceiveRequest) returns (DeleteHttpReceiveResponse)
+}
+
+// ===== HTTP 数据接收接口组（无认证）=====
+@server (
+	prefix:  /api/iot/v1
+	group:   httpreceive
+	timeout: 30s
+)
+service IotManager {
+	@doc "接收 HTTP 数据"
+	@handler receiveData
+	post /data-receive/:configId (ReceiveDataRequest) returns (ReceiveDataResponse)
 }
 

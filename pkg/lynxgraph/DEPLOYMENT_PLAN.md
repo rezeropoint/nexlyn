@@ -7,15 +7,18 @@
 **当前状态**（2025-01-15）：
 - ✅ **Phase 1-2**: 微服务架构、前端界面（100% 完成）
 - ✅ **Phase 3**: lynxengine 核心服务、IoT 集成（100% 完成）
-- ⏳ **Phase 4**: 端到端测试、生产部署（待实施）
+- ⏳ **Phase 4**: 门禁打卡系统集成（进行中）
+- ⏳ **Phase 5**: 安全指数逻辑图、LLM 集成（待实施）
+- ⏳ **Phase 6**: 端到端测试、生产部署（待实施）
 
 **核心目标**：
 - ✅ 微服务拆分（Manager模式 + Engine模式）
 - ✅ IoT 引擎数据分发集成
 - ✅ 外部数据服务集成（历史数据查询、API调用）
 - ✅ 前端配置界面
+- ⏳ 门禁打卡系统（Access 项目迁移）
 
-**最后更新**: 2025-01-15
+**最后更新**: 2025-01-25
 
 ---
 
@@ -86,6 +89,25 @@
 LynxGraphConfig:
   grpcUrl: "lynxengine:9999"  # Docker环境使用服务名
 ```
+
+---
+
+## 🚪 Phase 4: 门禁打卡系统集成
+
+**详细文档**: [ACCESS_INTEGRATION.md](./ACCESS_INTEGRATION.md)
+
+**目标**: 将独立的 Access 门禁打卡项目迁移到 LynxGraph 逻辑引擎
+
+**需要实现的积木**:
+| 优先级 | 积木 | 说明 |
+|--------|------|------|
+| 🔴 P0 | Switch | 条件路由（支持表达式） |
+| 🔴 P0 | HttpRequest | HTTP 请求（Webhook） |
+| 🔴 P0 | CacheCheck/CacheSet | Redis 缓存操作 |
+| 🔴 P0 | TimeWindowCheck | 时间窗口判断 |
+| 🟡 P1 | HolidayCheck | 假期 API 查询 |
+| 🟡 P1 | QueryDatabase | PostgreSQL 查询 |
+| 🟡 P1 | SkylarkFlow | Skylark 流程触发 |
 
 ---
 
@@ -201,19 +223,29 @@ LynxGraphConfig:
 **外部服务集成**:
 - [x] IoTQuery gRPC 服务集成（已完成）
 - [x] TimeSeriesDataset 标准数据格式（已完成）
-- [ ] LLM 服务集成（待实现）
+- [ ] LLM 服务集成（Phase 5）
 
-**标准积木实现**:
+**Phase 4 积木实现（门禁打卡系统）**:
+- [ ] Switch（条件路由，支持表达式）⭐ 核心
+- [ ] HttpRequest（HTTP GET/POST 请求）
+- [ ] CacheCheck / CacheSet（Redis 缓存操作）
+- [ ] TimeWindowCheck（时间窗口判断）
+- [ ] HolidayCheck（假期 API 查询）
+- [ ] QueryDatabase（PostgreSQL 查询）
+- [ ] SkylarkFlow（Skylark 流程触发）
+
+**Phase 5 积木实现（安全指数逻辑图）**:
 - [x] FetchSensorData（查询传感器历史数据）
 - [x] StatisticalAnalyzer（统计分析：均值、标准差、最大值、最小值、中位数、方差）
 - [x] RateOfChange（变化率：绝对/相对，单/多时间窗口）
 - [x] AnomalyDetector（异常检测：Z-score、IQR方法）
 - [x] TrendAnalyzer（趋势分析：线性回归、预测）
 - [ ] LLMDecisionMaker（LLM决策引擎，核心）
-- [ ] Switch（条件路由）/ StateManager（状态管理）/ Alert（告警）
+- [ ] StateManager（状态管理）/ Alert（告警）
 
 **后续任务**:
-- [ ] 安全指数逻辑图端到端测试
+- [ ] 门禁打卡逻辑图端到端测试（Phase 4.3）
+- [ ] 安全指数逻辑图端到端测试（Phase 5）
 - [ ] 性能测试和优化（Redis IO、数据冗余）
 
 ---
@@ -321,23 +353,47 @@ MQTT消息 → IoT引擎(字段提取) → gRPC调用 → lynxengine → 验证+
 - [x] 逻辑图配置页面（卡片/表格双视图、AntV X6编辑器、5个Tab）
 - [x] IoT模板配置增强（LynxGraph分发配置、字段验证）
 
-### 🔨 待实现（Phase 3-4）
+### 🔨 待实现（Phase 4: 门禁打卡系统）
 
-**lynxengine 服务**:
-- [x] 实现 ReceiveInfoAtomLogic ✅ 已完成（`service/lynxengine/internal/logic/receiveinfoatomlogic.go`, 241行）
-- [x] 实现 HealthCheckLogic ✅ 已完成
-- [ ] 端到端测试（IoT → LynxGraph 数据流）
+**Phase 4.1: 核心积木实现**:
+- [ ] Switch 条件路由积木（支持表达式解析）⭐ 核心
+- [ ] HttpRequest HTTP 请求积木（GET/POST/PUT/DELETE）
+- [ ] CacheCheck 缓存检查积木（Redis 存在性检查）
+- [ ] CacheSet 缓存写入积木（带 TTL）
+- [ ] TimeWindowCheck 时间窗口判断积木
 
-**外部数据服务集成**:
-- [x] 定义 `SensorDataService` 接口（`core.ServiceTypeSensorData`，`core.SensorDataService`）
-- [x] 实现 IoTQuery gRPC 查询服务封装（`service/lynxengine/internal/service/sensordata.go`）
-- [x] 创建 `FetchSensorData` 标准积木（`pkg/lynxgraph/internal/blocks/standard/queryhistorydata`）
-- [x] Engine 初始化时注入 Service 注册表（`service/lynxengine/internal/svc/servicecontext.go`）
-- [x] 更新配置文件（`service/lynxengine/internal/config/config.go`，`etc/config.yaml`）
+**Phase 4.2: 外部服务积木**:
+- [ ] HolidayCheck 假期检查积木（调用假期 API）
+- [ ] QueryDatabase 数据库查询积木（PostgreSQL）
+- [ ] SkylarkFlow Skylark 流程触发积木
 
-**测试和部署**:
+**Phase 4.3: 集成测试**:
+- [ ] 创建门禁打卡逻辑图配置
+- [ ] 模拟人脸识别数据触发测试
+- [ ] 端到端流程验证
+
+### 🔮 待实现（Phase 5: 安全指数逻辑图）
+
+**已完成积木**:
+- [x] FetchSensorData（查询传感器历史数据）
+- [x] StatisticalAnalyzer（统计分析）
+- [x] RateOfChange（变化率计算）
+- [x] AnomalyDetector（异常检测）
+- [x] TrendAnalyzer（趋势分析）
+
+**待实现积木**:
+- [ ] LLMDecisionMaker（LLM 综合决策）
+- [ ] StateManager（状态管理和去重）
+- [ ] Alert（告警通知）
+
+### 🚀 待实现（Phase 6: 测试和部署）
+
+**测试**:
 - [ ] 单元测试（依赖注入验证）
 - [ ] 集成测试（完整数据流）
+- [ ] 性能测试（Redis IO、内存占用）
+
+**部署**:
 - [ ] Dockerfile 创建
 - [ ] 生产环境部署验证
 
@@ -499,4 +555,4 @@ StatisticalAnalyzer读取: JSON反序列化 + 类型断言
 
 ---
 
-**文档结束** | 最后更新: 2025-10-29
+**文档结束** | 最后更新: 2025-01-25

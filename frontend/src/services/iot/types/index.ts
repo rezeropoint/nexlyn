@@ -62,3 +62,11 @@ export type {
   AIBoxPolicy,
   AIBoxTaskStatus,
 } from "./control";
+
+// HTTP 接收配置
+export type {
+  HttpReceiveDetail,
+  HttpReceiveDispatchConfig,
+  HttpReceiveFieldMapping,
+  HttpReceiveMetadata,
+} from "./httpReceive";

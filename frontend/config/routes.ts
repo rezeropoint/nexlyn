@@ -192,6 +192,12 @@ export default [
         path: '/iot-management/platform-management',
         component: './IoTManagement/PlatformManagement',
       },
+      {
+        name: 'HTTP 接收',
+        icon: 'CloudDownloadOutlined',
+        path: '/iot-management/http-receive',
+        component: './IoTManagement/HttpReceive',
+      },
     ],
   },
   {

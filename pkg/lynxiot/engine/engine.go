@@ -59,6 +59,14 @@ type IoT interface {
 	ListAIBoxTasks(ctx context.Context, tenantID, deviceID string, orgIDs []string) ([]devices.AIBoxAlgorithmTask, error)                   // 查询AI Box算法任务列表
 	GetAIBoxCapabilities(ctx context.Context, tenantID, deviceID string, orgIDs []string) (*devices.AIBoxCapabilities, error)               // 获取AI Box算法能力
 	ControlAIBoxTask(ctx context.Context, tenantID, deviceID string, orgIDs []string, taskID string, controlCommand int) error              // 控制AI Box算法任务（启动/停止）
+
+	// HTTP数据接收配置管理
+	CreateHttpReceiveConfig(ctx context.Context, metadata core.HttpReceiveMetadata, config *core.HttpReceiveConfig) (string, error)            // 创建HTTP接收配置
+	GetHttpReceiveConfig(ctx context.Context, id string, tenantID string) (*core.HttpReceive, error)                                           // 获取HTTP接收配置（元数据+配置+审计信息）
+	ListHttpReceiveConfigs(ctx context.Context, query core.HttpReceiveQuery) ([]*core.HttpReceiveSummary, int64, error)                        // 列出HTTP接收配置（摘要信息）
+	UpdateHttpReceiveConfig(ctx context.Context, id string, tenantID string, metadata core.HttpReceiveMetadata, config *core.HttpReceiveConfig) error // 更新HTTP接收配置
+	DeleteHttpReceiveConfig(ctx context.Context, id string, tenantID string) error                                                             // 删除HTTP接收配置
+	ProcessHttpReceiveData(ctx context.Context, configId string, data map[string]any) error                                                    // 处理HTTP接收数据
 }
 
 // New 创建IoT引擎实例

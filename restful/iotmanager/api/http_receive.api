@@ -1,0 +1,143 @@
+syntax = "v1"
+
+// ===== HTTP 接收配置相关类型定义 =====
+type (
+	// HTTP 接收字段映射（独立定义，不复用 MQTT 的 FieldMapping）
+	HttpReceiveFieldMapping {
+		FieldName    string `json:"fieldName"`             // 自定义字段名
+		SourcePath   string `json:"sourcePath"`            // JSON 字段路径，支持：点分隔(data.temp)、数组索引(Result.Tags[0])、混合(data.items[2].name)
+		FieldType    string `json:"fieldType,optional"`    // 字段类型
+		DefaultValue string `json:"defaultValue,optional"` // 默认值
+	}
+
+	// HTTP 接收配置元数据（列表展示）
+	HttpReceiveMetadata {
+		Id          string `json:"id"`                    // 配置ID
+		Name        string `json:"name"`                  // 配置名称
+		Description string `json:"description,optional"`  // 配置描述
+		Enabled     bool   `json:"enabled"`               // 是否启用
+		TenantId    string `json:"tenantId"`              // 租户ID
+		CreatedBy   string `json:"createdBy,optional"`    // 创建者
+		CreatedAt   string `json:"createdAt,optional"`    // 创建时间
+		UpdatedAt   string `json:"updatedAt,optional"`    // 更新时间
+	}
+
+	// HTTP 接收分发配置（扩展支持 LynxGraph）
+	HttpReceiveDispatchConfig {
+		Type           string                 `json:"type"`                      // 分发类型：skylark_flows/skylark_forms/lynxgraph/log
+		PlatformID     string                 `json:"platformId,optional"`       // 平台配置ID
+		FlowID         int64                  `json:"flowId,optional"`           // Skylark 流程ID
+		FormID         int64                  `json:"formId,optional"`           // Skylark 表单ID
+		InfoAtomTypeID string                 `json:"infoAtomTypeId,optional"`   // LynxGraph 信息原子类型ID
+		ExtraParams    map[string]interface{} `json:"extraParams,optional"`      // 扩展参数
+	}
+
+	// HTTP 接收配置完整详情
+	HttpReceiveDetail {
+		HttpReceiveMetadata                                                           // 基础元数据
+		TimestampPath   string                        `json:"timestampPath,optional"`   // 时间戳字段路径
+		TimestampFormat string                        `json:"timestampFormat,optional"` // 时间戳格式
+		DeviceIdPath    string                        `json:"deviceIdPath,optional"`    // 设备ID字段路径
+		FieldMappings   []HttpReceiveFieldMapping     `json:"fieldMappings"`            // 字段映射配置
+		DispatchConfigs []HttpReceiveDispatchConfig   `json:"dispatchConfigs,optional"` // 分发配置
+	}
+)
+
+// ===== 路径参数 =====
+type (
+	HttpReceiveIdPathRequest {
+		Id string `path:"id"` // 配置ID
+	}
+
+	HttpReceiveDataPathRequest {
+		ConfigId string `path:"configId"` // 配置ID
+	}
+)
+
+// ===== HTTP 接收配置管理相关类型 =====
+type (
+	// 创建 HTTP 接收配置请求
+	CreateHttpReceiveRequest {
+		Name            string                        `json:"name"`                      // 配置名称（必填）
+		Description     string                        `json:"description,optional"`      // 配置描述
+		Enabled         bool                          `json:"enabled,optional"`          // 是否启用（默认true）
+		TimestampPath   string                        `json:"timestampPath,optional"`    // 时间戳字段路径
+		TimestampFormat string                        `json:"timestampFormat,optional"`  // 时间戳格式：unix/unix_ms/unix_nano/iso8601/rfc3339
+		DeviceIdPath    string                        `json:"deviceIdPath,optional"`     // 设备ID字段路径
+		FieldMappings   []HttpReceiveFieldMapping     `json:"fieldMappings"`             // 字段映射配置（必填）
+		DispatchConfigs []HttpReceiveDispatchConfig   `json:"dispatchConfigs,optional"`  // 分发配置
+	}
+
+	// 创建 HTTP 接收配置响应
+	CreateHttpReceiveResponse {
+		BaseResponse                                 // 基础响应
+		Data {
+			Id   string `json:"id"`   // 配置ID
+			Name string `json:"name"` // 配置名称
+		} `json:"data,omitempty"`
+	}
+
+	// 获取 HTTP 接收配置列表请求
+	GetHttpReceiveListRequest {
+		PageParamsRequest                            // 分页参数
+		Keyword  string `form:"keyword,optional"`    // 关键词搜索（名称/描述）
+	}
+
+	// 获取 HTTP 接收配置列表响应
+	GetHttpReceiveListResponse {
+		BaseResponse                                 // 基础响应
+		PageParams                                   // 分页参数
+		Data {
+			List []HttpReceiveMetadata `json:"list"` // 配置列表
+		} `json:"data,omitempty"`
+	}
+
+	// 获取 HTTP 接收配置详情请求
+	GetHttpReceiveRequest {
+		HttpReceiveIdPathRequest                     // 路径参数
+	}
+
+	// 获取 HTTP 接收配置详情响应
+	GetHttpReceiveResponse {
+		BaseResponse                                 // 基础响应
+		Data HttpReceiveDetail `json:"data,omitempty"` // 配置详情
+	}
+
+	// 更新 HTTP 接收配置请求
+	UpdateHttpReceiveRequest {
+		HttpReceiveIdPathRequest                                                      // 路径参数
+		Name            string                        `json:"name,optional"`             // 配置名称
+		Description     string                        `json:"description,optional"`      // 配置描述
+		Enabled         bool                          `json:"enabled,optional"`          // 是否启用
+		TimestampPath   string                        `json:"timestampPath,optional"`    // 时间戳字段路径
+		TimestampFormat string                        `json:"timestampFormat,optional"`  // 时间戳格式
+		DeviceIdPath    string                        `json:"deviceIdPath,optional"`     // 设备ID字段路径
+		FieldMappings   []HttpReceiveFieldMapping     `json:"fieldMappings,optional"`    // 字段映射配置
+		DispatchConfigs []HttpReceiveDispatchConfig   `json:"dispatchConfigs,optional"`  // 分发配置
+	}
+
+	// 更新 HTTP 接收配置响应
+	UpdateHttpReceiveResponse {
+		BaseResponse                                 // 基础响应
+	}
+
+	// 删除 HTTP 接收配置请求
+	DeleteHttpReceiveRequest {
+		HttpReceiveIdPathRequest                     // 路径参数
+	}
+
+	// 删除 HTTP 接收配置响应
+	DeleteHttpReceiveResponse {
+		BaseResponse                                 // 基础响应
+	}
+
+	// 接收 HTTP 数据请求（无认证）
+	ReceiveDataRequest {
+		HttpReceiveDataPathRequest                   // 路径参数
+	}
+
+	// 接收 HTTP 数据响应
+	ReceiveDataResponse {
+		BaseResponse                                 // 基础响应
+	}
+)

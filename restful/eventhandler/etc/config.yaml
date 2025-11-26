@@ -139,6 +139,6 @@ SkylarkEngine:
   # 用户名缓存过期时间（key: skylark:users:{tenant_id}:{user_id}）
   UserCacheTTL: 24h
   # flows列表缓存过期时间（key: skylark:flows:{tenant_id}:{namespace_id}）
-  FlowListCacheTTL: 1h
+  FlowListCacheTTL: 2m
   # flow字段列表缓存过期时间（key: skylark:flow_fields:{tenant_id}:{flow_id}）
-  FlowFieldCacheTTL: 1h
+  FlowFieldCacheTTL: 2m

@@ -73,6 +73,14 @@ var (
 	ErrPlatformUnauthorized  = Error{Code: "PLATFORM_UNAUTHORIZED", Message: "无权限操作该平台配置"}
 )
 
+// HTTP数据接收配置相关错误
+var (
+	ErrHttpReceiveNotFound     = Error{Code: "HTTP_RECEIVE_NOT_FOUND", Message: "HTTP接收配置不存在"}
+	ErrHttpReceiveInvalid      = Error{Code: "HTTP_RECEIVE_INVALID", Message: "HTTP接收配置无效"}
+	ErrHttpReceiveUnauthorized = Error{Code: "HTTP_RECEIVE_UNAUTHORIZED", Message: "无权限操作该HTTP接收配置"}
+	ErrHttpReceiveDisabled     = Error{Code: "HTTP_RECEIVE_DISABLED", Message: "HTTP接收配置已禁用"}
+)
+
 // 定义工作池错误
 var (
 	ErrTaskQueueFull    = errors.New("任务队列已满")

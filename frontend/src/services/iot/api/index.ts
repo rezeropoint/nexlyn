@@ -22,3 +22,6 @@ export * from "./timeseries";
 
 // AI Box 设备控制API
 export * from "./control";
+
+// HTTP 接收配置管理API
+export * from "./httpReceive";

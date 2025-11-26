@@ -26,6 +26,10 @@ const (
 	// 权限: iot_platform:read, iot_platform:write, iot_platform:delete
 	ResourceIoTPlatform = "iot_platform"
 
+	// ResourceIoTHttpReceive IoT HTTP数据接收配置资源
+	// 权限: iot_http_receive:read, iot_http_receive:write, iot_http_receive:delete
+	ResourceIoTHttpReceive = "iot_http_receive"
+
 	// ============ GB28181 资源 ============
 
 	// ResourceGB28181Device GB28181设备资源

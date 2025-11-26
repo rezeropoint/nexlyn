@@ -10,6 +10,7 @@ import (
 	"github.com/rezeropoint/nexlyn/pkg/lynxiot/internal/controller"
 	"github.com/rezeropoint/nexlyn/pkg/lynxiot/internal/device"
 	"github.com/rezeropoint/nexlyn/pkg/lynxiot/internal/dispatcher"
+	"github.com/rezeropoint/nexlyn/pkg/lynxiot/internal/httpreceive"
 	"github.com/rezeropoint/nexlyn/pkg/lynxiot/internal/metadata"
 	"github.com/rezeropoint/nexlyn/pkg/lynxiot/internal/mqtt"
 	"github.com/rezeropoint/nexlyn/pkg/lynxiot/internal/platform"
@@ -31,14 +32,15 @@ import (
 
 // iotClient IoT引擎客户端实现
 type iotClient struct {
-	templateManager   template.Manager   // 模板管理器
-	deviceManager     device.Manager     // 设备管理器
-	tagManager        tag.Manager        // 标签管理器
-	platformManager   platform.Manager   // 平台配置管理器
-	metadataManager   metadata.Manager   // 元数据管理器
-	mqttManager       mqtt.Manager       // MQTT管理器（实现OnlineStatusProvider接口）
-	queryManager      query.QueryManager // 时序数据查询管理器
-	controllerManager controller.Manager // Controller管理器（设备控制）
+	templateManager    template.Manager      // 模板管理器
+	deviceManager      device.Manager        // 设备管理器
+	tagManager         tag.Manager           // 标签管理器
+	platformManager    platform.Manager      // 平台配置管理器
+	metadataManager    metadata.Manager      // 元数据管理器
+	mqttManager        mqtt.Manager          // MQTT管理器（实现OnlineStatusProvider接口）
+	queryManager       query.QueryManager    // 时序数据查询管理器
+	controllerManager  controller.Manager    // Controller管理器（设备控制）
+	httpReceiveManager httpreceive.Manager   // HTTP数据接收管理器
 }
 
 // newIoTClient 创建IoT引擎客户端
@@ -298,15 +300,30 @@ func newIoTClient(ctx context.Context, config Config, dbConn sqlx.SqlConn, redis
 		}
 	}
 
+	// 创建 HTTP 数据接收管理器
+	httpReceiveMgr, err := httpreceive.NewManager(
+		dbConn,
+		httpreceive.Config{
+			ServiceName: config.ServiceName,
+			PodName:     config.PodName,
+		},
+		configStore,
+		dispatcherMgr.DispatchInfo,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("创建HTTP数据接收管理器失败: %w", err)
+	}
+
 	return &iotClient{
-		templateManager:   templateMgr,
-		deviceManager:     deviceMgr,
-		tagManager:        tagMgr,
-		platformManager:   platformMgr,
-		metadataManager:   metadataMgr,
-		mqttManager:       mqttMgr,
-		queryManager:      queryMgr,
-		controllerManager: controllerMgr,
+		templateManager:    templateMgr,
+		deviceManager:      deviceMgr,
+		tagManager:         tagMgr,
+		platformManager:    platformMgr,
+		metadataManager:    metadataMgr,
+		mqttManager:        mqttMgr,
+		queryManager:       queryMgr,
+		controllerManager:  controllerMgr,
+		httpReceiveManager: httpReceiveMgr,
 	}, nil
 }
 
@@ -531,4 +548,30 @@ func (c *iotClient) ControlAIBoxTask(ctx context.Context, tenantID, deviceID str
 
 	// 3. 调用Controller Manager控制任务
 	return c.controllerManager.ControlAIBoxTask(ctx, deviceID, taskID, controlCommand)
+}
+
+// 实现 IoT 接口 - HTTP数据接收配置管理方法
+
+func (c *iotClient) CreateHttpReceiveConfig(ctx context.Context, metadata core.HttpReceiveMetadata, config *core.HttpReceiveConfig) (string, error) {
+	return c.httpReceiveManager.Create(ctx, metadata, config)
+}
+
+func (c *iotClient) GetHttpReceiveConfig(ctx context.Context, id string, tenantID string) (*core.HttpReceive, error) {
+	return c.httpReceiveManager.Get(ctx, id, tenantID)
+}
+
+func (c *iotClient) ListHttpReceiveConfigs(ctx context.Context, query core.HttpReceiveQuery) ([]*core.HttpReceiveSummary, int64, error) {
+	return c.httpReceiveManager.List(ctx, query)
+}
+
+func (c *iotClient) UpdateHttpReceiveConfig(ctx context.Context, id string, tenantID string, metadata core.HttpReceiveMetadata, config *core.HttpReceiveConfig) error {
+	return c.httpReceiveManager.Update(ctx, id, tenantID, metadata, config)
+}
+
+func (c *iotClient) DeleteHttpReceiveConfig(ctx context.Context, id string, tenantID string) error {
+	return c.httpReceiveManager.Delete(ctx, id, tenantID)
+}
+
+func (c *iotClient) ProcessHttpReceiveData(ctx context.Context, configId string, data map[string]any) error {
+	return c.httpReceiveManager.ProcessData(ctx, configId, data)
 }

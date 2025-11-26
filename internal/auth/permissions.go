@@ -104,6 +104,26 @@ func init() {
 		Category:    "物联管理",
 	})
 
+	// IoT HTTP数据接收配置
+	RegisterPermission(PermissionMetadata{
+		Resource:    ResourceIoTHttpReceive,
+		Action:      "read",
+		Description: "HTTP接收配置查看",
+		Category:    "物联管理",
+	})
+	RegisterPermission(PermissionMetadata{
+		Resource:    ResourceIoTHttpReceive,
+		Action:      "write",
+		Description: "HTTP接收配置创建/修改",
+		Category:    "物联管理",
+	})
+	RegisterPermission(PermissionMetadata{
+		Resource:    ResourceIoTHttpReceive,
+		Action:      "delete",
+		Description: "HTTP接收配置删除",
+		Category:    "物联管理",
+	})
+
 	// ============ GB28181 资源权限 ============
 	// GB28181设备
 	RegisterPermission(PermissionMetadata{

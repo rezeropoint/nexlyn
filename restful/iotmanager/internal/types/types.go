@@ -115,6 +115,25 @@ type ControlAIBoxTaskResponse struct {
 	} `json:"data,omitempty"`
 }
 
+type CreateHttpReceiveRequest struct {
+	Name            string                      `json:"name"`                     // 配置名称（必填）
+	Description     string                      `json:"description,optional"`     // 配置描述
+	Enabled         bool                        `json:"enabled,optional"`         // 是否启用（默认true）
+	TimestampPath   string                      `json:"timestampPath,optional"`   // 时间戳字段路径
+	TimestampFormat string                      `json:"timestampFormat,optional"` // 时间戳格式：unix/unix_ms/unix_nano/iso8601/rfc3339
+	DeviceIdPath    string                      `json:"deviceIdPath,optional"`    // 设备ID字段路径
+	FieldMappings   []HttpReceiveFieldMapping   `json:"fieldMappings"`            // 字段映射配置（必填）
+	DispatchConfigs []HttpReceiveDispatchConfig `json:"dispatchConfigs,optional"` // 分发配置
+}
+
+type CreateHttpReceiveResponse struct {
+	BaseResponse
+	Data struct {
+		Id   string `json:"id"`   // 配置ID
+		Name string `json:"name"` // 配置名称
+	} `json:"data,omitempty"`
+}
+
 type CreatePlatformRequest struct {
 	Type              string            `json:"type"`                       // 平台类型：skylark/webhook/kafka（必填）
 	Name              string            `json:"name"`                       // 配置名称（必填）
@@ -187,6 +206,14 @@ type DataProcessingConfig struct {
 	DispatchConfigs []DispatchConfig `json:"dispatchConfigs,optional"` // 分发配置
 }
 
+type DeleteHttpReceiveRequest struct {
+	HttpReceiveIdPathRequest
+}
+
+type DeleteHttpReceiveResponse struct {
+	BaseResponse
+}
+
 type DeletePlatformRequest struct {
 	PlatformIdPathRequest
 }
@@ -212,29 +239,26 @@ type DeleteTagResponse struct {
 }
 
 type DeviceBinding struct {
-	Id                    string             `json:"id"`                    // 设备绑定记录ID(UUID)
-	DeviceId              string             `json:"deviceId"`              // 设备唯一标识符
-	DeviceName            string             `json:"deviceName"`            // 设备名称
-	DeviceAlias           string             `json:"deviceAlias"`           // 设备别名
-	DeviceModel           string             `json:"deviceModel"`           // 设备型号(关联iot_sensor_templates.model)
-	DeviceCategory        string             `json:"deviceCategory"`        // 设备类别(冗余字段)
-	Description           string             `json:"description"`           // 设备描述
-	Location              string             `json:"location"`              // 安装位置
-	InstallationDate      string             `json:"installationDate"`      // 安装日期(YYYY-MM-DD)
-	Status                string             `json:"status"`                // 设备状态(active/inactive/maintenance/error/decommissioned)
-	IsOnline              bool               `json:"isOnline"`              // 当前在线状态(从Redis实时查询)
-	OnlineStatusUpdatedAt string             `json:"onlineStatusUpdatedAt"` // 在线状态最后更新时间
-	LastOnlineAt          string             `json:"lastOnlineAt"`          // 最后在线时间
-	LastOfflineAt         string             `json:"lastOfflineAt"`         // 最后离线时间
-	LastDataAt            string             `json:"lastDataAt"`            // 最后接收数据时间
-	TenantId              string             `json:"tenantId"`              // 所属租户ID(UUID)
-	OrgId                 string             `json:"orgId"`                 // 所属组织ID(UUID)
-	OrgName               string             `json:"orgName"`               // 所属组织名称
-	Tags                  []DeviceTagSummary `json:"tags"`                  // 关联的标签列表
-	CreatedBy             string             `json:"createdBy"`             // 创建者用户ID(UUID)
-	UpdatedBy             string             `json:"updatedBy"`             // 最后修改者用户ID(UUID)
-	CreatedAt             string             `json:"createdAt"`             // 创建时间
-	UpdatedAt             string             `json:"updatedAt"`             // 更新时间
+	Id               string             `json:"id"`               // 设备绑定记录ID(UUID)
+	DeviceId         string             `json:"deviceId"`         // 设备唯一标识符
+	DeviceName       string             `json:"deviceName"`       // 设备名称
+	DeviceAlias      string             `json:"deviceAlias"`      // 设备别名
+	DeviceModel      string             `json:"deviceModel"`      // 设备型号(关联iot_sensor_templates.model)
+	DeviceCategory   string             `json:"deviceCategory"`   // 设备类别(冗余字段)
+	Description      string             `json:"description"`      // 设备描述
+	Location         string             `json:"location"`         // 安装位置
+	InstallationDate string             `json:"installationDate"` // 安装日期(YYYY-MM-DD)
+	Status           string             `json:"status"`           // 设备状态(active/inactive/maintenance/error/decommissioned)
+	IsOnline         bool               `json:"isOnline"`         // 当前在线状态(从Redis实时查询)
+	LastDataAt       string             `json:"lastDataAt"`       // 最后接收数据时间
+	TenantId         string             `json:"tenantId"`         // 所属租户ID(UUID)
+	OrgId            string             `json:"orgId"`            // 所属组织ID(UUID)
+	OrgName          string             `json:"orgName"`          // 所属组织名称
+	Tags             []DeviceTagSummary `json:"tags"`             // 关联的标签列表
+	CreatedBy        string             `json:"createdBy"`        // 创建者用户ID(UUID)
+	UpdatedBy        string             `json:"updatedBy"`        // 最后修改者用户ID(UUID)
+	CreatedAt        string             `json:"createdAt"`        // 创建时间
+	UpdatedAt        string             `json:"updatedAt"`        // 更新时间
 }
 
 type DeviceBindingSummary struct {
@@ -410,6 +434,28 @@ type GetDeviceStatisticsResponse struct {
 	Data []DeviceStatisticsItem `json:"data"`
 }
 
+type GetHttpReceiveListRequest struct {
+	PageParamsRequest
+	Keyword string `form:"keyword,optional"` // 关键词搜索（名称/描述）
+}
+
+type GetHttpReceiveListResponse struct {
+	BaseResponse
+	PageParams
+	Data struct {
+		List []HttpReceiveMetadata `json:"list"` // 配置列表
+	} `json:"data,omitempty"`
+}
+
+type GetHttpReceiveRequest struct {
+	HttpReceiveIdPathRequest
+}
+
+type GetHttpReceiveResponse struct {
+	BaseResponse
+	Data HttpReceiveDetail `json:"data,omitempty"` // 配置详情
+}
+
 type GetLatestValuesRequest struct {
 	OrgId      string   `json:"orgId"`              // 组织ID（必填）
 	DeviceIds  []string `json:"deviceIds,optional"` // 设备ID列表（可选）
@@ -488,6 +534,50 @@ type GetTagRequest struct {
 type GetTagResponse struct {
 	BaseResponse
 	Data DeviceTag `json:"data,omitempty"` // 标签详情
+}
+
+type HttpReceiveDataPathRequest struct {
+	ConfigId string `path:"configId"` // 配置ID
+}
+
+type HttpReceiveDetail struct {
+	HttpReceiveMetadata
+	TimestampPath   string                      `json:"timestampPath,optional"`   // 时间戳字段路径
+	TimestampFormat string                      `json:"timestampFormat,optional"` // 时间戳格式
+	DeviceIdPath    string                      `json:"deviceIdPath,optional"`    // 设备ID字段路径
+	FieldMappings   []HttpReceiveFieldMapping   `json:"fieldMappings"`            // 字段映射配置
+	DispatchConfigs []HttpReceiveDispatchConfig `json:"dispatchConfigs,optional"` // 分发配置
+}
+
+type HttpReceiveDispatchConfig struct {
+	Type           string                 `json:"type"`                    // 分发类型：skylark_flows/skylark_forms/lynxgraph/log
+	PlatformID     string                 `json:"platformId,optional"`     // 平台配置ID
+	FlowID         int64                  `json:"flowId,optional"`         // Skylark 流程ID
+	FormID         int64                  `json:"formId,optional"`         // Skylark 表单ID
+	InfoAtomTypeID string                 `json:"infoAtomTypeId,optional"` // LynxGraph 信息原子类型ID
+	ExtraParams    map[string]interface{} `json:"extraParams,optional"`    // 扩展参数
+}
+
+type HttpReceiveFieldMapping struct {
+	FieldName    string `json:"fieldName"`             // 自定义字段名
+	SourcePath   string `json:"sourcePath"`            // JSON 字段路径
+	FieldType    string `json:"fieldType,optional"`    // 字段类型
+	DefaultValue string `json:"defaultValue,optional"` // 默认值
+}
+
+type HttpReceiveIdPathRequest struct {
+	Id string `path:"id"` // 配置ID
+}
+
+type HttpReceiveMetadata struct {
+	Id          string `json:"id"`                   // 配置ID
+	Name        string `json:"name"`                 // 配置名称
+	Description string `json:"description,optional"` // 配置描述
+	Enabled     bool   `json:"enabled"`              // 是否启用
+	TenantId    string `json:"tenantId"`             // 租户ID
+	CreatedBy   string `json:"createdBy,optional"`   // 创建者
+	CreatedAt   string `json:"createdAt,optional"`   // 创建时间
+	UpdatedAt   string `json:"updatedAt,optional"`   // 更新时间
 }
 
 type KafkaConfig struct {
@@ -615,6 +705,14 @@ type QueryTimeSeriesResponse struct {
 	} `json:"data"`
 }
 
+type ReceiveDataRequest struct {
+	HttpReceiveDataPathRequest
+}
+
+type ReceiveDataResponse struct {
+	BaseResponse
+}
+
 type SensorTemplate struct {
 	Id           string `json:"id"`           // 模板UUID
 	Model        string `json:"model"`        // 设备型号标识（业务标识）
@@ -707,6 +805,22 @@ type UpdateDeviceRequest struct {
 }
 
 type UpdateDeviceResponse struct {
+	BaseResponse
+}
+
+type UpdateHttpReceiveRequest struct {
+	HttpReceiveIdPathRequest
+	Name            string                      `json:"name,optional"`            // 配置名称
+	Description     string                      `json:"description,optional"`     // 配置描述
+	Enabled         bool                        `json:"enabled,optional"`         // 是否启用
+	TimestampPath   string                      `json:"timestampPath,optional"`   // 时间戳字段路径
+	TimestampFormat string                      `json:"timestampFormat,optional"` // 时间戳格式
+	DeviceIdPath    string                      `json:"deviceIdPath,optional"`    // 设备ID字段路径
+	FieldMappings   []HttpReceiveFieldMapping   `json:"fieldMappings,optional"`   // 字段映射配置
+	DispatchConfigs []HttpReceiveDispatchConfig `json:"dispatchConfigs,optional"` // 分发配置
+}
+
+type UpdateHttpReceiveResponse struct {
 	BaseResponse
 }
 
