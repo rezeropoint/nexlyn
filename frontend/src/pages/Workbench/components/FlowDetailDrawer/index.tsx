@@ -23,12 +23,17 @@ import {
   Flex,
   Form,
   Input,
+  InputNumber,
   Popconfirm,
+  Radio,
+  Select,
   Space,
   Spin,
   Tag,
   Timeline,
   Typography,
+  Checkbox,
+  DatePicker,
 } from "antd";
 import classNames from "classnames";
 import dayjs from "dayjs";
@@ -42,7 +47,10 @@ import {
 import type {
   JourneyDetail,
   Moment,
+  PendingNode,
   ProcessingUser,
+  TypedValue,
+  VertexField,
 } from "@/services/workbench/types";
 import { useApp } from "@/utils/appContext";
 import UserSelect from "@/components/UserSelect";
@@ -93,6 +101,7 @@ const FlowDetailDrawer: React.FC<FlowDetailDrawerProps> = ({
   const [detail, setDetail] = useState<JourneyDetail | null>(null);
   const [moments, setMoments] = useState<Moment[]>([]);
   const [processingUsers, setProcessingUsers] = useState<ProcessingUser[]>([]);
+  const [pendingNodes, setPendingNodes] = useState<PendingNode[]>([]);
   const [transferModalVisible, setTransferModalVisible] = useState(false);
   const [showRefuseVertex, setShowRefuseVertex] = useState(false);
 
@@ -120,6 +129,9 @@ const FlowDetailDrawer: React.FC<FlowDetailDrawerProps> = ({
         // 设置基础信息和审批历史
         setDetail(basicInfo);
         setMoments(history || []);
+
+        // 保存 pendingNodes（用于渲染动态字段）
+        setPendingNodes(pendingNodes || []);
 
         // 从 pendingNodes 提取处理人信息
         const users: ProcessingUser[] = [];
@@ -159,12 +171,62 @@ const FlowDetailDrawer: React.FC<FlowDetailDrawerProps> = ({
       setDetail(null);
       setMoments([]);
       setProcessingUsers([]);
+      setPendingNodes([]);
       if (shouldShowForm) {
         form.resetFields();
       }
       setShowRefuseVertex(false);
     }
   }, [visible, flowId, journeyId, shouldShowForm]);
+
+  /**
+   * 获取所有待处理节点的字段列表
+   * 注意：显示所有字段，但根据 editable 状态控制是否可编辑
+   */
+  const pendingFields = useMemo(() => {
+    const fields: VertexField[] = [];
+    pendingNodes.forEach(node => {
+      node.fields?.forEach(field => {
+        fields.push(field);
+      });
+    });
+    return fields;
+  }, [pendingNodes]);
+
+  /**
+   * 根据字段类型转换表单值为 TypedValue
+   */
+  const convertToTypedValue = (field: VertexField, value: any): TypedValue => {
+    const fieldType = field.type;
+
+    if (value === undefined || value === null || value === '') {
+      return { type: 'string', value: '' };
+    }
+
+    // 根据 Skylark 字段类型映射
+    switch (fieldType) {
+      case 'Field::TextField':
+      case 'Field::TextArea':
+        return { type: 'string', value: String(value) };
+      case 'Field::NumberField':
+        return { type: 'number', value: Number(value) };
+      case 'Field::RadioButton':
+      case 'Field::Select':
+        // 单选返回选项 ID
+        return { type: 'number', value: Number(value) };
+      case 'Field::Checkbox':
+      case 'Field::MultiSelect':
+        // 多选返回选项 ID 数组
+        return { type: 'array', value: Array.isArray(value) ? value.map(Number) : [] };
+      case 'Field::DateField':
+        // 日期格式化为 ISO 字符串
+        return { type: 'date', value: value ? dayjs(value).toISOString() : '' };
+      case 'Field::BooleanField':
+        return { type: 'boolean', value: Boolean(value) };
+      default:
+        return { type: 'string', value: String(value) };
+    }
+  };
 
   /**
    * 处理审批操作（通过、回退、撤销）
@@ -193,6 +255,23 @@ const FlowDetailDrawer: React.FC<FlowDetailDrawerProps> = ({
       // 抄送人列表
       if (values.carbonCopyUserIds && values.carbonCopyUserIds.length > 0) {
         params.carbonCopyUserIds = values.carbonCopyUserIds;
+      }
+
+      // 收集动态字段数据（只收集可编辑字段的值）
+      if (pendingFields.length > 0) {
+        const data: Record<string, TypedValue> = {};
+        pendingFields.forEach(field => {
+          // 只有可编辑的字段才提交
+          if (field.editable) {
+            const fieldValue = values[`field_${field.identityKey}`];
+            if (fieldValue !== undefined && fieldValue !== null && fieldValue !== '') {
+              data[field.identityKey] = convertToTypedValue(field, fieldValue);
+            }
+          }
+        });
+        if (Object.keys(data).length > 0) {
+          params.data = data;
+        }
       }
 
       const res = await updateFlowJourneyStatus(params);
@@ -255,6 +334,122 @@ const FlowDetailDrawer: React.FC<FlowDetailDrawerProps> = ({
     setTransferModalVisible(false);
     onActionSuccess?.();
     onClose();
+  };
+
+  /**
+   * 渲染动态字段表单项
+   * 根据 editable 状态控制是否可编辑
+   */
+  const renderDynamicField = (field: VertexField) => {
+    const fieldName = `field_${field.identityKey}`;
+    const isDisabled = !field.editable;
+    const commonProps = {
+      key: field.id,
+      name: fieldName,
+      label: field.title,
+      rules: field.editable && field.required
+        ? [{ required: true, message: `请填写${field.title}` }]
+        : undefined,
+    };
+
+    switch (field.type) {
+      case 'Field::TextField':
+        return (
+          <Form.Item {...commonProps}>
+            <Input
+              placeholder={`请输入${field.title}`}
+              disabled={isDisabled}
+            />
+          </Form.Item>
+        );
+
+      case 'Field::TextArea':
+        return (
+          <Form.Item {...commonProps}>
+            <Input.TextArea
+              placeholder={`请输入${field.title}`}
+              rows={3}
+              disabled={isDisabled}
+            />
+          </Form.Item>
+        );
+
+      case 'Field::NumberField':
+        return (
+          <Form.Item {...commonProps}>
+            <InputNumber
+              placeholder={`请输入${field.title}`}
+              style={{ width: '100%' }}
+              disabled={isDisabled}
+            />
+          </Form.Item>
+        );
+
+      case 'Field::RadioButton':
+        return (
+          <Form.Item {...commonProps}>
+            <Radio.Group disabled={isDisabled}>
+              {field.options?.map(option => (
+                <Radio key={option.id} value={option.id}>
+                  {option.value}
+                </Radio>
+              ))}
+            </Radio.Group>
+          </Form.Item>
+        );
+
+      case 'Field::Select':
+        return (
+          <Form.Item {...commonProps}>
+            <Select
+              placeholder={`请选择${field.title}`}
+              disabled={isDisabled}
+            >
+              {field.options?.map(option => (
+                <Select.Option key={option.id} value={option.id}>
+                  {option.value}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+        );
+
+      case 'Field::Checkbox':
+      case 'Field::MultiSelect':
+        return (
+          <Form.Item {...commonProps}>
+            <Checkbox.Group disabled={isDisabled}>
+              {field.options?.map(option => (
+                <Checkbox key={option.id} value={option.id}>
+                  {option.value}
+                </Checkbox>
+              ))}
+            </Checkbox.Group>
+          </Form.Item>
+        );
+
+      case 'Field::DateField':
+        return (
+          <Form.Item {...commonProps}>
+            <DatePicker
+              placeholder={`请选择${field.title}`}
+              style={{ width: '100%' }}
+              disabled={isDisabled}
+            />
+          </Form.Item>
+        );
+
+      default:
+        // 默认使用文本输入
+        return (
+          <Form.Item {...commonProps}>
+            <Input
+              placeholder={`请输入${field.title}`}
+              disabled={isDisabled}
+            />
+          </Form.Item>
+        );
+    }
   };
 
   const detailStatus = detail ? statusConfig[detail.status] : undefined;
@@ -448,6 +643,10 @@ const FlowDetailDrawer: React.FC<FlowDetailDrawerProps> = ({
                   <Text strong>审批操作</Text>
                 </div>
                 <Form form={form} layout="vertical" className={styles.approvalForm}>
+                  {/* 动态字段 - 来自 pendingNodes */}
+                  {pendingFields.length > 0 &&
+                    pendingFields.map(field => renderDynamicField(field))}
+
                   {/* 处理意见 */}
                   <Form.Item
                     name="comment"
