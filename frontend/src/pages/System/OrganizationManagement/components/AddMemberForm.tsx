@@ -89,7 +89,7 @@ const AddMemberForm: React.FC<AddMemberFormProps> = ({
             if (response.code === 0 && response.data?.list) {
               return response.data.list.map((user) => ({
                 label: `${user.name} (${user.userName}) - ${user.email}`,
-                value: user.userKey,
+                value: user.id,
               }));
             }
             return [];

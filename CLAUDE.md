@@ -28,8 +28,11 @@ go test -run TestFunctionName ./pkg/lynxiot/internal/template  # 单个测试
 # API 代码生成（不加 -style 参数）
 goctl api go -api restful/iotmanager/iot.api -dir restful/iotmanager
 
-# gRPC 代码生成
-goctl rpc protoc service/{service}/{service}.proto --go_out=. --go-grpc_out=. --zrpc_out=service/{service}
+# gRPC 代码生成（需要 module 选项避免路径重复）
+goctl rpc protoc service/{service}/{service}.proto \
+  --go_out=. --go_opt=module=github.com/rezeropoint/nexlyn \
+  --go-grpc_out=. --go-grpc_opt=module=github.com/rezeropoint/nexlyn \
+  --zrpc_out=service/{service}
 ```
 
 ### 前端
@@ -60,7 +63,7 @@ npm test          # 运行测试
 |-----|------|------|------|
 | lynxengine | `service/lynxengine/lynxengine.go` | - | LynxGraph 逻辑引擎 |
 | iotquery | `service/iotquery/iotquery.go` | - | ClickHouse 时序查询 |
-| eventsync | `service/eventsync/eventsync.go` | 9998 | Skylark 用户/组织同步（7 个 RPC） |
+| eventsync | `service/eventsync/eventsync.go` | 9998 | Skylark 用户/组织同步（13 个 RPC） |
 
 ### 核心包
 | 包 | 说明 |

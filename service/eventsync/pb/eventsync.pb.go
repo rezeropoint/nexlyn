@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.10
 // 	protoc        v3.19.4
-// source: eventsync.proto
+// source: service/eventsync/eventsync.proto
 
 package pb
 
@@ -35,7 +35,7 @@ type SyncUserReq struct {
 
 func (x *SyncUserReq) Reset() {
 	*x = SyncUserReq{}
-	mi := &file_eventsync_proto_msgTypes[0]
+	mi := &file_service_eventsync_eventsync_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -47,7 +47,7 @@ func (x *SyncUserReq) String() string {
 func (*SyncUserReq) ProtoMessage() {}
 
 func (x *SyncUserReq) ProtoReflect() protoreflect.Message {
-	mi := &file_eventsync_proto_msgTypes[0]
+	mi := &file_service_eventsync_eventsync_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -60,7 +60,7 @@ func (x *SyncUserReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SyncUserReq.ProtoReflect.Descriptor instead.
 func (*SyncUserReq) Descriptor() ([]byte, []int) {
-	return file_eventsync_proto_rawDescGZIP(), []int{0}
+	return file_service_eventsync_eventsync_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *SyncUserReq) GetTenantId() string {
@@ -117,7 +117,7 @@ type SyncUserResp struct {
 
 func (x *SyncUserResp) Reset() {
 	*x = SyncUserResp{}
-	mi := &file_eventsync_proto_msgTypes[1]
+	mi := &file_service_eventsync_eventsync_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -129,7 +129,7 @@ func (x *SyncUserResp) String() string {
 func (*SyncUserResp) ProtoMessage() {}
 
 func (x *SyncUserResp) ProtoReflect() protoreflect.Message {
-	mi := &file_eventsync_proto_msgTypes[1]
+	mi := &file_service_eventsync_eventsync_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -142,7 +142,7 @@ func (x *SyncUserResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SyncUserResp.ProtoReflect.Descriptor instead.
 func (*SyncUserResp) Descriptor() ([]byte, []int) {
-	return file_eventsync_proto_rawDescGZIP(), []int{1}
+	return file_service_eventsync_eventsync_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *SyncUserResp) GetSuccess() bool {
@@ -187,7 +187,7 @@ type SyncOrganizationReq struct {
 
 func (x *SyncOrganizationReq) Reset() {
 	*x = SyncOrganizationReq{}
-	mi := &file_eventsync_proto_msgTypes[2]
+	mi := &file_service_eventsync_eventsync_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -199,7 +199,7 @@ func (x *SyncOrganizationReq) String() string {
 func (*SyncOrganizationReq) ProtoMessage() {}
 
 func (x *SyncOrganizationReq) ProtoReflect() protoreflect.Message {
-	mi := &file_eventsync_proto_msgTypes[2]
+	mi := &file_service_eventsync_eventsync_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -212,7 +212,7 @@ func (x *SyncOrganizationReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SyncOrganizationReq.ProtoReflect.Descriptor instead.
 func (*SyncOrganizationReq) Descriptor() ([]byte, []int) {
-	return file_eventsync_proto_rawDescGZIP(), []int{2}
+	return file_service_eventsync_eventsync_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *SyncOrganizationReq) GetTenantId() string {
@@ -269,7 +269,7 @@ type SyncOrganizationResp struct {
 
 func (x *SyncOrganizationResp) Reset() {
 	*x = SyncOrganizationResp{}
-	mi := &file_eventsync_proto_msgTypes[3]
+	mi := &file_service_eventsync_eventsync_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -281,7 +281,7 @@ func (x *SyncOrganizationResp) String() string {
 func (*SyncOrganizationResp) ProtoMessage() {}
 
 func (x *SyncOrganizationResp) ProtoReflect() protoreflect.Message {
-	mi := &file_eventsync_proto_msgTypes[3]
+	mi := &file_service_eventsync_eventsync_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -294,7 +294,7 @@ func (x *SyncOrganizationResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SyncOrganizationResp.ProtoReflect.Descriptor instead.
 func (*SyncOrganizationResp) Descriptor() ([]byte, []int) {
-	return file_eventsync_proto_rawDescGZIP(), []int{3}
+	return file_service_eventsync_eventsync_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *SyncOrganizationResp) GetSuccess() bool {
@@ -335,7 +335,7 @@ type DeleteOrganizationReq struct {
 
 func (x *DeleteOrganizationReq) Reset() {
 	*x = DeleteOrganizationReq{}
-	mi := &file_eventsync_proto_msgTypes[4]
+	mi := &file_service_eventsync_eventsync_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -347,7 +347,7 @@ func (x *DeleteOrganizationReq) String() string {
 func (*DeleteOrganizationReq) ProtoMessage() {}
 
 func (x *DeleteOrganizationReq) ProtoReflect() protoreflect.Message {
-	mi := &file_eventsync_proto_msgTypes[4]
+	mi := &file_service_eventsync_eventsync_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -360,7 +360,7 @@ func (x *DeleteOrganizationReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteOrganizationReq.ProtoReflect.Descriptor instead.
 func (*DeleteOrganizationReq) Descriptor() ([]byte, []int) {
-	return file_eventsync_proto_rawDescGZIP(), []int{4}
+	return file_service_eventsync_eventsync_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *DeleteOrganizationReq) GetTenantId() string {
@@ -388,7 +388,7 @@ type DeleteOrganizationResp struct {
 
 func (x *DeleteOrganizationResp) Reset() {
 	*x = DeleteOrganizationResp{}
-	mi := &file_eventsync_proto_msgTypes[5]
+	mi := &file_service_eventsync_eventsync_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -400,7 +400,7 @@ func (x *DeleteOrganizationResp) String() string {
 func (*DeleteOrganizationResp) ProtoMessage() {}
 
 func (x *DeleteOrganizationResp) ProtoReflect() protoreflect.Message {
-	mi := &file_eventsync_proto_msgTypes[5]
+	mi := &file_service_eventsync_eventsync_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -413,7 +413,7 @@ func (x *DeleteOrganizationResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteOrganizationResp.ProtoReflect.Descriptor instead.
 func (*DeleteOrganizationResp) Descriptor() ([]byte, []int) {
-	return file_eventsync_proto_rawDescGZIP(), []int{5}
+	return file_service_eventsync_eventsync_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *DeleteOrganizationResp) GetSuccess() bool {
@@ -445,7 +445,7 @@ type HealthCheckReq struct {
 
 func (x *HealthCheckReq) Reset() {
 	*x = HealthCheckReq{}
-	mi := &file_eventsync_proto_msgTypes[6]
+	mi := &file_service_eventsync_eventsync_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -457,7 +457,7 @@ func (x *HealthCheckReq) String() string {
 func (*HealthCheckReq) ProtoMessage() {}
 
 func (x *HealthCheckReq) ProtoReflect() protoreflect.Message {
-	mi := &file_eventsync_proto_msgTypes[6]
+	mi := &file_service_eventsync_eventsync_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -470,7 +470,7 @@ func (x *HealthCheckReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HealthCheckReq.ProtoReflect.Descriptor instead.
 func (*HealthCheckReq) Descriptor() ([]byte, []int) {
-	return file_eventsync_proto_rawDescGZIP(), []int{6}
+	return file_service_eventsync_eventsync_proto_rawDescGZIP(), []int{6}
 }
 
 type HealthCheckResp struct {
@@ -482,7 +482,7 @@ type HealthCheckResp struct {
 
 func (x *HealthCheckResp) Reset() {
 	*x = HealthCheckResp{}
-	mi := &file_eventsync_proto_msgTypes[7]
+	mi := &file_service_eventsync_eventsync_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -494,7 +494,7 @@ func (x *HealthCheckResp) String() string {
 func (*HealthCheckResp) ProtoMessage() {}
 
 func (x *HealthCheckResp) ProtoReflect() protoreflect.Message {
-	mi := &file_eventsync_proto_msgTypes[7]
+	mi := &file_service_eventsync_eventsync_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -507,7 +507,7 @@ func (x *HealthCheckResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HealthCheckResp.ProtoReflect.Descriptor instead.
 func (*HealthCheckResp) Descriptor() ([]byte, []int) {
-	return file_eventsync_proto_rawDescGZIP(), []int{7}
+	return file_service_eventsync_eventsync_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *HealthCheckResp) GetHealthy() bool {
@@ -527,7 +527,7 @@ type GetUserSyncStatusReq struct {
 
 func (x *GetUserSyncStatusReq) Reset() {
 	*x = GetUserSyncStatusReq{}
-	mi := &file_eventsync_proto_msgTypes[8]
+	mi := &file_service_eventsync_eventsync_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -539,7 +539,7 @@ func (x *GetUserSyncStatusReq) String() string {
 func (*GetUserSyncStatusReq) ProtoMessage() {}
 
 func (x *GetUserSyncStatusReq) ProtoReflect() protoreflect.Message {
-	mi := &file_eventsync_proto_msgTypes[8]
+	mi := &file_service_eventsync_eventsync_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -552,7 +552,7 @@ func (x *GetUserSyncStatusReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetUserSyncStatusReq.ProtoReflect.Descriptor instead.
 func (*GetUserSyncStatusReq) Descriptor() ([]byte, []int) {
-	return file_eventsync_proto_rawDescGZIP(), []int{8}
+	return file_service_eventsync_eventsync_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *GetUserSyncStatusReq) GetTenantId() string {
@@ -580,7 +580,7 @@ type GetUserSyncStatusResp struct {
 
 func (x *GetUserSyncStatusResp) Reset() {
 	*x = GetUserSyncStatusResp{}
-	mi := &file_eventsync_proto_msgTypes[9]
+	mi := &file_service_eventsync_eventsync_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -592,7 +592,7 @@ func (x *GetUserSyncStatusResp) String() string {
 func (*GetUserSyncStatusResp) ProtoMessage() {}
 
 func (x *GetUserSyncStatusResp) ProtoReflect() protoreflect.Message {
-	mi := &file_eventsync_proto_msgTypes[9]
+	mi := &file_service_eventsync_eventsync_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -605,7 +605,7 @@ func (x *GetUserSyncStatusResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetUserSyncStatusResp.ProtoReflect.Descriptor instead.
 func (*GetUserSyncStatusResp) Descriptor() ([]byte, []int) {
-	return file_eventsync_proto_rawDescGZIP(), []int{9}
+	return file_service_eventsync_eventsync_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *GetUserSyncStatusResp) GetSuccess() bool {
@@ -639,7 +639,7 @@ type GetOrgSyncStatusReq struct {
 
 func (x *GetOrgSyncStatusReq) Reset() {
 	*x = GetOrgSyncStatusReq{}
-	mi := &file_eventsync_proto_msgTypes[10]
+	mi := &file_service_eventsync_eventsync_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -651,7 +651,7 @@ func (x *GetOrgSyncStatusReq) String() string {
 func (*GetOrgSyncStatusReq) ProtoMessage() {}
 
 func (x *GetOrgSyncStatusReq) ProtoReflect() protoreflect.Message {
-	mi := &file_eventsync_proto_msgTypes[10]
+	mi := &file_service_eventsync_eventsync_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -664,7 +664,7 @@ func (x *GetOrgSyncStatusReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetOrgSyncStatusReq.ProtoReflect.Descriptor instead.
 func (*GetOrgSyncStatusReq) Descriptor() ([]byte, []int) {
-	return file_eventsync_proto_rawDescGZIP(), []int{10}
+	return file_service_eventsync_eventsync_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *GetOrgSyncStatusReq) GetTenantId() string {
@@ -692,7 +692,7 @@ type GetOrgSyncStatusResp struct {
 
 func (x *GetOrgSyncStatusResp) Reset() {
 	*x = GetOrgSyncStatusResp{}
-	mi := &file_eventsync_proto_msgTypes[11]
+	mi := &file_service_eventsync_eventsync_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -704,7 +704,7 @@ func (x *GetOrgSyncStatusResp) String() string {
 func (*GetOrgSyncStatusResp) ProtoMessage() {}
 
 func (x *GetOrgSyncStatusResp) ProtoReflect() protoreflect.Message {
-	mi := &file_eventsync_proto_msgTypes[11]
+	mi := &file_service_eventsync_eventsync_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -717,7 +717,7 @@ func (x *GetOrgSyncStatusResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetOrgSyncStatusResp.ProtoReflect.Descriptor instead.
 func (*GetOrgSyncStatusResp) Descriptor() ([]byte, []int) {
-	return file_eventsync_proto_rawDescGZIP(), []int{11}
+	return file_service_eventsync_eventsync_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *GetOrgSyncStatusResp) GetSuccess() bool {
@@ -752,7 +752,7 @@ type BindOrganizationReq struct {
 
 func (x *BindOrganizationReq) Reset() {
 	*x = BindOrganizationReq{}
-	mi := &file_eventsync_proto_msgTypes[12]
+	mi := &file_service_eventsync_eventsync_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -764,7 +764,7 @@ func (x *BindOrganizationReq) String() string {
 func (*BindOrganizationReq) ProtoMessage() {}
 
 func (x *BindOrganizationReq) ProtoReflect() protoreflect.Message {
-	mi := &file_eventsync_proto_msgTypes[12]
+	mi := &file_service_eventsync_eventsync_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -777,7 +777,7 @@ func (x *BindOrganizationReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BindOrganizationReq.ProtoReflect.Descriptor instead.
 func (*BindOrganizationReq) Descriptor() ([]byte, []int) {
-	return file_eventsync_proto_rawDescGZIP(), []int{12}
+	return file_service_eventsync_eventsync_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *BindOrganizationReq) GetTenantId() string {
@@ -812,7 +812,7 @@ type BindOrganizationResp struct {
 
 func (x *BindOrganizationResp) Reset() {
 	*x = BindOrganizationResp{}
-	mi := &file_eventsync_proto_msgTypes[13]
+	mi := &file_service_eventsync_eventsync_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -824,7 +824,7 @@ func (x *BindOrganizationResp) String() string {
 func (*BindOrganizationResp) ProtoMessage() {}
 
 func (x *BindOrganizationResp) ProtoReflect() protoreflect.Message {
-	mi := &file_eventsync_proto_msgTypes[13]
+	mi := &file_service_eventsync_eventsync_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -837,7 +837,7 @@ func (x *BindOrganizationResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BindOrganizationResp.ProtoReflect.Descriptor instead.
 func (*BindOrganizationResp) Descriptor() ([]byte, []int) {
-	return file_eventsync_proto_rawDescGZIP(), []int{13}
+	return file_service_eventsync_eventsync_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *BindOrganizationResp) GetSuccess() bool {
@@ -871,7 +871,7 @@ type UnbindOrganizationReq struct {
 
 func (x *UnbindOrganizationReq) Reset() {
 	*x = UnbindOrganizationReq{}
-	mi := &file_eventsync_proto_msgTypes[14]
+	mi := &file_service_eventsync_eventsync_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -883,7 +883,7 @@ func (x *UnbindOrganizationReq) String() string {
 func (*UnbindOrganizationReq) ProtoMessage() {}
 
 func (x *UnbindOrganizationReq) ProtoReflect() protoreflect.Message {
-	mi := &file_eventsync_proto_msgTypes[14]
+	mi := &file_service_eventsync_eventsync_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -896,7 +896,7 @@ func (x *UnbindOrganizationReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UnbindOrganizationReq.ProtoReflect.Descriptor instead.
 func (*UnbindOrganizationReq) Descriptor() ([]byte, []int) {
-	return file_eventsync_proto_rawDescGZIP(), []int{14}
+	return file_service_eventsync_eventsync_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *UnbindOrganizationReq) GetTenantId() string {
@@ -924,7 +924,7 @@ type UnbindOrganizationResp struct {
 
 func (x *UnbindOrganizationResp) Reset() {
 	*x = UnbindOrganizationResp{}
-	mi := &file_eventsync_proto_msgTypes[15]
+	mi := &file_service_eventsync_eventsync_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -936,7 +936,7 @@ func (x *UnbindOrganizationResp) String() string {
 func (*UnbindOrganizationResp) ProtoMessage() {}
 
 func (x *UnbindOrganizationResp) ProtoReflect() protoreflect.Message {
-	mi := &file_eventsync_proto_msgTypes[15]
+	mi := &file_service_eventsync_eventsync_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -949,7 +949,7 @@ func (x *UnbindOrganizationResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UnbindOrganizationResp.ProtoReflect.Descriptor instead.
 func (*UnbindOrganizationResp) Descriptor() ([]byte, []int) {
-	return file_eventsync_proto_rawDescGZIP(), []int{15}
+	return file_service_eventsync_eventsync_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *UnbindOrganizationResp) GetSuccess() bool {
@@ -984,7 +984,7 @@ type BindUserReq struct {
 
 func (x *BindUserReq) Reset() {
 	*x = BindUserReq{}
-	mi := &file_eventsync_proto_msgTypes[16]
+	mi := &file_service_eventsync_eventsync_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -996,7 +996,7 @@ func (x *BindUserReq) String() string {
 func (*BindUserReq) ProtoMessage() {}
 
 func (x *BindUserReq) ProtoReflect() protoreflect.Message {
-	mi := &file_eventsync_proto_msgTypes[16]
+	mi := &file_service_eventsync_eventsync_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1009,7 +1009,7 @@ func (x *BindUserReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BindUserReq.ProtoReflect.Descriptor instead.
 func (*BindUserReq) Descriptor() ([]byte, []int) {
-	return file_eventsync_proto_rawDescGZIP(), []int{16}
+	return file_service_eventsync_eventsync_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *BindUserReq) GetTenantId() string {
@@ -1044,7 +1044,7 @@ type BindUserResp struct {
 
 func (x *BindUserResp) Reset() {
 	*x = BindUserResp{}
-	mi := &file_eventsync_proto_msgTypes[17]
+	mi := &file_service_eventsync_eventsync_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1056,7 +1056,7 @@ func (x *BindUserResp) String() string {
 func (*BindUserResp) ProtoMessage() {}
 
 func (x *BindUserResp) ProtoReflect() protoreflect.Message {
-	mi := &file_eventsync_proto_msgTypes[17]
+	mi := &file_service_eventsync_eventsync_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1069,7 +1069,7 @@ func (x *BindUserResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BindUserResp.ProtoReflect.Descriptor instead.
 func (*BindUserResp) Descriptor() ([]byte, []int) {
-	return file_eventsync_proto_rawDescGZIP(), []int{17}
+	return file_service_eventsync_eventsync_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *BindUserResp) GetSuccess() bool {
@@ -1103,7 +1103,7 @@ type UnbindUserReq struct {
 
 func (x *UnbindUserReq) Reset() {
 	*x = UnbindUserReq{}
-	mi := &file_eventsync_proto_msgTypes[18]
+	mi := &file_service_eventsync_eventsync_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1115,7 +1115,7 @@ func (x *UnbindUserReq) String() string {
 func (*UnbindUserReq) ProtoMessage() {}
 
 func (x *UnbindUserReq) ProtoReflect() protoreflect.Message {
-	mi := &file_eventsync_proto_msgTypes[18]
+	mi := &file_service_eventsync_eventsync_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1128,7 +1128,7 @@ func (x *UnbindUserReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UnbindUserReq.ProtoReflect.Descriptor instead.
 func (*UnbindUserReq) Descriptor() ([]byte, []int) {
-	return file_eventsync_proto_rawDescGZIP(), []int{18}
+	return file_service_eventsync_eventsync_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *UnbindUserReq) GetTenantId() string {
@@ -1156,7 +1156,7 @@ type UnbindUserResp struct {
 
 func (x *UnbindUserResp) Reset() {
 	*x = UnbindUserResp{}
-	mi := &file_eventsync_proto_msgTypes[19]
+	mi := &file_service_eventsync_eventsync_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1168,7 +1168,7 @@ func (x *UnbindUserResp) String() string {
 func (*UnbindUserResp) ProtoMessage() {}
 
 func (x *UnbindUserResp) ProtoReflect() protoreflect.Message {
-	mi := &file_eventsync_proto_msgTypes[19]
+	mi := &file_service_eventsync_eventsync_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1181,7 +1181,7 @@ func (x *UnbindUserResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UnbindUserResp.ProtoReflect.Descriptor instead.
 func (*UnbindUserResp) Descriptor() ([]byte, []int) {
-	return file_eventsync_proto_rawDescGZIP(), []int{19}
+	return file_service_eventsync_eventsync_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *UnbindUserResp) GetSuccess() bool {
@@ -1221,7 +1221,7 @@ type UpdateOrganizationReq struct {
 
 func (x *UpdateOrganizationReq) Reset() {
 	*x = UpdateOrganizationReq{}
-	mi := &file_eventsync_proto_msgTypes[20]
+	mi := &file_service_eventsync_eventsync_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1233,7 +1233,7 @@ func (x *UpdateOrganizationReq) String() string {
 func (*UpdateOrganizationReq) ProtoMessage() {}
 
 func (x *UpdateOrganizationReq) ProtoReflect() protoreflect.Message {
-	mi := &file_eventsync_proto_msgTypes[20]
+	mi := &file_service_eventsync_eventsync_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1246,7 +1246,7 @@ func (x *UpdateOrganizationReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateOrganizationReq.ProtoReflect.Descriptor instead.
 func (*UpdateOrganizationReq) Descriptor() ([]byte, []int) {
-	return file_eventsync_proto_rawDescGZIP(), []int{20}
+	return file_service_eventsync_eventsync_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *UpdateOrganizationReq) GetTenantId() string {
@@ -1316,7 +1316,7 @@ type UpdateOrganizationResp struct {
 
 func (x *UpdateOrganizationResp) Reset() {
 	*x = UpdateOrganizationResp{}
-	mi := &file_eventsync_proto_msgTypes[21]
+	mi := &file_service_eventsync_eventsync_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1328,7 +1328,7 @@ func (x *UpdateOrganizationResp) String() string {
 func (*UpdateOrganizationResp) ProtoMessage() {}
 
 func (x *UpdateOrganizationResp) ProtoReflect() protoreflect.Message {
-	mi := &file_eventsync_proto_msgTypes[21]
+	mi := &file_service_eventsync_eventsync_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1341,7 +1341,7 @@ func (x *UpdateOrganizationResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateOrganizationResp.ProtoReflect.Descriptor instead.
 func (*UpdateOrganizationResp) Descriptor() ([]byte, []int) {
-	return file_eventsync_proto_rawDescGZIP(), []int{21}
+	return file_service_eventsync_eventsync_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *UpdateOrganizationResp) GetSuccess() bool {
@@ -1376,7 +1376,7 @@ type AddMemberReq struct {
 
 func (x *AddMemberReq) Reset() {
 	*x = AddMemberReq{}
-	mi := &file_eventsync_proto_msgTypes[22]
+	mi := &file_service_eventsync_eventsync_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1388,7 +1388,7 @@ func (x *AddMemberReq) String() string {
 func (*AddMemberReq) ProtoMessage() {}
 
 func (x *AddMemberReq) ProtoReflect() protoreflect.Message {
-	mi := &file_eventsync_proto_msgTypes[22]
+	mi := &file_service_eventsync_eventsync_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1401,7 +1401,7 @@ func (x *AddMemberReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddMemberReq.ProtoReflect.Descriptor instead.
 func (*AddMemberReq) Descriptor() ([]byte, []int) {
-	return file_eventsync_proto_rawDescGZIP(), []int{22}
+	return file_service_eventsync_eventsync_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *AddMemberReq) GetTenantId() string {
@@ -1436,7 +1436,7 @@ type AddMemberResp struct {
 
 func (x *AddMemberResp) Reset() {
 	*x = AddMemberResp{}
-	mi := &file_eventsync_proto_msgTypes[23]
+	mi := &file_service_eventsync_eventsync_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1448,7 +1448,7 @@ func (x *AddMemberResp) String() string {
 func (*AddMemberResp) ProtoMessage() {}
 
 func (x *AddMemberResp) ProtoReflect() protoreflect.Message {
-	mi := &file_eventsync_proto_msgTypes[23]
+	mi := &file_service_eventsync_eventsync_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1461,7 +1461,7 @@ func (x *AddMemberResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddMemberResp.ProtoReflect.Descriptor instead.
 func (*AddMemberResp) Descriptor() ([]byte, []int) {
-	return file_eventsync_proto_rawDescGZIP(), []int{23}
+	return file_service_eventsync_eventsync_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *AddMemberResp) GetSuccess() bool {
@@ -1496,7 +1496,7 @@ type RemoveMemberReq struct {
 
 func (x *RemoveMemberReq) Reset() {
 	*x = RemoveMemberReq{}
-	mi := &file_eventsync_proto_msgTypes[24]
+	mi := &file_service_eventsync_eventsync_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1508,7 +1508,7 @@ func (x *RemoveMemberReq) String() string {
 func (*RemoveMemberReq) ProtoMessage() {}
 
 func (x *RemoveMemberReq) ProtoReflect() protoreflect.Message {
-	mi := &file_eventsync_proto_msgTypes[24]
+	mi := &file_service_eventsync_eventsync_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1521,7 +1521,7 @@ func (x *RemoveMemberReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RemoveMemberReq.ProtoReflect.Descriptor instead.
 func (*RemoveMemberReq) Descriptor() ([]byte, []int) {
-	return file_eventsync_proto_rawDescGZIP(), []int{24}
+	return file_service_eventsync_eventsync_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *RemoveMemberReq) GetTenantId() string {
@@ -1556,7 +1556,7 @@ type RemoveMemberResp struct {
 
 func (x *RemoveMemberResp) Reset() {
 	*x = RemoveMemberResp{}
-	mi := &file_eventsync_proto_msgTypes[25]
+	mi := &file_service_eventsync_eventsync_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1568,7 +1568,7 @@ func (x *RemoveMemberResp) String() string {
 func (*RemoveMemberResp) ProtoMessage() {}
 
 func (x *RemoveMemberResp) ProtoReflect() protoreflect.Message {
-	mi := &file_eventsync_proto_msgTypes[25]
+	mi := &file_service_eventsync_eventsync_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1581,7 +1581,7 @@ func (x *RemoveMemberResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RemoveMemberResp.ProtoReflect.Descriptor instead.
 func (*RemoveMemberResp) Descriptor() ([]byte, []int) {
-	return file_eventsync_proto_rawDescGZIP(), []int{25}
+	return file_service_eventsync_eventsync_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *RemoveMemberResp) GetSuccess() bool {
@@ -1605,11 +1605,11 @@ func (x *RemoveMemberResp) GetErrorCode() string {
 	return ""
 }
 
-var File_eventsync_proto protoreflect.FileDescriptor
+var File_service_eventsync_eventsync_proto protoreflect.FileDescriptor
 
-const file_eventsync_proto_rawDesc = "" +
+const file_service_eventsync_eventsync_proto_rawDesc = "" +
 	"\n" +
-	"\x0feventsync.proto\x12\teventsync\"\xb0\x01\n" +
+	"!service/eventsync/eventsync.proto\x12\teventsync\"\xb0\x01\n" +
 	"\vSyncUserReq\x12\x1b\n" +
 	"\ttenant_id\x18\x01 \x01(\tR\btenantId\x12\"\n" +
 	"\rlocal_user_id\x18\x02 \x01(\tR\vlocalUserId\x12\x12\n" +
@@ -1761,22 +1761,22 @@ const file_eventsync_proto_rawDesc = "" +
 	"UnbindUser\x12\x18.eventsync.UnbindUserReq\x1a\x19.eventsync.UnbindUserResp\x12Y\n" +
 	"\x12UpdateOrganization\x12 .eventsync.UpdateOrganizationReq\x1a!.eventsync.UpdateOrganizationResp\x12>\n" +
 	"\tAddMember\x12\x17.eventsync.AddMemberReq\x1a\x18.eventsync.AddMemberResp\x12G\n" +
-	"\fRemoveMember\x12\x1a.eventsync.RemoveMemberReq\x1a\x1b.eventsync.RemoveMemberRespB\x1dZ\x1bnexlyn/service/eventsync/pbb\x06proto3"
+	"\fRemoveMember\x12\x1a.eventsync.RemoveMemberReq\x1a\x1b.eventsync.RemoveMemberRespB4Z2github.com/rezeropoint/nexlyn/service/eventsync/pbb\x06proto3"
 
 var (
-	file_eventsync_proto_rawDescOnce sync.Once
-	file_eventsync_proto_rawDescData []byte
+	file_service_eventsync_eventsync_proto_rawDescOnce sync.Once
+	file_service_eventsync_eventsync_proto_rawDescData []byte
 )
 
-func file_eventsync_proto_rawDescGZIP() []byte {
-	file_eventsync_proto_rawDescOnce.Do(func() {
-		file_eventsync_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_eventsync_proto_rawDesc), len(file_eventsync_proto_rawDesc)))
+func file_service_eventsync_eventsync_proto_rawDescGZIP() []byte {
+	file_service_eventsync_eventsync_proto_rawDescOnce.Do(func() {
+		file_service_eventsync_eventsync_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_service_eventsync_eventsync_proto_rawDesc), len(file_service_eventsync_eventsync_proto_rawDesc)))
 	})
-	return file_eventsync_proto_rawDescData
+	return file_service_eventsync_eventsync_proto_rawDescData
 }
 
-var file_eventsync_proto_msgTypes = make([]protoimpl.MessageInfo, 28)
-var file_eventsync_proto_goTypes = []any{
+var file_service_eventsync_eventsync_proto_msgTypes = make([]protoimpl.MessageInfo, 28)
+var file_service_eventsync_eventsync_proto_goTypes = []any{
 	(*SyncUserReq)(nil),            // 0: eventsync.SyncUserReq
 	(*SyncUserResp)(nil),           // 1: eventsync.SyncUserResp
 	(*SyncOrganizationReq)(nil),    // 2: eventsync.SyncOrganizationReq
@@ -1806,7 +1806,7 @@ var file_eventsync_proto_goTypes = []any{
 	nil,                            // 26: eventsync.GetUserSyncStatusResp.SyncStatusEntry
 	nil,                            // 27: eventsync.GetOrgSyncStatusResp.SyncStatusEntry
 }
-var file_eventsync_proto_depIdxs = []int32{
+var file_service_eventsync_eventsync_proto_depIdxs = []int32{
 	26, // 0: eventsync.GetUserSyncStatusResp.sync_status:type_name -> eventsync.GetUserSyncStatusResp.SyncStatusEntry
 	27, // 1: eventsync.GetOrgSyncStatusResp.sync_status:type_name -> eventsync.GetOrgSyncStatusResp.SyncStatusEntry
 	0,  // 2: eventsync.AdminSync.SyncUser:input_type -> eventsync.SyncUserReq
@@ -1842,26 +1842,26 @@ var file_eventsync_proto_depIdxs = []int32{
 	0,  // [0:2] is the sub-list for field type_name
 }
 
-func init() { file_eventsync_proto_init() }
-func file_eventsync_proto_init() {
-	if File_eventsync_proto != nil {
+func init() { file_service_eventsync_eventsync_proto_init() }
+func file_service_eventsync_eventsync_proto_init() {
+	if File_service_eventsync_eventsync_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_eventsync_proto_rawDesc), len(file_eventsync_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_service_eventsync_eventsync_proto_rawDesc), len(file_service_eventsync_eventsync_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   28,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_eventsync_proto_goTypes,
-		DependencyIndexes: file_eventsync_proto_depIdxs,
-		MessageInfos:      file_eventsync_proto_msgTypes,
+		GoTypes:           file_service_eventsync_eventsync_proto_goTypes,
+		DependencyIndexes: file_service_eventsync_eventsync_proto_depIdxs,
+		MessageInfos:      file_service_eventsync_eventsync_proto_msgTypes,
 	}.Build()
-	File_eventsync_proto = out.File
-	file_eventsync_proto_goTypes = nil
-	file_eventsync_proto_depIdxs = nil
+	File_service_eventsync_eventsync_proto = out.File
+	file_service_eventsync_eventsync_proto_goTypes = nil
+	file_service_eventsync_eventsync_proto_depIdxs = nil
 }

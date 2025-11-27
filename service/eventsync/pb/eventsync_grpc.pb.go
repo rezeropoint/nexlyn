@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             v3.19.4
-// source: eventsync.proto
+// source: service/eventsync/eventsync.proto
 
 package pb
 
@@ -605,5 +605,5 @@ var AdminSync_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "eventsync.proto",
+	Metadata: "service/eventsync/eventsync.proto",
 }

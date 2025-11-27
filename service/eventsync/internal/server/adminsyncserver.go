@@ -82,3 +82,21 @@ func (s *AdminSyncServer) UnbindUser(ctx context.Context, in *pb.UnbindUserReq) 
 	l := logic.NewUnbindUserLogic(ctx, s.svcCtx)
 	return l.UnbindUser(in)
 }
+
+// 更新组织信息（支持设置管理员）
+func (s *AdminSyncServer) UpdateOrganization(ctx context.Context, in *pb.UpdateOrganizationReq) (*pb.UpdateOrganizationResp, error) {
+	l := logic.NewUpdateOrganizationLogic(ctx, s.svcCtx)
+	return l.UpdateOrganization(in)
+}
+
+// 添加成员到组织
+func (s *AdminSyncServer) AddMember(ctx context.Context, in *pb.AddMemberReq) (*pb.AddMemberResp, error) {
+	l := logic.NewAddMemberLogic(ctx, s.svcCtx)
+	return l.AddMember(in)
+}
+
+// 从组织移除成员
+func (s *AdminSyncServer) RemoveMember(ctx context.Context, in *pb.RemoveMemberReq) (*pb.RemoveMemberResp, error) {
+	l := logic.NewRemoveMemberLogic(ctx, s.svcCtx)
+	return l.RemoveMember(in)
+}
