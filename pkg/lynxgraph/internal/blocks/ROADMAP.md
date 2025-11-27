@@ -403,7 +403,7 @@ internal/blocks/
 ### 代码规范
 
 1. **配置结构体**：
-   - 使用 `json` 标签定义字段名
+   - **必须**使用 `json` 标签定义字段名（`FillConfig` 只处理有 json 标签的字段）
    - 使用 `check:"must"` 标签标记必填字段
    - 使用 `core.FillConfig()` 进行配置填充和校验
 

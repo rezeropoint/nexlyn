@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/rezeropoint/nexlyn/pkg/lynxgraph/core"
+	"github.com/zeromicro/go-zero/core/logx"
 )
 
 // watchConfigChanges 监听etcd变更
@@ -48,6 +49,8 @@ func (r *graphRegistry) handleConfigChange(key string, value []byte) error {
 	}
 
 	action := parts[0]
+
+	logx.Debugf("处理etcd配置变更: %s, action: %s", key, action)
 
 	switch action {
 	case "update", "create":

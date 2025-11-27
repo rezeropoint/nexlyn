@@ -81,6 +81,12 @@ func newwEngine(
 		return nil, ErrInfoAtomRegistryFailed
 	}
 
+	// 注册标准区块（只注册依赖的服务已就绪的逻辑块）
+	if err := block.RegisterStandardBlocks(blockRegistry, service); err != nil {
+		cancel() // 释放 context 资源
+		return nil, ErrStandardBlocksFailed
+	}
+
 	// 创建 GraphRegistry（注入 PostgreSQL、MongoDB 连接、BlockRegistry 函数、标签查询函数）
 	graphRegistry, err := graph.NewGraphRegistry(ctx, cancel, &graph.Config{
 		RunMode:    config.RunMode,
@@ -128,12 +134,6 @@ func newwEngine(
 
 		ctx:    ctx,
 		cancel: cancel,
-	}
-
-	// 注册标准区块（只注册依赖的服务已就绪的逻辑块）
-	if err := block.RegisterStandardBlocks(e.blockRegistry, service); err != nil {
-		cancel() // 释放 context 资源
-		return nil, ErrStandardBlocksFailed
 	}
 
 	// 应用所有选项

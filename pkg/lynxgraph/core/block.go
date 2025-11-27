@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"reflect"
+	"strings"
 )
 
 // LogicBlockType 表示逻辑块的类型
@@ -68,6 +69,7 @@ type CreateBlockFunc func(id string, blockKey BlockKey, config map[string]any) (
 // GetSpecFunc 获取逻辑块规格的函数类型
 type GetSpecFunc func(blockKey BlockKey) (BlockSpec, error)
 
+// FillConfig 填充配置
 func FillConfig(cfg map[string]any, tmpl any) error {
 	v := reflect.ValueOf(tmpl)
 	if v.Kind() != reflect.Ptr || v.Elem().Kind() != reflect.Struct {
@@ -82,33 +84,42 @@ func FillConfig(cfg map[string]any, tmpl any) error {
 			continue
 		}
 
-		fieldName := field.Name
-		tag := field.Tag.Get("check")
+		// 只使用 json tag 作为配置 key，没有 json tag 的字段跳过
+		jsonTag := field.Tag.Get("json")
+		if jsonTag == "" || jsonTag == "-" {
+			continue
+		}
+		// 处理 json tag 中的选项（如 "name,omitempty"）
+		configKey := jsonTag
+		if idx := strings.Index(jsonTag, ","); idx != -1 {
+			configKey = jsonTag[:idx]
+		}
+		checkTag := field.Tag.Get("check")
 
 		// 嵌套结构体支持
 		if field.Type.Kind() == reflect.Struct {
 			subVal := v.Field(i)
-			subRaw, ok := cfg[fieldName]
+			subRaw, ok := cfg[configKey]
 			if !ok {
-				if tag == "must" {
-					return fmt.Errorf("%w: %s", ErrNestedFieldMissing, fieldName)
+				if checkTag == "must" {
+					return fmt.Errorf("%w: %s", ErrNestedFieldMissing, configKey)
 				}
 				continue
 			}
 			subMap, ok := subRaw.(map[string]any)
 			if !ok {
-				return fmt.Errorf("%w: %s", ErrNestedFieldType, fieldName)
+				return fmt.Errorf("%w: %s", ErrNestedFieldType, configKey)
 			}
 			if err := FillConfig(subMap, subVal.Addr().Interface()); err != nil {
-				return fmt.Errorf("%w: %s: %w", ErrNestedFieldCheckFailed, fieldName, err)
+				return fmt.Errorf("%w: %s: %w", ErrNestedFieldCheckFailed, configKey, err)
 			}
 			continue
 		}
 
-		rawVal, ok := cfg[fieldName]
+		rawVal, ok := cfg[configKey]
 		if !ok || reflect.ValueOf(rawVal).IsZero() {
-			if tag == "must" {
-				return fmt.Errorf("%w: %s", ErrFieldMissingOrZero, fieldName)
+			if checkTag == "must" {
+				return fmt.Errorf("%w: %s", ErrFieldMissingOrZero, configKey)
 			}
 			continue
 		}
@@ -124,7 +135,7 @@ func FillConfig(cfg map[string]any, tmpl any) error {
 		} else if val.Type().ConvertibleTo(fieldVal.Type()) {
 			fieldVal.Set(val.Convert(fieldVal.Type()))
 		} else {
-			return fmt.Errorf("%w: %s: want %s, got %s", ErrFieldTypeMismatch, fieldName, field.Type, val.Type())
+			return fmt.Errorf("%w: %s: want %s, got %s", ErrFieldTypeMismatch, configKey, field.Type, val.Type())
 		}
 	}
 	return nil

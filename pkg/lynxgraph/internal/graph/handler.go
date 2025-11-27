@@ -461,13 +461,8 @@ func (r *graphRegistry) LoadGraph(config core.GraphConfig) error {
 	// 检查是否已经存在，如果存在则先移除
 	key := core.GraphKey{ID: config.ID}
 	if _, exists := r.graphs[key]; exists {
-		// 先从索引中移除
-		err := r.UnregisterGraph(key)
-		if err != nil {
-			return err
-		}
-		// 从图映射中删除
-		delete(r.graphs, key)
+		// 使用不加锁的内部方法，避免死锁
+		r.unregisterGraphLocked(key)
 	}
 
 	// 创建新的逻辑图
@@ -490,6 +485,11 @@ func (r *graphRegistry) LoadGraph(config core.GraphConfig) error {
 		)
 		if err != nil {
 			return fmt.Errorf("%w: 节点ID=%s, %v", ErrBlockCreateFailed, nodeConfig.ID, err)
+		}
+
+		// 设置积木的类型化配置（将 RawConfig 转换为 TypedConfig）
+		if err := block.SetConfigure(nodeConfig.BlockConfig); err != nil {
+			return fmt.Errorf("%w: 节点ID=%s, 配置验证失败: %v", ErrBlockCreateFailed, nodeConfig.ID, err)
 		}
 
 		// 创建节点
@@ -562,6 +562,12 @@ func (r *graphRegistry) UnregisterGraph(key core.GraphKey) error {
 		return fmt.Errorf("%w: id=%s", ErrGraphNotFound, key.ID)
 	}
 
+	r.unregisterGraphLocked(key)
+	return nil
+}
+
+// unregisterGraphLocked 注销逻辑图的内部实现（调用者必须已持有 r.mu 锁）
+func (r *graphRegistry) unregisterGraphLocked(key core.GraphKey) {
 	// 遍历所有信息原子类型索引
 	for _, graphsMap := range r.infoAtomTypeIndex {
 		// 从每个信息原子类型的图映射中删除该图
@@ -577,7 +583,6 @@ func (r *graphRegistry) UnregisterGraph(key core.GraphKey) error {
 
 	// 从图映射中删除
 	delete(r.graphs, key)
-	return nil
 }
 
 // GetGraph 根据ID和版本获取图
