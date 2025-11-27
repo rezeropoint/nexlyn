@@ -69,6 +69,7 @@ export async function getUserOptions(
     msg?: string;
     data?: {
       list: {
+        id: string; // 用户UUID
         userKey: string;
         userName: string; // 与后端保持一致
         name: string;

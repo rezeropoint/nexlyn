@@ -1185,6 +1185,7 @@ type UserLocation struct {
 }
 
 type UserOption struct {
+	Id        string `json:"id"`        // 用户UUID
 	UserKey   string `json:"userKey"`   // 用户Key
 	UserName  string `json:"userName"`  // 用户名
 	Name      string `json:"name"`      // 用户姓名

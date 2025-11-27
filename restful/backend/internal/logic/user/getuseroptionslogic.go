@@ -178,7 +178,7 @@ func (l *GetUserOptionsLogic) GetUserOptions(req *types.GetUserOptionsRequest) (
 
 	// 查询用户选项列表
 	query := fmt.Sprintf(`
-        SELECT u.user_key, u.user_name, u.name, u.email, 
+        SELECT u.id::text, u.user_key, u.user_name, u.name, u.email,
                COALESCE(t.id::text, '') as tenant_id,
                COALESCE(t.tenant_key, '') as tenant_key
         FROM system_users u

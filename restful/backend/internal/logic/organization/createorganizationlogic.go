@@ -172,9 +172,18 @@ func (l *CreateOrganizationLogic) CreateOrganization(req *types.CreateOrganizati
 			) RETURNING id
 		`
 
+		// 处理可空的 UUID 字段：空字符串转为 NULL
+		var parentId, managerId interface{}
+		if req.ParentId != "" {
+			parentId = req.ParentId
+		}
+		if req.ManagerId != "" {
+			managerId = req.ManagerId
+		}
+
 		err = session.QueryRowCtx(ctx, &orgId, insertQuery,
 			req.Code, req.Name, req.Type, req.Description,
-			req.ParentId, level, req.SortOrder, tenantId, req.ManagerId)
+			parentId, level, req.SortOrder, tenantId, managerId)
 		if err != nil {
 			return fmt.Errorf(config.ErrMsgDatabaseInsert)
 		}

@@ -127,7 +127,7 @@ const EditOrganizationForm: React.FC<EditOrganizationFormProps> = ({
             if (response.code === 0 && response.data?.list) {
               return response.data.list.map((user) => ({
                 label: `${user.name} (${user.userName})`,
-                value: user.userKey,
+                value: user.id,
               }));
             }
             return [];
