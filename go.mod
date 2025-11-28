@@ -13,6 +13,7 @@ require (
 
 require (
 	github.com/ClickHouse/clickhouse-go/v2 v2.23.0
+	github.com/Knetic/govaluate v3.0.1-0.20171022003610-9aa49832a739+incompatible
 	github.com/aliyun/aliyun-oss-go-sdk v3.0.2+incompatible
 	github.com/disintegration/imaging v1.6.2
 	github.com/eclipse/paho.mqtt.golang v1.5.1
@@ -20,8 +21,9 @@ require (
 	github.com/rezeropoint/casbinx v1.0.6
 	github.com/rezeropoint/etcdtrigger v1.0.0
 	github.com/rezeropoint/etcdtrigger/v2 v2.0.0
-	github.com/rezeropoint/go-skylark/v2 v2.5.7-beta20251125
+	github.com/rezeropoint/go-skylark/v2 v2.5.8-beta20251128
 	go.mongodb.org/mongo-driver v1.17.4
+	go.opentelemetry.io/otel/trace v1.38.0
 	golang.org/x/image v0.22.0
 	google.golang.org/grpc v1.75.0
 	google.golang.org/protobuf v1.36.8
@@ -196,7 +198,6 @@ require (
 	go.opentelemetry.io/otel/exporters/zipkin v1.37.0 // indirect
 	go.opentelemetry.io/otel/metric v1.38.0 // indirect
 	go.opentelemetry.io/otel/sdk v1.38.0 // indirect
-	go.opentelemetry.io/otel/trace v1.38.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.7.1 // indirect
 	go.uber.org/automaxprocs v1.6.0 // indirect
 	go.uber.org/mock v0.5.0 // indirect
