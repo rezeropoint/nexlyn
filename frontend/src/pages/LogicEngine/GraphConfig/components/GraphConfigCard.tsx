@@ -40,7 +40,7 @@ const GraphConfigCard: React.FC<GraphConfigCardProps> = ({
 
   // 获取图标组件，如果没有设置图标则使用默认图标
   const IconComponent = getIconComponent(data.icon) || getIconComponent('RiFlowChart');
-  const iconColor = data.iconColor || getIconColor(data.icon) || token.colorPrimary;
+  const iconColor = data.iconColor || getIconColor(data.icon, token) || token.colorPrimary;
 
   return (
     <Card

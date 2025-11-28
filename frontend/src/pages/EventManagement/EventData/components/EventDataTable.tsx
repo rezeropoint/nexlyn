@@ -5,7 +5,7 @@ import {
   ProTable,
 } from "@ant-design/pro-components";
 import { EyeOutlined } from "@ant-design/icons";
-import { Button, Select, Space } from "antd";
+import { Button, Select, Space, theme } from "antd";
 import { useApp } from "@/utils/appContext";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import type {
@@ -27,6 +27,7 @@ const EventDataTable: React.FC<EventDataTableProps> = ({
   selectedOrgId,
   selectedStatus: externalSelectedStatus,
 }) => {
+  const { token } = theme.useToken();
   const { message } = useApp();
   const actionRef = useRef<ActionType>();
   const [dataSource, setDataSource] = useState<any[]>([]);
@@ -192,7 +193,7 @@ const EventDataTable: React.FC<EventDataTableProps> = ({
         search={false}
         toolBarRender={() => [
           <Space key="toolbar" size="middle">
-            <span style={{ fontSize: '14px', color: '#666' }}>状态筛选：</span>
+            <span style={{ fontSize: '14px', color: token.colorTextSecondary }}>状态筛选：</span>
             <Select
               mode="multiple"
               allowClear

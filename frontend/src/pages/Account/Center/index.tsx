@@ -7,12 +7,12 @@ import {
   UserOutlined,
   CloseOutlined,
 } from '@ant-design/icons';
-import { ProCard, ProDescriptions, ProForm, ProFormText, ProFormTextArea } from '@ant-design/pro-components';
+import { ModalForm, ProCard, ProDescriptions, ProForm, type ProFormInstance, ProFormText, ProFormTextArea } from '@ant-design/pro-components';
 import { PageContainer } from '@ant-design/pro-layout';
 import { useModel } from '@umijs/max';
-import { Avatar, Button, Space, Tag, message, Modal, Input, Form, theme } from 'antd';
+import { Avatar, Button, Space, Tag, message, theme } from 'antd';
 import type { FormInstance } from 'antd';
-import React, { useState, useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import AvatarUpload from '@/components/AvatarUpload';
 import { updateCurrentUser, changePassword } from '@/services/user';
 import styles from './index.less';
@@ -28,8 +28,8 @@ const AccountCenter: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false); // 编辑模式状态
   const [submitting, setSubmitting] = useState(false);
   const [passwordModalVisible, setPasswordModalVisible] = useState(false); // 修改密码弹窗
-  const [passwordForm] = Form.useForm();
-  const formRef = useRef<any>();
+  const passwordFormRef = useRef<ProFormInstance>();
+  const formRef = useRef<ProFormInstance>();
 
   // 获取用户名首字母
   const getInitials = (name: string): string => {
@@ -95,9 +95,8 @@ const AccountCenter: React.FC = () => {
   };
 
   // 修改密码
-  const handleChangePassword = async () => {
+  const handleChangePassword = async (values: { oldPassword: string; newPassword: string }) => {
     try {
-      const values = await passwordForm.validateFields();
       const response = await changePassword({
         oldPassword: values.oldPassword,
         newPassword: values.newPassword,
@@ -105,17 +104,17 @@ const AccountCenter: React.FC = () => {
 
       if (response.code === 0) {
         message.success('密码修改成功，请重新登录');
-        setPasswordModalVisible(false);
-        passwordForm.resetFields();
         // 可选：强制用户重新登录
         // setTimeout(() => {
         //   history.push('/user/login');
         // }, 1500);
-      } else {
-        message.error(response.msg || '密码修改失败');
+        return true;
       }
+      message.error(response.msg || '密码修改失败');
+      return false;
     } catch (error) {
       console.error('修改密码失败:', error);
+      return false;
     }
   };
 
@@ -362,81 +361,66 @@ const AccountCenter: React.FC = () => {
       </div>
 
       {/* 修改密码弹窗 */}
-      <Modal
+      <ModalForm
         title="修改密码"
         open={passwordModalVisible}
-        onOk={handleChangePassword}
-        onCancel={() => {
-          setPasswordModalVisible(false);
-          passwordForm.resetFields();
+        onOpenChange={setPasswordModalVisible}
+        formRef={passwordFormRef}
+        onFinish={handleChangePassword}
+        modalProps={{
+          destroyOnHidden: true,
+          width: 500,
+          okText: '确认修改',
+          cancelText: '取消',
         }}
-        okText="确认修改"
-        cancelText="取消"
-        width={500}
       >
-        <div style={{ padding: '16px 0' }}>
-          <div className={styles['password-tips']}>
-            <strong>密码要求：</strong>
-            <ul>
-              <li>长度至少8个字符</li>
-              <li>包含大小写字母、数字和特殊字符</li>
-              <li>不能与用户名相同</li>
-            </ul>
-          </div>
-
-          <Form
-            form={passwordForm}
-            layout="vertical"
-          >
-            <Form.Item
-              label="当前密码"
-              name="oldPassword"
-              rules={[{ required: true, message: '请输入当前密码' }]}
-            >
-              <Input.Password
-                placeholder="请输入当前密码"
-                size="large"
-              />
-            </Form.Item>
-
-            <Form.Item
-              label="新密码"
-              name="newPassword"
-              rules={[
-                { required: true, message: '请输入新密码' },
-                { min: 8, message: '密码长度至少8个字符' },
-              ]}
-            >
-              <Input.Password
-                placeholder="请输入新密码"
-                size="large"
-              />
-            </Form.Item>
-
-            <Form.Item
-              label="确认新密码"
-              name="confirmPassword"
-              dependencies={['newPassword']}
-              rules={[
-                { required: true, message: '请确认新密码' },
-                ({ getFieldValue }) => ({
-                  validator(_, value) {
-                    if (!value || getFieldValue('newPassword') === value) {
-                      return Promise.resolve();
-                    }
-                    return Promise.reject(new Error('两次输入的密码不一致'));
-                  },
-                }),
-              ]}
-            >
-              <Input.Password
-                placeholder="请再次输入新密码"
-                size="large"
-              />
-            </Form.Item>
-          </Form>
+        <div className={styles['password-tips']}>
+          <strong>密码要求：</strong>
+          <ul>
+            <li>长度至少8个字符</li>
+            <li>包含大小写字母、数字和特殊字符</li>
+            <li>不能与用户名相同</li>
+          </ul>
         </div>
-      </Modal>
+
+        <ProFormText.Password
+          label="当前密码"
+          name="oldPassword"
+          fieldProps={{ size: 'large' }}
+          rules={[{ required: true, message: '请输入当前密码' }]}
+          placeholder="请输入当前密码"
+        />
+
+        <ProFormText.Password
+          label="新密码"
+          name="newPassword"
+          fieldProps={{ size: 'large' }}
+          rules={[
+            { required: true, message: '请输入新密码' },
+            { min: 8, message: '密码长度至少8个字符' },
+          ]}
+          placeholder="请输入新密码"
+        />
+
+        <ProFormText.Password
+          label="确认新密码"
+          name="confirmPassword"
+          fieldProps={{ size: 'large' }}
+          dependencies={['newPassword']}
+          rules={[
+            { required: true, message: '请确认新密码' },
+            ({ getFieldValue }) => ({
+              validator(_, value) {
+                if (!value || getFieldValue('newPassword') === value) {
+                  return Promise.resolve();
+                }
+                return Promise.reject(new Error('两次输入的密码不一致'));
+              },
+            }),
+          ]}
+          placeholder="请再次输入新密码"
+        />
+      </ModalForm>
     </PageContainer>
   );
 };

@@ -5,7 +5,7 @@
 import { theme } from 'antd';
 import { Empty, Input, Tabs } from 'antd';
 import React, { useMemo, useState } from 'react';
-import { getIconsByCategory, type IconOption } from '../iconConfig';
+import { getIconsByCategory, getColorByKey, type IconOption } from '../iconConfig';
 import styles from './IconSelector.less';
 
 interface IconSelectorProps {
@@ -48,7 +48,7 @@ const IconSelector: React.FC<IconSelectorProps> = ({ value, onChange }) => {
             backgroundColor: isSelected ? token.colorPrimaryBg : 'transparent',
           }}
         >
-          <IconComponent size={32} color={icon.color} />
+          <IconComponent size={32} color={icon.colorKey ? getColorByKey(icon.colorKey, token) : token.colorPrimary} />
         </div>
         <div className={styles.iconLabel}>{icon.label}</div>
       </div>

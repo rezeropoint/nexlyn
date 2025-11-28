@@ -10,7 +10,7 @@ import {
 import { useModel } from '@@/exports';
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import { type ActionType, type ProColumns, ProTable } from '@ant-design/pro-components';
-import { App, Button, Modal, Space, Switch, Tag } from 'antd';
+import { App, Button, Modal, Space, Switch, Tag, theme } from 'antd';
 import dayjs from 'dayjs';
 import React from 'react';
 import { useNavigate } from '@@/exports';
@@ -45,6 +45,7 @@ const GraphConfigTable: React.FC<GraphConfigTableProps> = ({
   onViewConfig,
   onCopyConfig,
 }) => {
+  const { token } = theme.useToken();
   const { message } = App.useApp();
   const navigate = useNavigate();
   const { selectedRowKeys, selectedRows } = selectionState;
@@ -89,7 +90,7 @@ const GraphConfigTable: React.FC<GraphConfigTableProps> = ({
       align: 'center',
       render: (_, record) => {
         const IconComponent = record.icon ? getIconComponent(record.icon) : null;
-        const iconColor = record.iconColor || getIconColor(record.icon);
+        const iconColor = record.iconColor || getIconColor(record.icon, token);
         return IconComponent ? (
           <IconComponent size={20} color={iconColor} />
         ) : (

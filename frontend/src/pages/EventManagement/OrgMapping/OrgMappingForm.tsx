@@ -4,9 +4,10 @@ import {
   ModalForm,
   ProFormText,
   ProFormTreeSelect,
+  type ProFormInstance,
 } from "@ant-design/pro-components";
-import { Form, message } from "antd";
-import React, { useEffect, useState } from "react";
+import { message } from "antd";
+import React, { useEffect, useRef, useState } from "react";
 import { MESSAGE } from "../constants";
 import type { OrgMapping } from "../types";
 
@@ -33,7 +34,7 @@ const OrgMappingForm: React.FC<OrgMappingFormProps> = ({
   currentMapping,
   onSuccess,
 }) => {
-  const [form] = Form.useForm();
+  const formRef = useRef<ProFormInstance>();
   const [orgTreeData, setOrgTreeData] = useState<any[]>([]);
   const isEdit = !!currentMapping;
 
@@ -85,13 +86,13 @@ const OrgMappingForm: React.FC<OrgMappingFormProps> = ({
 
       if (currentMapping) {
         // 编辑模式：设置表单值
-        form.setFieldsValue({
+        formRef.current?.setFieldsValue({
           remoteOrgValue: currentMapping.remoteOrgValue,
           localOrgId: currentMapping.localOrgId,
         });
       } else {
         // 新建模式：重置表单
-        form.resetFields();
+        formRef.current?.resetFields();
       }
     }
   }, [open, currentMapping]);
@@ -128,7 +129,7 @@ const OrgMappingForm: React.FC<OrgMappingFormProps> = ({
       title={isEdit ? "编辑组织映射" : "新建组织映射"}
       open={open}
       onOpenChange={onOpenChange}
-      form={form}
+      formRef={formRef}
       onFinish={handleSubmit}
       modalProps={{
         width: 600,

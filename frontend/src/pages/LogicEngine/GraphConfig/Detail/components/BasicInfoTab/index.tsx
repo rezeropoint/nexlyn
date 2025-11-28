@@ -8,7 +8,7 @@ import { ModalForm, ProForm, type ProFormInstance, ProFormSwitch, ProFormSelect,
 import type { GraphConfigDetail } from '@/services/lynxmanager/types';
 import { listTags } from '@/services/lynxmanager/api';
 import { getUserById } from '@/services/user';
-import { Badge, Button, Card, Descriptions, Empty, Space, Tag, Typography } from 'antd';
+import { Badge, Button, Card, Descriptions, Empty, Space, Tag, Typography, theme } from 'antd';
 import { useModel } from '@@/exports';
 import dayjs from 'dayjs';
 import React, { useState, useEffect, useRef } from 'react';
@@ -27,6 +27,7 @@ interface BasicInfoTabProps {
  * 基本信息Tab组件
  */
 const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ data, loading, onUpdate }) => {
+  const { token } = theme.useToken();
   const { initialState } = useModel('@@initialState');
   const currentUser = initialState?.currentUser;
   const formRef = useRef<ProFormInstance>();
@@ -125,7 +126,7 @@ const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ data, loading, onUpdate }) 
 
   // 获取图标组件
   const IconComponent = data.icon ? getIconComponent(data.icon) : null;
-  const iconColor = data.iconColor || getIconColor(data.icon);
+  const iconColor = data.iconColor || getIconColor(data.icon, token);
 
   return (
     <>

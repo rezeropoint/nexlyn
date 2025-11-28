@@ -9,7 +9,7 @@ import {
   CloseCircleOutlined,
   InfoCircleOutlined,
 } from '@ant-design/icons';
-import { Alert, Card, Col, Row, Space, Statistic } from 'antd';
+import { Alert, Card, Col, Row, Space, Statistic, theme } from 'antd';
 import { Line, Pie, Column } from '@ant-design/charts';
 import React from 'react';
 import { useGraphStats } from '../../hooks/useGraphStats';
@@ -22,6 +22,7 @@ interface StatsTabProps {
  * 统计分析Tab组件
  */
 const StatsTab: React.FC<StatsTabProps> = () => {
+  const { token } = theme.useToken();
   const { stats, trendData, nodeStats } = useGraphStats();
 
   // 执行趋势数据（转换为图表格式）
@@ -56,7 +57,7 @@ const StatsTab: React.FC<StatsTabProps> = () => {
               title="执行总数"
               value={stats.totalExecutions}
               prefix={<PlayCircleOutlined />}
-              valueStyle={{ color: '#1890ff' }}
+              valueStyle={{ color: token.colorPrimary }}
             />
           </Card>
         </Col>
@@ -65,7 +66,7 @@ const StatsTab: React.FC<StatsTabProps> = () => {
             <Statistic
               title="成功次数"
               value={stats.successCount}
-              valueStyle={{ color: '#52c41a' }}
+              valueStyle={{ color: token.colorSuccess }}
               prefix={<CheckCircleOutlined />}
             />
           </Card>
@@ -75,7 +76,7 @@ const StatsTab: React.FC<StatsTabProps> = () => {
             <Statistic
               title="失败次数"
               value={stats.failureCount}
-              valueStyle={{ color: '#ff4d4f' }}
+              valueStyle={{ color: token.colorError }}
               prefix={<CloseCircleOutlined />}
             />
           </Card>
@@ -87,7 +88,7 @@ const StatsTab: React.FC<StatsTabProps> = () => {
               value={stats.successRate}
               suffix="%"
               precision={1}
-              valueStyle={{ color: '#52c41a' }}
+              valueStyle={{ color: token.colorSuccess }}
             />
           </Card>
         </Col>
@@ -101,7 +102,7 @@ const StatsTab: React.FC<StatsTabProps> = () => {
           yField="count"
           seriesField="type"
           height={300}
-          color={['#52c41a', '#ff4d4f']}
+          color={[token.colorSuccess, token.colorError]}
           smooth
           legend={{ position: 'top' }}
           point={{
@@ -118,10 +119,10 @@ const StatsTab: React.FC<StatsTabProps> = () => {
           xField="metric"
           yField="value"
           height={300}
-          color="#1890ff"
+          color={token.colorPrimary}
           label={{
             position: 'top',
-            style: { fill: '#000' },
+            style: { fill: token.colorText },
           }}
         />
       </Card>

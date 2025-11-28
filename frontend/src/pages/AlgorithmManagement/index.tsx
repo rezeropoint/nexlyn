@@ -33,14 +33,14 @@ const { Title, Paragraph, Text } = Typography;
 const AlgorithmManagement: React.FC = () => {
   const { token } = theme.useToken();
 
-  // 使用主题颜色替代硬编码颜色
+  // 使用主题颜色
   const themeColors = {
-    primary: token.colorPrimary, // 替代 #1890ff
-    success: token.colorSuccess, // 替代 #52c41a
-    warning: token.colorWarning, // 替代 #fa8c16
-    purple: "#722ed1", // 保持紫色（Ant Design预设色）
-    magenta: "#eb2f96", // 保持洋红色（Ant Design预设色）
-    cyan: "#13c2c2", // 保持青色（Ant Design预设色）
+    primary: token.colorPrimary,
+    success: token.colorSuccess,
+    warning: token.colorWarning,
+    purple: token.purple,
+    magenta: token.magenta,
+    cyan: token.cyan,
   };
 
   const algorithmStats = [

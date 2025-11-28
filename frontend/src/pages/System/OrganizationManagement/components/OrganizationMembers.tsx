@@ -10,16 +10,17 @@ import {
 } from "@ant-design/icons";
 import {
   type ActionType,
+  ModalForm,
   type ProColumns,
   ProTable,
 } from "@ant-design/pro-components";
 import { useAccess } from "@umijs/max";
 import {
+  App,
   Button,
   Card,
   Descriptions,
   message,
-  Modal,
   Space,
   Tabs,
   Tag,
@@ -41,7 +42,6 @@ import styles from "./OrganizationMembers.less";
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
-const { confirm } = Modal;
 
 interface OrganizationMembersProps {
   open: boolean;
@@ -59,6 +59,7 @@ const OrganizationMembers: React.FC<OrganizationMembersProps> = ({
   organization,
   onRefresh,
 }) => {
+  const { modal } = App.useApp();
   const access = useAccess();
   const memberActionRef = useRef<ActionType>();
   const [activeTab, setActiveTab] = useState<string>("members");
@@ -83,7 +84,7 @@ const OrganizationMembers: React.FC<OrganizationMembersProps> = ({
 
   // 单个移除成员确认
   const handleRemoveClick = (member: API.UserOrgRelation) => {
-    confirm({
+    modal.confirm({
       title: "确认移除成员",
       icon: <ExclamationCircleOutlined />,
       content: (
@@ -117,7 +118,7 @@ const OrganizationMembers: React.FC<OrganizationMembersProps> = ({
       return;
     }
 
-    confirm({
+    modal.confirm({
       title: "确认批量移除",
       icon: <ExclamationCircleOutlined />,
       content: (
@@ -149,7 +150,7 @@ const OrganizationMembers: React.FC<OrganizationMembersProps> = ({
 
   // 设置为负责人确认
   const handleSetManagerClick = (member: API.UserOrgRelation) => {
-    confirm({
+    modal.confirm({
       title: "确认设置负责人",
       content: (
         <div>
@@ -365,7 +366,7 @@ const OrganizationMembers: React.FC<OrganizationMembersProps> = ({
 
   return (
     <>
-      <Modal
+      <ModalForm
         title={
           <Space>
             <TeamOutlined />
@@ -373,10 +374,12 @@ const OrganizationMembers: React.FC<OrganizationMembersProps> = ({
           </Space>
         }
         open={open}
-        onCancel={() => onOpenChange(false)}
-        width={1200}
-        footer={null}
-        destroyOnClose
+        onOpenChange={onOpenChange}
+        submitter={false}
+        modalProps={{
+          width: 1200,
+          destroyOnHidden: true,
+        }}
       >
         <Tabs activeKey={activeTab} onChange={setActiveTab}>
           <TabPane tab="成员列表" key="members">
@@ -503,7 +506,7 @@ const OrganizationMembers: React.FC<OrganizationMembersProps> = ({
             </Card>
           </TabPane>
         </Tabs>
-      </Modal>
+      </ModalForm>
 
       {/* 添加成员表单 */}
       <AddMemberForm

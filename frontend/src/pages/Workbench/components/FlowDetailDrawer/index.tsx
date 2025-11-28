@@ -14,31 +14,35 @@ import {
   UserSwitchOutlined,
 } from "@ant-design/icons";
 import {
+  DrawerForm,
+  ProForm,
+  ProFormCheckbox,
+  ProFormDatePicker,
+  ProFormDigit,
+  ProFormRadio,
+  ProFormSelect,
+  ProFormText,
+  ProFormTextArea,
+  type ProFormInstance,
+} from "@ant-design/pro-components";
+import {
   Avatar,
   Badge,
   Button,
   Descriptions,
-  Drawer,
   Empty,
   Flex,
-  Form,
-  Input,
-  InputNumber,
   Popconfirm,
-  Radio,
-  Select,
   Space,
   Spin,
   Tag,
   Timeline,
   Typography,
-  Checkbox,
-  DatePicker,
 } from "antd";
 import classNames from "classnames";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   abortJourney,
   getJourneyFullDetail,
@@ -113,8 +117,8 @@ const FlowDetailDrawer: React.FC<FlowDetailDrawerProps> = ({
     return assignmentId !== undefined;
   }, [assignmentId]);
 
-  // 只在需要时创建form实例，避免"form not connected"警告
-  const [form] = Form.useForm();
+  // 使用 formRef 替代 Form.useForm
+  const formRef = useRef<ProFormInstance>();
   const shouldShowForm = canOperate && detail?.status === "processing";
 
   const loadDetail = async () => {
@@ -164,7 +168,7 @@ const FlowDetailDrawer: React.FC<FlowDetailDrawerProps> = ({
     if (visible && flowId && journeyId) {
       loadDetail();
       if (shouldShowForm) {
-        form.resetFields();
+        formRef.current?.resetFields();
       }
       setShowRefuseVertex(false);
     } else if (!visible) {
@@ -173,7 +177,7 @@ const FlowDetailDrawer: React.FC<FlowDetailDrawerProps> = ({
       setProcessingUsers([]);
       setPendingNodes([]);
       if (shouldShowForm) {
-        form.resetFields();
+        formRef.current?.resetFields();
       }
       setShowRefuseVertex(false);
     }
@@ -241,7 +245,8 @@ const FlowDetailDrawer: React.FC<FlowDetailDrawerProps> = ({
     }
 
     try {
-      const values = await form.validateFields();
+      const values = await formRef.current?.validateFields();
+      if (!values) return;
       setSubmitting(true);
 
       const params: any = {
@@ -343,111 +348,120 @@ const FlowDetailDrawer: React.FC<FlowDetailDrawerProps> = ({
   const renderDynamicField = (field: VertexField) => {
     const fieldName = `field_${field.identityKey}`;
     const isDisabled = !field.editable;
-    const commonProps = {
-      key: field.id,
-      name: fieldName,
-      label: field.title,
-      rules: field.editable && field.required
-        ? [{ required: true, message: `请填写${field.title}` }]
-        : undefined,
-    };
+    const rules = field.editable && field.required
+      ? [{ required: true, message: `请填写${field.title}` }]
+      : undefined;
 
     switch (field.type) {
       case 'Field::TextField':
         return (
-          <Form.Item {...commonProps}>
-            <Input
-              placeholder={`请输入${field.title}`}
-              disabled={isDisabled}
-            />
-          </Form.Item>
+          <ProFormText
+            key={field.id}
+            name={fieldName}
+            label={field.title}
+            rules={rules}
+            placeholder={`请输入${field.title}`}
+            disabled={isDisabled}
+          />
         );
 
       case 'Field::TextArea':
         return (
-          <Form.Item {...commonProps}>
-            <Input.TextArea
-              placeholder={`请输入${field.title}`}
-              rows={3}
-              disabled={isDisabled}
-            />
-          </Form.Item>
+          <ProFormTextArea
+            key={field.id}
+            name={fieldName}
+            label={field.title}
+            rules={rules}
+            placeholder={`请输入${field.title}`}
+            fieldProps={{ rows: 3 }}
+            disabled={isDisabled}
+          />
         );
 
       case 'Field::NumberField':
         return (
-          <Form.Item {...commonProps}>
-            <InputNumber
-              placeholder={`请输入${field.title}`}
-              style={{ width: '100%' }}
-              disabled={isDisabled}
-            />
-          </Form.Item>
+          <ProFormDigit
+            key={field.id}
+            name={fieldName}
+            label={field.title}
+            rules={rules}
+            placeholder={`请输入${field.title}`}
+            fieldProps={{ style: { width: '100%' } }}
+            disabled={isDisabled}
+          />
         );
 
       case 'Field::RadioButton':
         return (
-          <Form.Item {...commonProps}>
-            <Radio.Group disabled={isDisabled}>
-              {field.options?.map(option => (
-                <Radio key={option.id} value={option.id}>
-                  {option.value}
-                </Radio>
-              ))}
-            </Radio.Group>
-          </Form.Item>
+          <ProFormRadio.Group
+            key={field.id}
+            name={fieldName}
+            label={field.title}
+            rules={rules}
+            options={field.options?.map(option => ({
+              label: option.value,
+              value: option.id,
+            }))}
+            disabled={isDisabled}
+          />
         );
 
       case 'Field::Select':
         return (
-          <Form.Item {...commonProps}>
-            <Select
-              placeholder={`请选择${field.title}`}
-              disabled={isDisabled}
-            >
-              {field.options?.map(option => (
-                <Select.Option key={option.id} value={option.id}>
-                  {option.value}
-                </Select.Option>
-              ))}
-            </Select>
-          </Form.Item>
+          <ProFormSelect
+            key={field.id}
+            name={fieldName}
+            label={field.title}
+            rules={rules}
+            placeholder={`请选择${field.title}`}
+            options={field.options?.map(option => ({
+              label: option.value,
+              value: option.id,
+            }))}
+            disabled={isDisabled}
+          />
         );
 
       case 'Field::Checkbox':
       case 'Field::MultiSelect':
         return (
-          <Form.Item {...commonProps}>
-            <Checkbox.Group disabled={isDisabled}>
-              {field.options?.map(option => (
-                <Checkbox key={option.id} value={option.id}>
-                  {option.value}
-                </Checkbox>
-              ))}
-            </Checkbox.Group>
-          </Form.Item>
+          <ProFormCheckbox.Group
+            key={field.id}
+            name={fieldName}
+            label={field.title}
+            rules={rules}
+            options={field.options?.map(option => ({
+              label: option.value,
+              value: option.id,
+            }))}
+            disabled={isDisabled}
+          />
         );
 
       case 'Field::DateField':
         return (
-          <Form.Item {...commonProps}>
-            <DatePicker
-              placeholder={`请选择${field.title}`}
-              style={{ width: '100%' }}
-              disabled={isDisabled}
-            />
-          </Form.Item>
+          <ProFormDatePicker
+            key={field.id}
+            name={fieldName}
+            label={field.title}
+            rules={rules}
+            placeholder={`请选择${field.title}`}
+            fieldProps={{ style: { width: '100%' } }}
+            disabled={isDisabled}
+          />
         );
 
       default:
         // 默认使用文本输入
         return (
-          <Form.Item {...commonProps}>
-            <Input
-              placeholder={`请输入${field.title}`}
-              disabled={isDisabled}
-            />
-          </Form.Item>
+          <ProFormText
+            key={field.id}
+            name={fieldName}
+            label={field.title}
+            rules={rules}
+            placeholder={`请输入${field.title}`}
+            disabled={isDisabled}
+          />
         );
     }
   };
@@ -466,13 +480,17 @@ const FlowDetailDrawer: React.FC<FlowDetailDrawerProps> = ({
 
   return (
     <>
-      <Drawer
+      <DrawerForm
         title={null}
         width={840}
         open={visible}
-        onClose={onClose}
-        destroyOnClose
-        className={styles.flowDrawer}
+        onOpenChange={(open) => !open && onClose()}
+        formRef={formRef}
+        submitter={false}
+        drawerProps={{
+          destroyOnHidden: true,
+          className: styles.flowDrawer,
+        }}
       >
         <Spin spinning={loading}>
         {detail ? (
@@ -636,84 +654,76 @@ const FlowDetailDrawer: React.FC<FlowDetailDrawerProps> = ({
               </section>
             )}
 
-            {/* 审批操作表单 - 始终渲染Form以避免useForm警告 */}
+            {/* 审批操作表单 */}
             <div className={classNames(styles.approvalFormWrapper, { [styles.hidden]: !shouldShowForm })}>
               <section className={styles.block}>
                 <div className={styles.blockHeader}>
                   <Text strong>审批操作</Text>
                 </div>
-                <Form form={form} layout="vertical" className={styles.approvalForm}>
+                <div className={styles.approvalForm}>
                   {/* 动态字段 - 来自 pendingNodes */}
                   {pendingFields.length > 0 &&
                     pendingFields.map(field => renderDynamicField(field))}
 
                   {/* 处理意见 */}
-                  <Form.Item
+                  <ProFormTextArea
                     name="comment"
                     label="处理意见"
-                    rules={[
-                      {
-                        max: 500,
-                        message: "处理意见不能超过500字",
-                      },
-                    ]}
-                  >
-                    <Input.TextArea
-                      placeholder="请输入处理意见（可选）"
-                      rows={3}
-                      showCount
-                      maxLength={500}
-                    />
-                  </Form.Item>
+                    placeholder="请输入处理意见（可选）"
+                    fieldProps={{
+                      rows: 3,
+                      showCount: true,
+                      maxLength: 500,
+                    }}
+                    rules={[{ max: 500, message: "处理意见不能超过500字" }]}
+                  />
 
                   {/* 抄送人 */}
-                  <Form.Item name="carbonCopyUserIds" label="抄送给">
+                  <ProForm.Item name="carbonCopyUserIds" label="抄送给">
                     <UserSelect
                       placeholder="搜索并选择抄送人（可选）"
                       mode="multiple"
                       showEmail={false}
                     />
-                  </Form.Item>
+                  </ProForm.Item>
 
                   {/* 操作按钮 */}
-                  <Form.Item style={{ marginBottom: 0 }}>
-                    <Space>
-                      <Button
-                        type="primary"
-                        icon={<CheckOutlined />}
-                        loading={submitting}
-                        onClick={() => handleApprovalAction("approve")}
-                      >
-                        通过
+                  <Space style={{ marginTop: 16 }}>
+                    <Button
+                      type="primary"
+                      icon={<CheckOutlined />}
+                      loading={submitting}
+                      onClick={() => handleApprovalAction("approve")}
+                    >
+                      通过
+                    </Button>
+                    <Button
+                      icon={<CloseOutlined />}
+                      loading={submitting}
+                      onClick={() => handleApprovalAction("refuse")}
+                    >
+                      回退
+                    </Button>
+                    <Button
+                      icon={<UserSwitchOutlined />}
+                      loading={submitting}
+                      onClick={handleOpenTransfer}
+                    >
+                      转交
+                    </Button>
+                    <Popconfirm
+                      title="确定要终止此流程吗？"
+                      description="终止后流程将无法继续进行"
+                      onConfirm={handleAbort}
+                      okText="确定"
+                      cancelText="取消"
+                    >
+                      <Button danger icon={<StopOutlined />}>
+                        终止流程
                       </Button>
-                      <Button
-                        icon={<CloseOutlined />}
-                        loading={submitting}
-                        onClick={() => handleApprovalAction("refuse")}
-                      >
-                        回退
-                      </Button>
-                      <Button
-                        icon={<UserSwitchOutlined />}
-                        loading={submitting}
-                        onClick={handleOpenTransfer}
-                      >
-                        转交
-                      </Button>
-                      <Popconfirm
-                        title="确定要终止此流程吗？"
-                        description="终止后流程将无法继续进行"
-                        onConfirm={handleAbort}
-                        okText="确定"
-                        cancelText="取消"
-                      >
-                        <Button danger icon={<StopOutlined />}>
-                          终止流程
-                        </Button>
-                      </Popconfirm>
-                    </Space>
-                  </Form.Item>
-                </Form>
+                    </Popconfirm>
+                  </Space>
+                </div>
               </section>
             </div>
           </div>
@@ -721,7 +731,7 @@ const FlowDetailDrawer: React.FC<FlowDetailDrawerProps> = ({
           !loading && <Empty description="暂无数据" />
         )}
       </Spin>
-    </Drawer>
+    </DrawerForm>
 
     {/* 转交操作Modal */}
     {transferModalVisible && flowId && journeyId && assignmentId && (

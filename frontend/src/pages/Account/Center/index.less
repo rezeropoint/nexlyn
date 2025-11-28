@@ -18,8 +18,8 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background-image: radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-        radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+      background-image: radial-gradient(circle at 20% 50%, var(--ant-color-fill-quaternary) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, var(--ant-color-fill-quaternary) 0%, transparent 50%);
       pointer-events: none;
     }
 
@@ -52,11 +52,11 @@
         border-radius: 50%;
         background: var(--ant-color-bg-container);
         padding: 6px;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        box-shadow: var(--ant-box-shadow);
         transition: all 0.3s ease;
 
         &:hover {
-          box-shadow: 0 12px 32px rgba(0, 0, 0, 0.16);
+          box-shadow: var(--ant-box-shadow-secondary);
         }
 
         :global(.ant-avatar) {
@@ -130,11 +130,11 @@
 
     :global(.ant-pro-card) {
       margin-bottom: 16px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      box-shadow: var(--ant-box-shadow-tertiary);
       transition: all 0.3s ease;
 
       &:hover {
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        box-shadow: var(--ant-box-shadow);
       }
     }
 

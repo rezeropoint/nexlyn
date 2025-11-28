@@ -6,7 +6,7 @@ import {
   type ProColumns,
   ProTable,
 } from "@ant-design/pro-components";
-import { Button, Popconfirm, Space, Tag, Tooltip, Typography } from "antd";
+import { Button, Popconfirm, Space, Switch, Tooltip, Typography } from "antd";
 import React from "react";
 
 interface HttpReceiveTableProps {
@@ -14,6 +14,7 @@ interface HttpReceiveTableProps {
   onCreateConfig: () => void;
   onEditConfig: (record: HttpReceiveMetadata) => void;
   onDeleteConfig: (record: HttpReceiveMetadata) => void;
+  onToggleEnabled: (record: HttpReceiveMetadata) => void;
 }
 
 /**
@@ -24,6 +25,7 @@ const HttpReceiveTable: React.FC<HttpReceiveTableProps> = ({
   onCreateConfig,
   onEditConfig,
   onDeleteConfig,
+  onToggleEnabled,
 }) => {
 
   // 表格列定义
@@ -58,9 +60,12 @@ const HttpReceiveTable: React.FC<HttpReceiveTableProps> = ({
       align: "center",
       hideInSearch: true,
       render: (_, record) => (
-        <Tag color={record.enabled ? "success" : "default"}>
-          {record.enabled ? "已启用" : "已禁用"}
-        </Tag>
+        <Switch
+          checked={record.enabled}
+          checkedChildren="启用"
+          unCheckedChildren="禁用"
+          onChange={() => onToggleEnabled(record)}
+        />
       ),
     },
     {

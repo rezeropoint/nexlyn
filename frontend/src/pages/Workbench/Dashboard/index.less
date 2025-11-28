@@ -14,13 +14,13 @@
   margin-bottom: 24px;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--ant-box-shadow);
 
   &:after {
     content: "";
     position: absolute;
     inset: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    border: 1px solid var(--ant-color-border-secondary);
     border-radius: 8px;
     pointer-events: none;
   }
@@ -53,7 +53,8 @@
 
 .heroDescription {
   display: block;
-  color: rgba(255, 255, 255, 0.85);
+  color: var(--ant-color-white);
+  opacity: 0.85;
   max-width: 520px;
   font-size: 13px;
   margin-top: 4px;
@@ -73,7 +74,7 @@
 }
 
 .heroUpdate {
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--ant-color-fill-quaternary);
   color: var(--ant-color-white);
   border-radius: 999px;
   font-size: 12px;
@@ -81,18 +82,18 @@
 }
 
 .heroRefreshButton {
-  background: rgba(255, 255, 255, 0.2) !important;
-  border-color: rgba(255, 255, 255, 0.3) !important;
+  background: var(--ant-color-fill-quaternary) !important;
+  border-color: var(--ant-color-border-secondary) !important;
   color: var(--ant-color-white) !important;
   backdrop-filter: blur(8px);
   font-weight: 500;
   transition: all 0.3s ease;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.3) !important;
-    border-color: rgba(255, 255, 255, 0.5) !important;
+    background: var(--ant-color-fill-tertiary) !important;
+    border-color: var(--ant-color-border) !important;
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: var(--ant-box-shadow);
   }
 
   &:active {
@@ -114,20 +115,20 @@
 }
 
 .metricCard {
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--ant-color-bg-container);
   border-radius: 12px;
   padding: 20px 18px;
   display: flex;
   flex-direction: column;
   gap: 8px;
   backdrop-filter: blur(8px);
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  border: 2px solid var(--ant-color-border-secondary);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--ant-box-shadow-tertiary);
 
   &:hover {
     transform: translateY(-4px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    box-shadow: var(--ant-box-shadow);
   }
 }
 
@@ -304,7 +305,7 @@
 // healthRow中的事件健康度卡片 - 视觉加强
 .healthRow .sectionCard:first-child {
   border: 2px solid var(--ant-color-primary-border);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--ant-box-shadow-tertiary);
 }
 
 .sectionHint {
@@ -483,7 +484,7 @@
   height: 100%;
   border-radius: 12px;
   border: 2px solid var(--ant-color-primary-border);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--ant-box-shadow);
   background: var(--ant-color-bg-container);
   overflow: hidden;
 
@@ -568,7 +569,7 @@
   &:hover {
     border-color: var(--ant-color-primary);
     background: var(--ant-color-bg-container);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    box-shadow: var(--ant-box-shadow);
     transform: translateX(4px);
 
     &::before {
@@ -625,11 +626,11 @@
   white-space: nowrap;
   border-radius: 6px;
   font-weight: 500;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--ant-box-shadow-tertiary);
   transition: all 0.2s ease;
 
   &:hover {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: var(--ant-box-shadow);
     transform: translateY(-1px);
   }
 }
