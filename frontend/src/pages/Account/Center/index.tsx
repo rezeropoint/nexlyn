@@ -10,7 +10,7 @@ import {
 import { ModalForm, ProCard, ProDescriptions, ProForm, type ProFormInstance, ProFormText, ProFormTextArea } from '@ant-design/pro-components';
 import { PageContainer } from '@ant-design/pro-layout';
 import { useModel } from '@umijs/max';
-import { Avatar, Button, Space, Tag, message, theme } from 'antd';
+import { Avatar, Button, Space, Tag, message } from 'antd';
 import type { FormInstance } from 'antd';
 import React, { useRef, useState } from 'react';
 import AvatarUpload from '@/components/AvatarUpload';
@@ -24,7 +24,6 @@ import styles from './index.less';
 const AccountCenter: React.FC = () => {
   const { initialState, setInitialState } = useModel('@@initialState');
   const currentUser = initialState?.currentUser;
-  const { token } = theme.useToken();
   const [isEditing, setIsEditing] = useState(false); // 编辑模式状态
   const [submitting, setSubmitting] = useState(false);
   const [passwordModalVisible, setPasswordModalVisible] = useState(false); // 修改密码弹窗
@@ -179,7 +178,7 @@ const AccountCenter: React.FC = () => {
               currentUser?.avatar ? (
                 <Avatar src={currentUser.avatar} size={138} />
               ) : (
-                <Avatar size={138} style={{ backgroundColor: token.colorPrimary, fontSize: 48 }}>
+                <Avatar size={138} className="bg-primary" style={{ fontSize: 48 }}>
                   {getInitials(currentUser?.userName || 'User')}
                 </Avatar>
               )

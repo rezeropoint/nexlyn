@@ -44,9 +44,7 @@ const DeviceAlgorithm: React.FC = () => {
         { id: "plate", text: "车牌识别" },
       ],
       color: token.colorPrimary,
-      icon: (
-        <CompressOutlined style={{ fontSize: 20, color: token.colorPrimary }} />
-      ),
+      icon: <CompressOutlined className="icon-primary" style={{ fontSize: 20 }} />,
     },
     {
       id: "inference",
@@ -59,9 +57,7 @@ const DeviceAlgorithm: React.FC = () => {
         { id: "bandwidth", text: "降低带宽成本" },
       ],
       color: token.colorSuccess,
-      icon: (
-        <WifiOutlined style={{ fontSize: 20, color: token.colorSuccess }} />
-      ),
+      icon: <WifiOutlined className="icon-success" style={{ fontSize: 20 }} />,
     },
     {
       id: "management",
@@ -74,9 +70,7 @@ const DeviceAlgorithm: React.FC = () => {
         { id: "version", text: "版本管理" },
       ],
       color: token.colorWarning,
-      icon: (
-        <SyncOutlined style={{ fontSize: 20, color: token.colorWarning }} />
-      ),
+      icon: <SyncOutlined className="icon-warning" style={{ fontSize: 20 }} />,
     },
   ];
 
@@ -154,7 +148,7 @@ const DeviceAlgorithm: React.FC = () => {
             <Statistic
               title="支持设备类型"
               value={3}
-              prefix={<MobileOutlined style={{ color: token.colorPrimary }} />}
+              prefix={<MobileOutlined className="icon-primary" />}
               suffix="类"
               valueStyle={{ fontSize: "24px", fontWeight: "bold" }}
             />
@@ -165,9 +159,7 @@ const DeviceAlgorithm: React.FC = () => {
             <Statistic
               title="模型压缩率"
               value={80}
-              prefix={
-                <CloudDownloadOutlined style={{ color: token.colorSuccess }} />
-              }
+              prefix={<CloudDownloadOutlined className="icon-success" />}
               suffix="%"
               valueStyle={{ fontSize: "24px", fontWeight: "bold" }}
             />
@@ -178,9 +170,7 @@ const DeviceAlgorithm: React.FC = () => {
             <Statistic
               title="推理速度"
               value={50}
-              prefix={
-                <ThunderboltOutlined style={{ color: token.colorWarning }} />
-              }
+              prefix={<ThunderboltOutlined className="icon-warning" />}
               suffix="ms"
               valueStyle={{ fontSize: "24px", fontWeight: "bold" }}
             />
@@ -191,11 +181,7 @@ const DeviceAlgorithm: React.FC = () => {
             <Statistic
               title="功耗降低"
               value={60}
-              prefix={
-                <SafetyCertificateOutlined
-                  style={{ color: token.colorInfoText }}
-                />
-              }
+              prefix={<SafetyCertificateOutlined className="icon-info-text" />}
               suffix="%"
               valueStyle={{ fontSize: "24px", fontWeight: "bold" }}
             />
@@ -205,9 +191,7 @@ const DeviceAlgorithm: React.FC = () => {
 
       {/* 核心特性 */}
       <Card title="核心特性" style={{ marginBottom: 24 }}>
-        <Paragraph
-          style={{ color: token.colorTextSecondary, marginBottom: 16 }}
-        >
+        <Paragraph className={styles.coreDescription}>
           端侧算法管理针对资源受限的终端设备，提供轻量化模型部署和高效推理能力。
         </Paragraph>
         <Flex gap={16} wrap="wrap">
@@ -260,7 +244,7 @@ const DeviceAlgorithm: React.FC = () => {
         />
         <div className={styles.workflowTip}>
           <Text strong>部署策略: </Text>
-          <Text style={{ color: token.colorTextSecondary }}>
+          <Text className={styles.workflowText}>
             端侧算法部署强调轻量化和高效性，通过模型压缩、格式转换、芯片适配等步骤，
             确保AI算法能在资源受限的终端设备上流畅运行，实现边缘智能。
           </Text>
@@ -297,7 +281,7 @@ const DeviceAlgorithm: React.FC = () => {
           <Flex gap={24} wrap="wrap">
             <div style={{ flex: "1 1 calc(33.33% - 16px)", minWidth: 280 }}>
               <Title level={5}>🔒 智慧安防</Title>
-              <Paragraph style={{ color: token.colorTextSecondary }}>
+              <Paragraph className={styles.scenarioText}>
                 • <Text strong>周界防护</Text>: 入侵检测、徘徊检测、翻越围栏
                 <br />• <Text strong>人脸识别</Text>:
                 黑名单布控、VIP识别、访客管理
@@ -309,7 +293,7 @@ const DeviceAlgorithm: React.FC = () => {
             </div>
             <div style={{ flex: "1 1 calc(33.33% - 16px)", minWidth: 280 }}>
               <Title level={5}>🏢 智慧园区</Title>
-              <Paragraph style={{ color: token.colorTextSecondary }}>
+              <Paragraph className={styles.scenarioText}>
                 • <Text strong>车辆管理</Text>: 车牌识别、违停检测、车位占用
                 <br />• <Text strong>人员管理</Text>:
                 员工考勤、访客识别、人员轨迹
@@ -321,7 +305,7 @@ const DeviceAlgorithm: React.FC = () => {
             </div>
             <div style={{ flex: "1 1 calc(33.33% - 16px)", minWidth: 280 }}>
               <Title level={5}>🚗 智慧交通</Title>
-              <Paragraph style={{ color: token.colorTextSecondary }}>
+              <Paragraph className={styles.scenarioText}>
                 • <Text strong>交通违章</Text>: 闯红灯、压线、逆行、违停
                 <br />• <Text strong>车流监控</Text>:
                 车流统计、拥堵检测、车速测算

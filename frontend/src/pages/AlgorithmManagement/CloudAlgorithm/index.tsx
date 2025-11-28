@@ -43,11 +43,7 @@ const CloudAlgorithm: React.FC = () => {
         { id: "monitor", text: "训练可视化监控" },
       ],
       color: token.colorPrimary,
-      icon: (
-        <ExperimentOutlined
-          style={{ fontSize: 20, color: token.colorPrimary }}
-        />
-      ),
+      icon: <ExperimentOutlined className="icon-primary" style={{ fontSize: 20 }} />,
     },
     {
       id: "repository",
@@ -60,9 +56,7 @@ const CloudAlgorithm: React.FC = () => {
         { id: "search", text: "快速检索" },
       ],
       color: token.colorSuccess,
-      icon: (
-        <DatabaseOutlined style={{ fontSize: 20, color: token.colorSuccess }} />
-      ),
+      icon: <DatabaseOutlined className="icon-success" style={{ fontSize: 20 }} />,
     },
     {
       id: "deployment",
@@ -75,11 +69,7 @@ const CloudAlgorithm: React.FC = () => {
         { id: "rollback", text: "回滚机制" },
       ],
       color: token.colorWarning,
-      icon: (
-        <DeploymentUnitOutlined
-          style={{ fontSize: 20, color: token.colorWarning }}
-        />
-      ),
+      icon: <DeploymentUnitOutlined className="icon-warning" style={{ fontSize: 20 }} />,
     },
   ];
 
@@ -167,9 +157,7 @@ const CloudAlgorithm: React.FC = () => {
             <Statistic
               title="算法模型"
               value={128}
-              prefix={
-                <CloudServerOutlined style={{ color: token.colorPrimary }} />
-              }
+              prefix={<CloudServerOutlined className="icon-primary" />}
               suffix="个"
               valueStyle={{ fontSize: "24px", fontWeight: "bold" }}
             />
@@ -180,7 +168,7 @@ const CloudAlgorithm: React.FC = () => {
             <Statistic
               title="训练任务"
               value={356}
-              prefix={<RocketOutlined style={{ color: token.colorSuccess }} />}
+              prefix={<RocketOutlined className="icon-success" />}
               suffix="次"
               valueStyle={{ fontSize: "24px", fontWeight: "bold" }}
             />
@@ -191,9 +179,7 @@ const CloudAlgorithm: React.FC = () => {
             <Statistic
               title="部署次数"
               value={892}
-              prefix={
-                <DeploymentUnitOutlined style={{ color: token.colorWarning }} />
-              }
+              prefix={<DeploymentUnitOutlined className="icon-warning" />}
               suffix="次"
               valueStyle={{ fontSize: "24px", fontWeight: "bold" }}
             />
@@ -204,9 +190,7 @@ const CloudAlgorithm: React.FC = () => {
             <Statistic
               title="训练加速"
               value={10}
-              prefix={
-                <DatabaseOutlined style={{ color: token.colorInfoText }} />
-              }
+              prefix={<DatabaseOutlined className="icon-info-text" />}
               suffix="倍"
               valueStyle={{ fontSize: "24px", fontWeight: "bold" }}
             />
@@ -216,9 +200,7 @@ const CloudAlgorithm: React.FC = () => {
 
       {/* 核心功能 */}
       <Card title="核心功能" style={{ marginBottom: 24 }}>
-        <Paragraph
-          style={{ color: token.colorTextSecondary, marginBottom: 16 }}
-        >
+        <Paragraph className={styles.coreDescription}>
           云端算法中心提供完整的AI算法全生命周期管理，从数据准备到模型部署，一站式解决方案。
         </Paragraph>
         <Flex gap={16} wrap="wrap">
@@ -271,7 +253,7 @@ const CloudAlgorithm: React.FC = () => {
         />
         <div className={styles.workflowTip}>
           <Text strong>工作流程: </Text>
-          <Text style={{ color: token.colorTextSecondary }}>
+          <Text className={styles.workflowText}>
             云端算法中心采用标准化的训练部署流程，从数据准备到模型上线全程自动化。
             支持分布式训练加速、自动化版本管理和一键部署，大幅提升AI算法的开发效率。
           </Text>
@@ -308,7 +290,7 @@ const CloudAlgorithm: React.FC = () => {
           <Flex gap={24} wrap="wrap">
             <div style={{ flex: "1 1 calc(50% - 12px)", minWidth: 300 }}>
               <Title level={5}>💡 技术优势</Title>
-              <Paragraph style={{ color: token.colorTextSecondary }}>
+              <Paragraph className={styles.advantageText}>
                 • <Text strong>海量数据</Text>: 云端存储和处理PB级训练数据
                 <br />• <Text strong>强大算力</Text>: 弹性扩展的GPU/TPU集群
                 <br />• <Text strong>分布式训练</Text>: 支持大规模模型并行训练
@@ -317,7 +299,7 @@ const CloudAlgorithm: React.FC = () => {
             </div>
             <div style={{ flex: "1 1 calc(50% - 12px)", minWidth: 300 }}>
               <Title level={5}>🚀 业务价值</Title>
-              <Paragraph style={{ color: token.colorTextSecondary }}>
+              <Paragraph className={styles.advantageText}>
                 • <Text strong>灵活部署</Text>: 支持公有云、私有云、混合云
                 <br />• <Text strong>协同开发</Text>:
                 团队协作、实验管理、结果共享

@@ -38,25 +38,25 @@ const IoTManagement: React.FC = () => {
     {
       title: "在线设备",
       value: 8924,
-      prefix: <WifiOutlined style={{ color: token.colorSuccess }} />,
+      prefix: <WifiOutlined className="icon-success" />,
       precision: 0,
     },
     {
       title: "数据采集点",
       value: 45678,
-      prefix: <DatabaseOutlined style={{ color: token.colorInfo }} />,
+      prefix: <DatabaseOutlined className="icon-info" />,
       precision: 0,
     },
     {
       title: "告警事件",
       value: 156,
-      prefix: <AlertOutlined style={{ color: token.colorWarning }} />,
+      prefix: <AlertOutlined className="icon-warning" />,
       precision: 0,
     },
     {
       title: "协议类型",
       value: 12,
-      prefix: <ApiOutlined style={{ color: token.colorPrimary }} />,
+      prefix: <ApiOutlined className="icon-primary" />,
       precision: 0,
     },
   ];
@@ -84,54 +84,40 @@ const IoTManagement: React.FC = () => {
 
   const coreCapabilities = [
     {
-      icon: <WifiOutlined style={{ fontSize: 32, color: token.colorInfo }} />,
+      icon: <WifiOutlined className="icon-info" style={{ fontSize: 32 }} />,
       title: "多协议设备接入",
       description:
         "支持MQTT、CoAP、HTTP、Modbus等主流物联网协议，提供统一的设备接入网关。",
       features: ["协议转换", "数据解析", "设备认证", "负载均衡"],
     },
     {
-      icon: (
-        <DatabaseOutlined style={{ fontSize: 32, color: token.colorSuccess }} />
-      ),
+      icon: <DatabaseOutlined className="icon-success" style={{ fontSize: 32 }} />,
       title: "海量数据处理",
       description:
         "支持千万级设备并发接入，PB级数据存储，毫秒级实时数据处理能力。",
       features: ["时序数据库", "流式计算", "数据清洗", "智能压缩"],
     },
     {
-      icon: (
-        <SecurityScanOutlined
-          style={{ fontSize: 32, color: token.colorWarning }}
-        />
-      ),
+      icon: <SecurityScanOutlined className="icon-warning" style={{ fontSize: 32 }} />,
       title: "设备安全管控",
       description: "提供设备身份认证、通信加密、权限管理等全方位安全保障机制。",
       features: ["身份认证", "TLS加密", "访问控制", "安全审计"],
     },
     {
-      icon: (
-        <CloudSyncOutlined
-          style={{ fontSize: 32, color: token.colorPrimary }}
-        />
-      ),
+      icon: <CloudSyncOutlined className="icon-primary" style={{ fontSize: 32 }} />,
       title: "远程运维管理",
       description:
         "支持设备远程配置、固件升级、故障诊断等运维操作，降低现场维护成本。",
       features: ["OTA升级", "远程诊断", "配置下发", "日志采集"],
     },
     {
-      icon: (
-        <MonitorOutlined style={{ fontSize: 32, color: token.colorError }} />
-      ),
+      icon: <MonitorOutlined className="icon-error" style={{ fontSize: 32 }} />,
       title: "智能监控告警",
       description: "基于AI算法的设备状态监控，异常检测和预测性维护能力。",
       features: ["状态监控", "异常检测", "预测维护", "智能告警"],
     },
     {
-      icon: (
-        <SettingOutlined style={{ fontSize: 32, color: token.colorInfoText }} />
-      ),
+      icon: <SettingOutlined className="icon-info-text" style={{ fontSize: 32 }} />,
       title: "边缘计算支持",
       description: "支持边缘设备本地计算，减少数据传输延迟，提升响应速度。",
       features: ["边缘网关", "本地计算", "数据预处理", "断网续传"],

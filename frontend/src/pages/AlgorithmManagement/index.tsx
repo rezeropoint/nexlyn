@@ -48,28 +48,28 @@ const AlgorithmManagement: React.FC = () => {
       id: "edge",
       title: "边缘算法",
       value: 42,
-      prefix: <NodeIndexOutlined style={{ color: themeColors.primary }} />,
+      prefix: <NodeIndexOutlined className="icon-primary" />,
       precision: 0,
     },
     {
       id: "cloud",
       title: "云端算法",
       value: 128,
-      prefix: <CloudServerOutlined style={{ color: themeColors.success }} />,
+      prefix: <CloudServerOutlined className="icon-success" />,
       precision: 0,
     },
     {
       id: "tasks",
       title: "算法任务",
       value: 356,
-      prefix: <ExperimentOutlined style={{ color: themeColors.warning }} />,
+      prefix: <ExperimentOutlined className="icon-warning" />,
       precision: 0,
     },
     {
       id: "models",
       title: "AI模型",
       value: 89,
-      prefix: <RobotOutlined style={{ color: themeColors.purple }} />,
+      prefix: <RobotOutlined className="icon-purple" />,
       precision: 0,
     },
   ];
@@ -77,11 +77,7 @@ const AlgorithmManagement: React.FC = () => {
   const coreCapabilities = [
     {
       id: "edge-management",
-      icon: (
-        <NodeIndexOutlined
-          style={{ fontSize: 32, color: themeColors.primary }}
-        />
-      ),
+      icon: <NodeIndexOutlined className="icon-primary" style={{ fontSize: 32 }} />,
       title: "边缘算法管理",
       description:
         "支持AI Box边缘设备算法任务管理、能力查询和配置优化，实现边缘侧智能分析。",
@@ -94,11 +90,7 @@ const AlgorithmManagement: React.FC = () => {
     },
     {
       id: "cloud-center",
-      icon: (
-        <CloudServerOutlined
-          style={{ fontSize: 32, color: themeColors.success }}
-        />
-      ),
+      icon: <CloudServerOutlined className="icon-success" style={{ fontSize: 32 }} />,
       title: "云端算法中心",
       description: "集中管理云端算法库，支持算法版本控制、模型训练和部署分发。",
       features: [
@@ -110,9 +102,7 @@ const AlgorithmManagement: React.FC = () => {
     },
     {
       id: "model-management",
-      icon: (
-        <RobotOutlined style={{ fontSize: 32, color: themeColors.warning }} />
-      ),
+      icon: <RobotOutlined className="icon-warning" style={{ fontSize: 32 }} />,
       title: "AI模型管理",
       description: "统一管理深度学习模型，支持TensorFlow、PyTorch等主流框架。",
       features: [
@@ -124,11 +114,7 @@ const AlgorithmManagement: React.FC = () => {
     },
     {
       id: "inference-acceleration",
-      icon: (
-        <ThunderboltOutlined
-          style={{ fontSize: 32, color: themeColors.purple }}
-        />
-      ),
+      icon: <ThunderboltOutlined className="icon-purple" style={{ fontSize: 32 }} />,
       title: "算法推理加速",
       description: "基于GPU/NPU的高性能推理引擎，支持并发推理和资源调度。",
       features: [
@@ -140,9 +126,7 @@ const AlgorithmManagement: React.FC = () => {
     },
     {
       id: "scheduling-center",
-      icon: (
-        <ControlOutlined style={{ fontSize: 32, color: themeColors.magenta }} />
-      ),
+      icon: <ControlOutlined className="icon-magenta" style={{ fontSize: 32 }} />,
       title: "算法调度中心",
       description: "智能调度算法任务，支持优先级管理、资源分配和任务编排。",
       features: [
@@ -154,11 +138,7 @@ const AlgorithmManagement: React.FC = () => {
     },
     {
       id: "cloud-edge-collaboration",
-      icon: (
-        <DeploymentUnitOutlined
-          style={{ fontSize: 32, color: themeColors.cyan }}
-        />
-      ),
+      icon: <DeploymentUnitOutlined className="icon-cyan" style={{ fontSize: 32 }} />,
       title: "云边协同",
       description: "云边端一体化架构，支持算法云端训练、边缘部署和端侧推理。",
       features: [
@@ -316,10 +296,7 @@ const AlgorithmManagement: React.FC = () => {
                 <Title level={5} className={styles.capabilityTitle}>
                   {capability.title}
                 </Title>
-                <Paragraph
-                  className={styles.capabilityDescription}
-                  style={{ color: token.colorTextSecondary }}
-                >
+                <Paragraph className={styles.capabilityDescription}>
                   {capability.description}
                 </Paragraph>
                 <div className={styles.capabilityFeatures}>
@@ -351,10 +328,7 @@ const AlgorithmManagement: React.FC = () => {
                 >
                   {stage.title}
                 </Title>
-                <Paragraph
-                  className={styles.stageDescription}
-                  style={{ color: token.colorTextSecondary }}
-                >
+                <Paragraph className={styles.stageDescription}>
                   {stage.description}
                 </Paragraph>
               </div>
@@ -403,10 +377,7 @@ const AlgorithmManagement: React.FC = () => {
             <Title level={5} className={styles.architectureSectionTitle}>
               🌐 云边端协同架构
             </Title>
-            <Paragraph
-              className={styles.architectureDescription}
-              style={{ color: token.colorTextSecondary }}
-            >
+            <Paragraph className={styles.architectureDescription}>
               采用云边端一体化架构，云端负责模型训练和管理，边缘侧实现本地推理，
               端侧提供轻量化部署，实现智能协同和资源优化。
             </Paragraph>
@@ -414,10 +385,7 @@ const AlgorithmManagement: React.FC = () => {
             <Title level={5} className={styles.architectureSectionTitle}>
               ⚡ 高性能推理引擎
             </Title>
-            <Paragraph
-              className={styles.architectureDescription}
-              style={{ color: token.colorTextSecondary }}
-            >
+            <Paragraph className={styles.architectureDescription}>
               支持GPU/NPU硬件加速，提供批处理、并发推理和模型优化能力。
               集成主流深度学习框架，支持多种模型格式转换和部署。
             </Paragraph>
@@ -426,10 +394,7 @@ const AlgorithmManagement: React.FC = () => {
             <Title level={5} className={styles.architectureSectionTitle}>
               🔒 安全可信保障
             </Title>
-            <Paragraph
-              className={styles.architectureDescription}
-              style={{ color: token.colorTextSecondary }}
-            >
+            <Paragraph className={styles.architectureDescription}>
               提供算法加密、权限管理和审计日志功能，保障算法和数据安全。
               支持隐私计算和联邦学习，满足数据安全和隐私保护要求。
             </Paragraph>
@@ -437,10 +402,7 @@ const AlgorithmManagement: React.FC = () => {
             <Title level={5} className={styles.architectureSectionTitle}>
               📊 智能监控运维
             </Title>
-            <Paragraph
-              className={styles.architectureDescription}
-              style={{ color: token.colorTextSecondary }}
-            >
+            <Paragraph className={styles.architectureDescription}>
               实时监控算法性能和资源使用情况，提供智能调优建议。
               全链路追踪和可视化分析，支持算法质量评估和持续优化。
             </Paragraph>

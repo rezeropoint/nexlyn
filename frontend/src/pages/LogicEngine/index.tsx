@@ -42,25 +42,25 @@ const LogicEngine: React.FC = () => {
     {
       title: "活跃逻辑图",
       value: 248,
-      prefix: <ApartmentOutlined style={{ color: token.colorPrimary }} />,
+      prefix: <ApartmentOutlined className="icon-primary" />,
       precision: 0,
     },
     {
       title: "运行节点",
       value: 3567,
-      prefix: <NodeIndexOutlined style={{ color: token.colorSuccess }} />,
+      prefix: <NodeIndexOutlined className="icon-success" />,
       precision: 0,
     },
     {
       title: "处理事件",
       value: 156789,
-      prefix: <ThunderboltOutlined style={{ color: token.colorWarning }} />,
+      prefix: <ThunderboltOutlined className="icon-warning" />,
       precision: 0,
     },
     {
       title: "执行路径",
       value: 892,
-      prefix: <BranchesOutlined style={{ color: token.colorInfo }} />,
+      prefix: <BranchesOutlined className="icon-info" />,
       precision: 0,
     },
   ];
@@ -68,42 +68,42 @@ const LogicEngine: React.FC = () => {
   const logicBlocks = [
     {
       type: "状态机",
-      icon: <ControlOutlined style={{ fontSize: 20, color: token.colorPrimary }} />,
+      icon: <ControlOutlined className="icon-primary" style={{ fontSize: 20 }} />,
       description: "对事件或对象进行状态迁移建模",
       examples: ["目标行为过程建模", "设备异常状态跟踪"],
       color: token.colorPrimary,
     },
     {
       type: "表达式计算器",
-      icon: <CalculatorOutlined style={{ fontSize: 20, color: token.colorSuccess }} />,
+      icon: <CalculatorOutlined className="icon-success" style={{ fontSize: 20 }} />,
       description: "通过DSL表达式判断输入是否满足条件",
       examples: ['value > 70 && type == "smoke"', "温度超阈值判断"],
       color: token.colorSuccess,
     },
     {
       type: "聚合器",
-      icon: <FunctionOutlined style={{ fontSize: 20, color: token.colorWarning }} />,
+      icon: <FunctionOutlined className="icon-warning" style={{ fontSize: 20 }} />,
       description: "多事件组合触发判断，支持时间窗",
       examples: ["红外+烟感5秒内同时告警", "多传感器数据融合"],
       color: token.colorWarning,
     },
     {
       type: "条件网关",
-      icon: <FilterOutlined style={{ fontSize: 20, color: token.purple }} />,
+      icon: <FilterOutlined className="icon-purple" style={{ fontSize: 20 }} />,
       description: "多分支IF/ELSE判断",
       examples: ["满足规则A走路径X", "业务规则分支路由"],
       color: token.purple,
     },
     {
       type: "计数器",
-      icon: <DatabaseOutlined style={{ fontSize: 20, color: token.magenta }} />,
+      icon: <DatabaseOutlined className="icon-magenta" style={{ fontSize: 20 }} />,
       description: "支持滑动时间窗口内计数",
       examples: ["10秒内告警次数 >= 3", "频次统计分析"],
       color: token.magenta,
     },
     {
       type: "定时器",
-      icon: <ClockCircleOutlined style={{ fontSize: 20, color: token.cyan }} />,
+      icon: <ClockCircleOutlined className="icon-cyan" style={{ fontSize: 20 }} />,
       description: "支持延迟、持续时间判断",
       examples: ["滞留超30s触发", "延迟10s再执行"],
       color: token.cyan,
@@ -112,37 +112,37 @@ const LogicEngine: React.FC = () => {
 
   const engineFeatures = [
     {
-      icon: <NodeIndexOutlined style={{ fontSize: 32, color: token.colorPrimary }} />,
+      icon: <NodeIndexOutlined className="icon-primary" style={{ fontSize: 32 }} />,
       title: "信息原子设计",
       description:
         '不以"事件"为最小单元，而是采用信息原子模式，支持检测框、轨迹、区域坐标等多种数据类型。',
     },
     {
-      icon: <ThunderboltOutlined style={{ fontSize: 32, color: token.colorSuccess }} />,
+      icon: <ThunderboltOutlined className="icon-success" style={{ fontSize: 32 }} />,
       title: "路径驱动执行",
       description:
         '采用"路径即逻辑"的流式推理模式，每个路径可独立触发、并行执行，避免整体图绑定。',
     },
     {
-      icon: <DatabaseOutlined style={{ fontSize: 32, color: token.colorWarning }} />,
+      icon: <DatabaseOutlined className="icon-warning" style={{ fontSize: 32 }} />,
       title: "数据共享机制",
       description:
         "中心事件缓冲区+图级上下文引用，避免数据冗余，支持多逻辑图并发处理。",
     },
     {
-      icon: <BranchesOutlined style={{ fontSize: 32, color: token.purple }} />,
+      icon: <BranchesOutlined className="icon-purple" style={{ fontSize: 32 }} />,
       title: "智能事件调度",
       description:
         "内置事件调度器支持多图订阅索引，同一事件可触发多个逻辑图执行环境。",
     },
     {
-      icon: <ControlOutlined style={{ fontSize: 32, color: token.magenta }} />,
+      icon: <ControlOutlined className="icon-magenta" style={{ fontSize: 32 }} />,
       title: "状态机制管理",
       description:
         "支持跨事件关联与幂等控制，状态可配置TTL，构建时间窗口逻辑。",
     },
     {
-      icon: <SyncOutlined style={{ fontSize: 32, color: token.cyan }} />,
+      icon: <SyncOutlined className="icon-cyan" style={{ fontSize: 32 }} />,
       title: "驻留协程优化",
       description:
         "每条路径对应常驻执行单元，使用独立通道接收事件，避免频繁创建销毁协程。",
