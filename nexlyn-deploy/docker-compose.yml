@@ -328,7 +328,6 @@ services:
       POD_NAME: "nexlyn-lynxengine-docker"
     ports:
       - "9992:9999"   # gRPC 端口
-    #   - "6064:6060"   # 开发服务器端口（健康检查和指标）
     depends_on:
       postgres:
         condition: service_healthy
