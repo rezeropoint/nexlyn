@@ -440,7 +440,7 @@ const Dashboard: React.FC = () => {
                         strokeColor={token.colorSuccess}
                         trailColor="var(--ant-color-fill-tertiary)"
                         showInfo={false}
-                        size={8}
+                        size={["100%", 8]}
                       />
                     </div>
                   </div>

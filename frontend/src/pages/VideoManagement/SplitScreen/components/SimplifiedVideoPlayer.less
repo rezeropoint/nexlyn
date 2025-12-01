@@ -1,7 +1,7 @@
 // 简化视频播放器样式
 
 // 错误提示容器
-.error-container {
+.errorContainer {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -10,19 +10,19 @@
   height: 100%;
   color: var(--ant-color-text-tertiary);
   background: var(--ant-color-fill-quaternary);
+}
 
-  .error-title {
-    margin-bottom: 8px;
-    font-size: var(--ant-font-size-lg);
-  }
+.errorTitle {
+  margin-bottom: 8px;
+  font-size: var(--ant-font-size-lg);
+}
 
-  .error-detail {
-    font-size: var(--ant-font-size-sm);
-  }
+.errorDetail {
+  font-size: var(--ant-font-size-sm);
 }
 
 // 播放器容器
-.player-container {
+.playerContainer {
   position: relative;
   width: 100%;
   height: 100%;
@@ -30,13 +30,13 @@
 }
 
 // 播放器包装器
-.player-wrapper {
+.playerWrapper {
   width: 100%;
   height: 100%;
 }
 
 // 加载遮罩
-.loading-overlay {
+.loadingOverlay {
   position: absolute;
   top: 0;
   left: 0;
@@ -49,14 +49,14 @@
   height: 100%;
   color: #fff; // 黑色背景上必须使用白色文字
   background: rgba(0, 0, 0, 0.7); // 半透明黑色遮罩，视频播放器特殊需求
+}
 
-  .loading-icon {
-    color: #fff; // 黑色背景上必须使用白色图标
-    font-size: var(--ant-font-size-heading-3);
-  }
+.loadingIcon {
+  color: #fff; // 黑色背景上必须使用白色图标
+  font-size: var(--ant-font-size-heading-3);
+}
 
-  .loading-text {
-    margin-top: 8px;
-    font-size: var(--ant-font-size);
-  }
+.loadingText {
+  margin-top: 8px;
+  font-size: var(--ant-font-size);
 }

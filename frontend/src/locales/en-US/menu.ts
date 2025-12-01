@@ -79,6 +79,7 @@ export default {
   "menu.物联管理.设备模板": "Sensor Template",
   "menu.物联管理.设备标签": "Device Tag",
   "menu.物联管理.平台管理": "Platform Management",
+  "menu.物联管理.HTTP 接收": "HTTP Receive",
 
   // Logic Engine
   "menu.逻辑引擎": "Logic Engine",
