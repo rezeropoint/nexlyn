@@ -309,6 +309,7 @@ type GetFlowFieldsResponse struct {
 }
 
 type GetFlowListRequest struct {
+	ConfiguredOnly bool `form:"configuredOnly,optional"` // 是否只返回已配置事件的流程
 }
 
 type GetFlowListResponse struct {
@@ -556,12 +557,11 @@ type PageParamsRequest struct {
 }
 
 type PendingNode struct {
-	VertexId      int64         `json:"vertexId"`      // 节点ID
-	VertexName    string        `json:"vertexName"`    // 节点名称
-	AssigneeIds   []string      `json:"assigneeIds"`   // 待处理人ID列表
-	AssigneeNames []string      `json:"assigneeNames"` // 待处理人姓名列表
-	CreatedAt     string        `json:"createdAt"`     // 任务创建时间
-	Fields        []VertexField `json:"fields"`        // 节点字段列表
+	VertexId    int64         `json:"vertexId"`    // 节点ID
+	VertexName  string        `json:"vertexName"`  // 节点名称
+	AssigneeIds []string      `json:"assigneeIds"` // 待处理人ID列表（调用方可根据ID自行查询用户信息）
+	CreatedAt   string        `json:"createdAt"`   // 任务创建时间
+	Fields      []VertexField `json:"fields"`      // 节点字段列表
 }
 
 type PlatformConfig struct {
@@ -742,5 +742,6 @@ type VertexField struct {
 	Type        string        `json:"type"`        // 字段类型（如 Field::RadioButton）
 	Required    bool          `json:"required"`    // 是否必填
 	Editable    bool          `json:"editable"`    // 是否可编辑
+	MaxLength   int           `json:"maxLength"`   // 字数限制（0表示无限制）
 	Options     []FieldOption `json:"options"`     // 字段可选项
 }

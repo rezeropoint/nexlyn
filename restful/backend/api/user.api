@@ -128,6 +128,8 @@ type (
 	// 用户列表查询请求
 	GetUserListRequest {
 		PageParamsRequest // 分页请求参数
+		// 按用户ID列表查询（优先级最高，传入时忽略其他搜索条件）
+		Ids []string `form:"ids,optional"` // 用户ID列表
 		// 搜索条件
 		Name     string `form:"name,optional" db:"name"` // 用户姓名
 		Email    string `form:"email,optional" db:"email"` // 电子邮件

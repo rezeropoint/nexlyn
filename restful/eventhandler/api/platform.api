@@ -96,6 +96,7 @@ type (
 	// 获取流程列表请求
 	GetFlowListRequest {
 		// 通过JWT获取租户，自动加载该租户的platform_config
+		ConfiguredOnly bool `form:"configuredOnly,optional"` // 是否只返回已配置事件的流程
 	}
 
 	// 获取流程列表响应

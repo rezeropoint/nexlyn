@@ -61,15 +61,20 @@ func (l *GetUserListLogic) GetUserList(req *types.GetUserListRequest) (resp *typ
 	// 构建查询过滤器
 	filters := make(map[string]interface{})
 
-	// 根据搜索条件添加过滤器
-	if req.Name != "" {
-		filters["name"] = req.Name
-	}
-	if req.Email != "" {
-		filters["email"] = req.Email
-	}
-	if req.UserName != "" {
-		filters["user_name"] = req.UserName
+	// 按用户ID列表查询（优先级最高，传入时忽略其他搜索条件）
+	if len(req.Ids) > 0 {
+		filters["ids"] = req.Ids
+	} else {
+		// 根据搜索条件添加过滤器
+		if req.Name != "" {
+			filters["name"] = req.Name
+		}
+		if req.Email != "" {
+			filters["email"] = req.Email
+		}
+		if req.UserName != "" {
+			filters["user_name"] = req.UserName
+		}
 	}
 
 	// 状态过滤
@@ -252,20 +257,28 @@ func (l *GetUserListLogic) queryUsersWithFilters(filters map[string]interface{},
 	whereConditions = append(whereConditions, "u.status != 'deleted'")
 
 	// 添加过滤条件
-	if name, ok := filters["name"].(string); ok && name != "" {
-		whereConditions = append(whereConditions, fmt.Sprintf("u.name ILIKE $%d", argIndex))
-		args = append(args, "%"+name+"%")
+	// 按用户ID列表查询（优先级最高）
+	if ids, ok := filters["ids"].([]string); ok && len(ids) > 0 {
+		whereConditions = append(whereConditions, fmt.Sprintf("u.id = ANY($%d::uuid[])", argIndex))
+		args = append(args, pq.Array(ids))
 		argIndex++
-	}
-	if email, ok := filters["email"].(string); ok && email != "" {
-		whereConditions = append(whereConditions, fmt.Sprintf("u.email ILIKE $%d", argIndex))
-		args = append(args, "%"+email+"%")
-		argIndex++
-	}
-	if userName, ok := filters["user_name"].(string); ok && userName != "" {
-		whereConditions = append(whereConditions, fmt.Sprintf("u.user_name ILIKE $%d", argIndex))
-		args = append(args, "%"+userName+"%")
-		argIndex++
+	} else {
+		// 其他搜索条件
+		if name, ok := filters["name"].(string); ok && name != "" {
+			whereConditions = append(whereConditions, fmt.Sprintf("u.name ILIKE $%d", argIndex))
+			args = append(args, "%"+name+"%")
+			argIndex++
+		}
+		if email, ok := filters["email"].(string); ok && email != "" {
+			whereConditions = append(whereConditions, fmt.Sprintf("u.email ILIKE $%d", argIndex))
+			args = append(args, "%"+email+"%")
+			argIndex++
+		}
+		if userName, ok := filters["user_name"].(string); ok && userName != "" {
+			whereConditions = append(whereConditions, fmt.Sprintf("u.user_name ILIKE $%d", argIndex))
+			args = append(args, "%"+userName+"%")
+			argIndex++
+		}
 	}
 	if status, ok := filters["status"].(string); ok && status != "" {
 		whereConditions = append(whereConditions, fmt.Sprintf("u.status = $%d", argIndex))

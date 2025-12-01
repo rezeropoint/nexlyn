@@ -133,6 +133,7 @@ export interface VertexField {
   type: string; // 字段类型（如 Field::RadioButton, Field::TextField）
   required: boolean; // 是否必填
   editable: boolean; // 是否可编辑
+  maxLength: number; // 字数限制（0表示无限制）
   options: FieldOption[]; // 字段可选项
 }
 
@@ -142,8 +143,7 @@ export interface VertexField {
 export interface PendingNode {
   vertexId: number; // 节点ID
   vertexName: string; // 节点名称
-  assigneeIds: string[]; // 待处理人ID列表
-  assigneeNames: string[]; // 待处理人姓名列表
+  assigneeIds: string[]; // 待处理人ID列表（调用方可根据ID自行查询用户信息）
   createdAt: string; // 任务创建时间
   fields: VertexField[]; // 节点字段列表
 }

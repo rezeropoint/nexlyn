@@ -48,6 +48,7 @@ import {
   getJourneyFullDetail,
   updateFlowJourneyStatus,
 } from "@/services/workbench";
+import { getUsersByIds } from "@/services/user";
 import type {
   JourneyDetail,
   Moment,
@@ -137,22 +138,42 @@ const FlowDetailDrawer: React.FC<FlowDetailDrawerProps> = ({
         // 保存 pendingNodes（用于渲染动态字段）
         setPendingNodes(pendingNodes || []);
 
-        // 从 pendingNodes 提取处理人信息
-        const users: ProcessingUser[] = [];
-        pendingNodes?.forEach(node => {
-          node.assigneeIds?.forEach((id, index) => {
-            users.push({
-              id,
-              name: node.assigneeNames?.[index] || id,
-              nickname: '',
-              phone: '',
-              identifier: '',
-              headimgurl: '',
-              tags: [],
-            });
+        // 从 pendingNodes 提取处理人 ID 并获取用户详情
+        const allAssigneeIds: string[] = [];
+        pendingNodes?.forEach((node) => {
+          node.assigneeIds?.forEach((id) => {
+            if (!allAssigneeIds.includes(id)) {
+              allAssigneeIds.push(id);
+            }
           });
         });
-        setProcessingUsers(users);
+
+        // 调用用户接口获取详细信息
+        if (allAssigneeIds.length > 0) {
+          const userRes = await getUsersByIds(allAssigneeIds);
+          if (userRes.code !== 0 || !userRes.data?.list) {
+            throw new Error(userRes.msg || "获取处理人信息失败");
+          }
+          const userMap = new Map(userRes.data.list.map((u) => [u.id, u]));
+          const users: ProcessingUser[] = allAssigneeIds.map((id) => {
+            const user = userMap.get(id);
+            if (!user) {
+              throw new Error(`未找到用户信息: ${id}`);
+            }
+            return {
+              id,
+              name: user.name,
+              nickname: "",
+              phone: "",
+              identifier: "",
+              headimgurl: user.avatar || "",
+              tags: [],
+            };
+          });
+          setProcessingUsers(users);
+        } else {
+          setProcessingUsers([]);
+        }
       } else {
         message.error(res.msg || "加载流程详情失败");
       }

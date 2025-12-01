@@ -138,7 +138,7 @@ func (l *TestPlatformConnectionLogic) TestPlatformConnection(req *types.TestPlat
 	}
 
 	// 连接成功，尝试获取flows数量
-	flows, err := l.svcCtx.SkylarkEngine.GetFlowList(l.ctx, jwtUser.TenantId)
+	flows, err := l.svcCtx.SkylarkEngine.GetFlowList(l.ctx, jwtUser.TenantId, false)
 	flowsCount := 0
 	if err == nil {
 		flowsCount = len(flows)

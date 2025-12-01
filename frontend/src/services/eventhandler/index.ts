@@ -83,12 +83,14 @@ export async function testPlatformConnection(
 
 /**
  * 获取流程列表
+ * @param configuredOnly 是否只返回已配置事件的流程（默认false返回所有流程）
  */
-export async function getFlowList(): Promise<
-  BaseResponse & { data?: { list: FlowInfo[] } }
-> {
+export async function getFlowList(
+  configuredOnly = false
+): Promise<BaseResponse & { data?: { list: FlowInfo[] } }> {
   return request(`${API_PREFIX}/skylark-platform/flows`, {
     method: "GET",
+    params: { configuredOnly },
   });
 }
 

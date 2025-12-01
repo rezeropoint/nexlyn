@@ -55,6 +55,17 @@ export async function getUserList(
   return result;
 }
 
+/** 按用户ID列表批量获取用户信息 GET /user/list?ids=... */
+export async function getUsersByIds(
+  ids: string[],
+  options?: { [key: string]: any }
+) {
+  if (!ids || ids.length === 0) {
+    return { code: 0, data: { list: [] } };
+  }
+  return getUserList({ ids }, options);
+}
+
 /** 获取用户选项列表（下拉框用） GET /user/options */
 export async function getUserOptions(
   params?: {

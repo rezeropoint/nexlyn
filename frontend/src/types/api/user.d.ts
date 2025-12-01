@@ -74,6 +74,8 @@ declare namespace API {
 
   /** 用户列表查询请求 */
   type GetUserListRequest = PageParams & {
+    // 按用户ID列表查询（优先级最高，传入时忽略其他搜索条件）
+    ids?: string[];
     // 搜索条件
     name?: string;
     email?: string;

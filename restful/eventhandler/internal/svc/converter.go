@@ -828,6 +828,7 @@ func ConvertCoreVertexFieldToTypes(field *core.VertexField) types.VertexField {
 		Type:        field.Type,
 		Required:    field.Required,
 		Editable:    field.Editable,
+		MaxLength:   field.MaxLength,
 		Options:     options,
 	}
 }
@@ -848,12 +849,11 @@ func ConvertCorePendingNodeToTypes(node *core.PendingNode) types.PendingNode {
 	}
 
 	return types.PendingNode{
-		VertexId:      node.VertexID,
-		VertexName:    node.VertexName,
-		AssigneeIds:   node.AssigneeIDs,
-		AssigneeNames: node.AssigneeNames,
-		CreatedAt:     node.CreatedAt,
-		Fields:        fields,
+		VertexId:    node.VertexID,
+		VertexName:  node.VertexName,
+		AssigneeIds: node.AssigneeIDs,
+		CreatedAt:   node.CreatedAt,
+		Fields:      fields,
 	}
 }
 

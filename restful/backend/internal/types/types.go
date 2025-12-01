@@ -582,6 +582,7 @@ type GetUserByIdResponse struct {
 
 type GetUserListRequest struct {
 	PageParamsRequest
+	Ids      []string `form:"ids,optional"`                     // 用户ID列表
 	Name     string   `form:"name,optional" db:"name"`          // 用户姓名
 	Email    string   `form:"email,optional" db:"email"`        // 电子邮件
 	UserName string   `form:"userName,optional" db:"user_name"` // 用户名

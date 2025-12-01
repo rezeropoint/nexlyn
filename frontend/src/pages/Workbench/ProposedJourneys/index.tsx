@@ -38,7 +38,7 @@ const ProposedJourneys: React.FC = () => {
     const fetchFlowList = async () => {
       setFlowListLoading(true);
       try {
-        const res = await getFlowList();
+        const res = await getFlowList(true); // 只获取已配置事件的流程
         if (res.code === 0 && res.data?.list) {
           setFlowList(res.data.list);
           // 默认选中第一个流程

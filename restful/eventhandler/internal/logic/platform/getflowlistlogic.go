@@ -94,7 +94,7 @@ func (l *GetFlowListLogic) GetFlowList(req *types.GetFlowListRequest) (resp *typ
 	}
 
 	// 调用Skylark引擎获取流程列表
-	flows, err := l.svcCtx.SkylarkEngine.GetFlowList(l.ctx, jwtUser.TenantId)
+	flows, err := l.svcCtx.SkylarkEngine.GetFlowList(l.ctx, jwtUser.TenantId, req.ConfiguredOnly)
 	if err != nil {
 		code, msg := svc.HandleSkylarkError(err)
 		logx.WithContext(l.ctx).WithFields(
