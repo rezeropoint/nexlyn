@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1.7
 FROM golang:1.25.1-alpine AS builder
 
 LABEL stage=gobuilder
@@ -27,7 +28,9 @@ RUN git config --global url."git@github.com:".insteadOf "https://github.com/"
 # 先复制依赖文件，利用Docker缓存层
 ADD go.mod .
 ADD go.sum .
-RUN go mod download
+# 使用 BuildKit 缓存挂载加速依赖下载
+RUN --mount=type=cache,target=/go/pkg/mod \
+    go mod download
 
 # 复制 etc 配置目录
 COPY ./restful/backend/etc /app/etc
@@ -38,8 +41,10 @@ COPY ./pkg ./pkg
 COPY ./restful ./restful
 COPY ./service ./service
 
-# 构建可执行文件
-RUN go build -ldflags="-s -w" -o /app/backend ./restful/backend
+# 构建可执行文件（使用缓存加速编译）
+RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    go build -ldflags="-s -w" -o /app/backend ./restful/backend
 
 # 清理 SSH 密钥（安全考虑）
 RUN rm -f /root/.ssh/id_ed25519

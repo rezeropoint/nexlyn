@@ -28,7 +28,9 @@ RUN git config --global url."git@github.com:".insteadOf "https://github.com/"
 # 先复制依赖文件，利用Docker缓存层
 ADD go.mod .
 ADD go.sum .
-RUN go mod download
+# 使用 BuildKit 缓存挂载加速依赖下载
+RUN --mount=type=cache,target=/go/pkg/mod \
+    go mod download
 
 # 复制 etc 配置目录
 COPY ./restful/lynxmanager/etc /app/etc
@@ -40,8 +42,10 @@ COPY ./pkg ./pkg
 COPY ./restful ./restful
 COPY ./service ./service
 
-# 构建可执行文件
-RUN go build -tags postgres -ldflags="-s -w" -o /app/lynxmanager ./restful/lynxmanager
+# 构建可执行文件（使用缓存加速编译）
+RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    go build -tags postgres -ldflags="-s -w" -o /app/lynxmanager ./restful/lynxmanager
 
 # 清理 SSH 密钥（安全考虑）
 RUN rm -f /root/.ssh/id_ed25519
