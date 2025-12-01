@@ -218,38 +218,35 @@ const FlowDetailDrawer: React.FC<FlowDetailDrawerProps> = ({
     return fields;
   }, [pendingNodes]);
 
+  /** 支持填写的字段类型 */
+  const EDITABLE_FIELD_TYPES = ['Field::RadioButton', 'Field::TextField'];
+
   /**
    * 根据字段类型转换表单值为 TypedValue
+   * 仅支持 Field::RadioButton 和 Field::TextField
    */
-  const convertToTypedValue = (field: VertexField, value: any): TypedValue => {
+  const convertToTypedValue = (field: VertexField, value: any): TypedValue | null => {
     const fieldType = field.type;
+
+    // 仅支持指定的字段类型
+    if (!EDITABLE_FIELD_TYPES.includes(fieldType)) {
+      return null;
+    }
 
     if (value === undefined || value === null || value === '') {
       return { type: 'string', value: '' };
     }
 
-    // 根据 Skylark 字段类型映射
     switch (fieldType) {
+      case 'Field::RadioButton': {
+        // 单选：根据选项 ID 查找选项 value
+        const option = field.options?.find((opt) => opt.id === Number(value));
+        return { type: 'string', value: option?.value ?? '' };
+      }
       case 'Field::TextField':
-      case 'Field::TextArea':
         return { type: 'string', value: String(value) };
-      case 'Field::NumberField':
-        return { type: 'number', value: Number(value) };
-      case 'Field::RadioButton':
-      case 'Field::Select':
-        // 单选返回选项 ID
-        return { type: 'number', value: Number(value) };
-      case 'Field::Checkbox':
-      case 'Field::MultiSelect':
-        // 多选返回选项 ID 数组
-        return { type: 'array', value: Array.isArray(value) ? value.map(Number) : [] };
-      case 'Field::DateField':
-        // 日期格式化为 ISO 字符串
-        return { type: 'date', value: value ? dayjs(value).toISOString() : '' };
-      case 'Field::BooleanField':
-        return { type: 'boolean', value: Boolean(value) };
       default:
-        return { type: 'string', value: String(value) };
+        return null;
     }
   };
 
@@ -283,15 +280,18 @@ const FlowDetailDrawer: React.FC<FlowDetailDrawerProps> = ({
         params.carbonCopyUserIds = values.carbonCopyUserIds;
       }
 
-      // 收集动态字段数据（只收集可编辑字段的值）
+      // 收集动态字段数据（只收集支持的可编辑字段）
       if (pendingFields.length > 0) {
         const data: Record<string, TypedValue> = {};
         pendingFields.forEach(field => {
-          // 只有可编辑的字段才提交
-          if (field.editable) {
+          // 只有可编辑且支持的字段类型才提交
+          if (field.editable && EDITABLE_FIELD_TYPES.includes(field.type)) {
             const fieldValue = values[`field_${field.identityKey}`];
             if (fieldValue !== undefined && fieldValue !== null && fieldValue !== '') {
-              data[field.identityKey] = convertToTypedValue(field, fieldValue);
+              const typedValue = convertToTypedValue(field, fieldValue);
+              if (typedValue) {
+                data[field.identityKey] = typedValue;
+              }
             }
           }
         });
@@ -364,12 +364,14 @@ const FlowDetailDrawer: React.FC<FlowDetailDrawerProps> = ({
 
   /**
    * 渲染动态字段表单项
-   * 根据 editable 状态控制是否可编辑
+   * 仅支持 Field::RadioButton 和 Field::TextField 可编辑，其他类型禁用
    */
   const renderDynamicField = (field: VertexField) => {
     const fieldName = `field_${field.identityKey}`;
-    const isDisabled = !field.editable;
-    const rules = field.editable && field.required
+    // 仅支持的字段类型才可编辑
+    const isSupported = EDITABLE_FIELD_TYPES.includes(field.type);
+    const isDisabled = !field.editable || !isSupported;
+    const rules = field.editable && isSupported && field.required
       ? [{ required: true, message: `请填写${field.title}` }]
       : undefined;
 
@@ -382,32 +384,6 @@ const FlowDetailDrawer: React.FC<FlowDetailDrawerProps> = ({
             label={field.title}
             rules={rules}
             placeholder={`请输入${field.title}`}
-            disabled={isDisabled}
-          />
-        );
-
-      case 'Field::TextArea':
-        return (
-          <ProFormTextArea
-            key={field.id}
-            name={fieldName}
-            label={field.title}
-            rules={rules}
-            placeholder={`请输入${field.title}`}
-            fieldProps={{ rows: 3 }}
-            disabled={isDisabled}
-          />
-        );
-
-      case 'Field::NumberField':
-        return (
-          <ProFormDigit
-            key={field.id}
-            name={fieldName}
-            label={field.title}
-            rules={rules}
-            placeholder={`请输入${field.title}`}
-            fieldProps={{ style: { width: '100%' } }}
             disabled={isDisabled}
           />
         );
@@ -427,62 +403,12 @@ const FlowDetailDrawer: React.FC<FlowDetailDrawerProps> = ({
           />
         );
 
-      case 'Field::Select':
-        return (
-          <ProFormSelect
-            key={field.id}
-            name={fieldName}
-            label={field.title}
-            rules={rules}
-            placeholder={`请选择${field.title}`}
-            options={field.options?.map(option => ({
-              label: option.value,
-              value: option.id,
-            }))}
-            disabled={isDisabled}
-          />
-        );
-
-      case 'Field::Checkbox':
-      case 'Field::MultiSelect':
-        return (
-          <ProFormCheckbox.Group
-            key={field.id}
-            name={fieldName}
-            label={field.title}
-            rules={rules}
-            options={field.options?.map(option => ({
-              label: option.value,
-              value: option.id,
-            }))}
-            disabled={isDisabled}
-          />
-        );
-
-      case 'Field::DateField':
-        return (
-          <ProFormDatePicker
-            key={field.id}
-            name={fieldName}
-            label={field.title}
-            rules={rules}
-            placeholder={`请选择${field.title}`}
-            fieldProps={{ style: { width: '100%' } }}
-            disabled={isDisabled}
-          />
-        );
-
+      // 以下类型不支持编辑，仅显示提示
       default:
-        // 默认使用文本输入
         return (
-          <ProFormText
-            key={field.id}
-            name={fieldName}
-            label={field.title}
-            rules={rules}
-            placeholder={`请输入${field.title}`}
-            disabled={isDisabled}
-          />
+          <ProForm.Item key={field.id} label={field.title}>
+            <Text type="secondary">暂不支持此字段类型</Text>
+          </ProForm.Item>
         );
     }
   };
@@ -626,7 +552,7 @@ const FlowDetailDrawer: React.FC<FlowDetailDrawerProps> = ({
                             )}
                           </div>
                           <span className={styles.timelineTime}>
-                            {dayjs(moment.createdAt).format("YYYY-MM-DD HH:mm")}
+                            {dayjs(moment.updatedAt).format("YYYY-MM-DD HH:mm")}
                           </span>
                         </Flex>
                         {moment.comment && (

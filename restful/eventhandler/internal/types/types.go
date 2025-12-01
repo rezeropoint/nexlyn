@@ -687,8 +687,8 @@ type TrendPoint struct {
 }
 
 type TypedValue struct {
-	Type  string      `json:"type"`  // string/number/boolean/date/array/object/file
-	Value interface{} `json:"value"` // 字段值
+	Type  string `json:"type"`  // string/imageURL/imageBase64
+	Value string `json:"value"` // 字段值
 }
 
 type UpdateEventConfigWithFieldsRequest struct {
