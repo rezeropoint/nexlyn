@@ -515,7 +515,6 @@ type Moment struct {
 	Comment      string `json:"comment,optional"`      // 处理意见
 	CreatedAt    string `json:"createdAt"`             // 操作时间
 	UpdatedAt    string `json:"updatedAt"`             // 更新时间
-	Duration     int    `json:"duration,optional"`     // 处理时长（秒）
 }
 
 type NodeMetric struct {

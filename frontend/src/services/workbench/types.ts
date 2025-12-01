@@ -97,7 +97,6 @@ export interface Moment {
   comment?: string; // 处理意见
   createdAt: string; // 操作时间
   updatedAt: string; // 更新时间
-  duration?: number; // 处理时长（秒）
 }
 
 /**

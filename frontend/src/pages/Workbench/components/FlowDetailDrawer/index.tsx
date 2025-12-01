@@ -92,6 +92,22 @@ const actionIcons: Record<string, React.ReactNode> = {
 
 dayjs.extend(relativeTime);
 
+/** 精准格式化处理时长：天/小时/分钟/秒 */
+const formatDuration = (totalSeconds: number): string => {
+  const days = Math.floor(totalSeconds / 86400);
+  const hours = Math.floor((totalSeconds % 86400) / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = Math.floor(totalSeconds % 60);
+
+  const parts: string[] = [];
+  if (days > 0) parts.push(`${days} 天`);
+  if (hours > 0) parts.push(`${hours} 小时`);
+  if (minutes > 0) parts.push(`${minutes} 分钟`);
+  if (seconds > 0 || parts.length === 0) parts.push(`${seconds} 秒`);
+
+  return parts.join(" ");
+};
+
 const FlowDetailDrawer: React.FC<FlowDetailDrawerProps> = ({
   visible,
   flowId,
@@ -558,9 +574,12 @@ const FlowDetailDrawer: React.FC<FlowDetailDrawerProps> = ({
                         {moment.comment && (
                           <div className={styles.timelineComment}>{moment.comment}</div>
                         )}
-                        {moment.duration !== undefined && (
+                        {moment.createdAt && moment.updatedAt && (
                           <div className={styles.timelineDuration}>
-                            处理时长：{Math.round(moment.duration / 60)} 分钟
+                            处理时长：
+                            {formatDuration(
+                              dayjs(moment.updatedAt).diff(dayjs(moment.createdAt), "second")
+                            )}
                           </div>
                         )}
                       </>

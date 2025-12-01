@@ -720,11 +720,6 @@ func ConvertCoreMomentToTypes(moment *core.Moment) types.Moment {
 		comment = *moment.Comment
 	}
 
-	duration := 0
-	if moment.Duration != nil {
-		duration = *moment.Duration
-	}
-
 	return types.Moment{
 		Id:           moment.ID,
 		AssignmentId: moment.AssignmentID,
@@ -737,7 +732,6 @@ func ConvertCoreMomentToTypes(moment *core.Moment) types.Moment {
 		Comment:      comment,
 		CreatedAt:    moment.CreatedAt, // SDK已经返回ISO 8601格式字符串
 		UpdatedAt:    moment.UpdatedAt, // SDK已经返回ISO 8601格式字符串
-		Duration:     duration,
 	}
 }
 
