@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 
+	"github.com/rezeropoint/nexlyn/internal/auth"
 	"github.com/rezeropoint/nexlyn/restful/iotmanager/internal/config"
 	"github.com/rezeropoint/nexlyn/restful/iotmanager/internal/handler"
 	"github.com/rezeropoint/nexlyn/restful/iotmanager/internal/svc"
@@ -20,7 +21,7 @@ func main() {
 	var c config.Config
 	conf.MustLoad(*configFile, &c)
 
-	server := rest.MustNewServer(c.RestConf)
+	server := rest.MustNewServer(c.RestConf, rest.WithUnauthorizedCallback(auth.UnauthorizedCallback))
 	defer server.Stop()
 
 	ctx := svc.NewServiceContext(c)

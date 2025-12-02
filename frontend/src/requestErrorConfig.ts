@@ -1,6 +1,7 @@
 ﻿import type { RequestOptions } from "@@/plugin-request/request";
 import type { RequestConfig } from "@umijs/max";
 import { message, notification } from "antd";
+import { clearToken, isTokenExpired } from "@/utils/token";
 
 // 错误处理方案： 错误类型
 enum ErrorShowType {
@@ -72,7 +73,38 @@ export const errorConfig: RequestConfig = {
       } else if (error.response) {
         // Axios 的错误
         // 请求成功发出且服务器也响应了状态码，但状态代码超出了 2xx 的范围
-        message.error(`Response status:${error.response.status}`);
+        const { status, data } = error.response;
+
+        // 处理 401 未授权错误
+        if (status === 401) {
+          const reason = data?.reason;
+          const errorMsg = data?.message || "用户认证失败";
+
+          // 根据 reason 区分不同的 401 错误类型
+          if (reason === "TOKEN_EXPIRED") {
+            message.error("登录已过期，请重新登录");
+          } else if (reason === "TOKEN_MALFORMED") {
+            message.error("无效的登录凭证");
+          } else {
+            message.error(errorMsg);
+          }
+
+          // 清除本地 token
+          localStorage.removeItem("token");
+
+          // 跳转到登录页
+          if (
+            typeof window !== "undefined" &&
+            window.location.pathname !== "/user/login"
+          ) {
+            setTimeout(() => {
+              window.location.href = "/user/login";
+            }, 1000);
+          }
+          return;
+        }
+
+        message.error(`Response status:${status}`);
       } else if (error.request) {
         // 请求已经成功发起，但没有收到响应
         // \`error.request\` 在浏览器中是 XMLHttpRequest 的实例，
@@ -91,6 +123,23 @@ export const errorConfig: RequestConfig = {
       // 拦截请求配置，进行个性化处理。
       const token = localStorage.getItem("token");
       if (token) {
+        // 请求前预检：检查 Token 是否即将过期（提前 30 秒）
+        if (isTokenExpired(30)) {
+          clearToken();
+          message.error("登录已过期，请重新登录");
+          // 跳转到登录页
+          if (
+            typeof window !== "undefined" &&
+            window.location.pathname !== "/user/login"
+          ) {
+            setTimeout(() => {
+              window.location.href = "/user/login";
+            }, 1000);
+          }
+          // 抛出错误阻止请求发送
+          throw new Error("Token expired");
+        }
+
         const headers = { ...config.headers, Authorization: `Bearer ${token}` };
         return { ...config, headers };
       }

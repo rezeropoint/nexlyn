@@ -7,18 +7,100 @@ import {
 } from "@/components";
 import { ThemeSwitcher } from "@/components/RightContent";
 import { getCurrentUserWithPermissions } from "@/services/user";
+import {
+  clearToken,
+  getToken,
+  getTokenRemainingTime,
+} from "@/utils/token";
 import { LinkOutlined } from "@ant-design/icons";
 import type { Settings as LayoutSettings } from "@ant-design/pro-components";
 import { SettingDrawer } from "@ant-design/pro-components";
 import type { RequestConfig, RunTimeLayoutConfig } from "@umijs/max";
 import { history, Link } from "@umijs/max";
 import { App, ConfigProvider, theme } from "antd";
+import { useEffect, useRef } from "react";
 import { appList } from "../config/appList";
 import defaultSettings from "../config/defaultSettings";
 import { errorConfig } from "./requestErrorConfig";
 
 const isDev = process.env.NODE_ENV === "development";
 const loginPath = "/user/login";
+
+// 提前触发过期的缓冲时间（秒）
+const EXPIRATION_BUFFER_SECONDS = 60;
+
+/**
+ * Token 精确过期检测组件
+ * 根据 Token 实际过期时间设置 setTimeout，而非定时轮询
+ * 使用 App.useApp() 符合编码规范
+ */
+const TokenExpirationChecker: React.FC = () => {
+  const { message } = App.useApp();
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    // 设置精确的过期定时器
+    const scheduleExpirationCheck = () => {
+      // 清除之前的定时器
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
+
+      // 如果在登录页，不检测
+      if (window.location.pathname === loginPath) {
+        return;
+      }
+
+      // 如果没有 token，不检测
+      if (!getToken()) {
+        return;
+      }
+
+      // 获取 Token 剩余有效时间
+      const remainingTime = getTokenRemainingTime();
+      if (remainingTime === null) {
+        return; // 无法解析 Token
+      }
+
+      // 计算需要等待的时间（提前 EXPIRATION_BUFFER_SECONDS 秒触发）
+      const waitTime = Math.max(0, remainingTime - EXPIRATION_BUFFER_SECONDS) * 1000;
+
+      if (waitTime === 0) {
+        // 已经过期或即将过期，立即处理
+        handleExpiration();
+        return;
+      }
+
+      // 设置精确的定时器
+      timerRef.current = setTimeout(() => {
+        handleExpiration();
+      }, waitTime);
+    };
+
+    // 处理过期
+    const handleExpiration = () => {
+      clearToken();
+      message.error("登录已过期，请重新登录");
+      setTimeout(() => {
+        window.location.href = loginPath;
+      }, 1000);
+    };
+
+    // 初始设置定时器
+    scheduleExpirationCheck();
+
+    // 清理定时器
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
+    };
+  }, [message]);
+
+  return null;
+};
 
 // 主题配置本地存储key
 const SETTINGS_STORAGE_KEY = "nexlyn-pro-settings";
@@ -243,6 +325,7 @@ export const layout: RunTimeLayoutConfig = ({
           }}
         >
           <App message={{ top: 80 }}>
+            <TokenExpirationChecker />
             {children}
             {isDev && (
               <SettingDrawer

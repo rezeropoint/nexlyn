@@ -3,7 +3,9 @@ package auth
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"net/http"
 
 	"github.com/golang-jwt/jwt/v4"
 )
@@ -89,4 +91,31 @@ func (u *JWTUser) IsActive() bool {
 // IsSameTenant 检查是否属于同一租户（传入tenant_key进行比较）
 func (u *JWTUser) IsSameTenant(tenantKey string) bool {
 	return u.TenantKey == tenantKey
+}
+
+// UnauthorizedCallback 处理 JWT 认证失败的回调
+// 根据不同的错误类型返回不同的错误信息，方便前端区分处理
+func UnauthorizedCallback(w http.ResponseWriter, r *http.Request, err error) {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http.StatusUnauthorized)
+
+	response := map[string]any{
+		"code": 401,
+	}
+
+	if errors.Is(err, jwt.ErrTokenExpired) {
+		response["message"] = "登录已过期，请重新登录"
+		response["reason"] = "TOKEN_EXPIRED"
+	} else if errors.Is(err, jwt.ErrTokenMalformed) {
+		response["message"] = "无效的令牌格式"
+		response["reason"] = "TOKEN_MALFORMED"
+	} else if errors.Is(err, jwt.ErrTokenNotValidYet) {
+		response["message"] = "令牌尚未生效"
+		response["reason"] = "TOKEN_NOT_VALID_YET"
+	} else {
+		response["message"] = "未授权访问"
+		response["reason"] = "UNAUTHORIZED"
+	}
+
+	json.NewEncoder(w).Encode(response)
 }
