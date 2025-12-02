@@ -42,13 +42,13 @@ const PlatformTable: React.FC<PlatformTableProps> = ({
       dataIndex: "name",
       width: 200,
       ellipsis: true,
-      hideInSearch: true,
+      search: false,
     },
     {
       title: "平台类型",
       dataIndex: "type",
       width: 140,
-      hideInSearch: true,
+      search: false,
       render: (_, record) => (
         <Tag color={PLATFORM_TYPE_COLORS[record.type]}>
           {PLATFORM_TYPE_NAMES[record.type] || record.type}
@@ -60,7 +60,7 @@ const PlatformTable: React.FC<PlatformTableProps> = ({
       dataIndex: "description",
       width: 250,
       ellipsis: true,
-      hideInSearch: true,
+      search: false,
       render: (text) => text || "-",
     },
     {
@@ -68,7 +68,7 @@ const PlatformTable: React.FC<PlatformTableProps> = ({
       dataIndex: "enabled",
       width: 100,
       align: "center",
-      hideInSearch: true,
+      search: false,
       render: (_, record) => (
         <Tag color={record.enabled ? "success" : "default"}>
           {record.enabled ? "已启用" : "已禁用"}
@@ -80,7 +80,7 @@ const PlatformTable: React.FC<PlatformTableProps> = ({
       dataIndex: "createdAt",
       width: 180,
       valueType: "dateTime",
-      hideInSearch: true,
+      search: false,
       sorter: true,
     },
     {
@@ -88,7 +88,7 @@ const PlatformTable: React.FC<PlatformTableProps> = ({
       dataIndex: "updatedAt",
       width: 180,
       valueType: "dateTime",
-      hideInSearch: true,
+      search: false,
       sorter: true,
     },
     {

@@ -252,7 +252,7 @@ const OrganizationMembers: React.FC<OrganizationMembersProps> = ({
       title: "加入时间",
       dataIndex: "joinedAt",
       width: 160,
-      hideInSearch: true,
+      search: false,
       render: (_, record) => formatDateTime(record.joinedAt),
     },
     {

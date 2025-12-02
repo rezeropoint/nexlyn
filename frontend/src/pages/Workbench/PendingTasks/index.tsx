@@ -107,19 +107,19 @@ const PendingTasks: React.FC = () => {
       title: "流程ID",
       dataIndex: "flowId",
       width: 100,
-      hideInSearch: true,
+      search: false,
     },
     {
       title: "Journey ID",
       dataIndex: "journeyId",
       width: 120,
-      hideInSearch: true,
+      search: false,
     },
     {
       title: "状态",
       dataIndex: "status",
       width: 100,
-      hideInSearch: true,
+      search: false,
       render: (_, record) => (
         <Tag
           bordered={false}
@@ -137,7 +137,7 @@ const PendingTasks: React.FC = () => {
       title: "创建时间",
       dataIndex: "createdAt",
       width: 180,
-      hideInSearch: true,
+      search: false,
       render: (text) =>
         text ? dayjs(text as string).format("YYYY-MM-DD HH:mm:ss") : "-",
     },
@@ -145,7 +145,7 @@ const PendingTasks: React.FC = () => {
       title: "更新时间",
       dataIndex: "updatedAt",
       width: 180,
-      hideInSearch: true,
+      search: false,
       render: (text) =>
         text ? dayjs(text as string).format("YYYY-MM-DD HH:mm:ss") : "-",
     },

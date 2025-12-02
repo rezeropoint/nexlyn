@@ -76,13 +76,13 @@ const TemplateTable: React.FC<TemplateTableProps> = ({
       title: "设备厂商",
       dataIndex: "manufacturer",
       ellipsis: true,
-      hideInSearch: true,
+      search: false,
     },
     {
       title: "版本",
       dataIndex: "version",
       width: 100,
-      hideInSearch: true,
+      search: false,
       render: (_, record) => record.version || "-",
     },
     {
@@ -105,7 +105,7 @@ const TemplateTable: React.FC<TemplateTableProps> = ({
       title: "设备数量",
       dataIndex: "deviceCount",
       width: 100,
-      hideInSearch: true,
+      search: false,
       sorter: true,
       render: (_, record) => record.deviceCount || 0,
     },
@@ -113,7 +113,7 @@ const TemplateTable: React.FC<TemplateTableProps> = ({
       title: "描述",
       dataIndex: "description",
       ellipsis: true,
-      hideInSearch: true,
+      search: false,
       hideInTable: true,
     },
     {
@@ -121,7 +121,7 @@ const TemplateTable: React.FC<TemplateTableProps> = ({
       dataIndex: "createdAt",
       width: 160,
       valueType: "dateTime",
-      hideInSearch: true,
+      search: false,
       sorter: true,
     },
     {
@@ -129,7 +129,7 @@ const TemplateTable: React.FC<TemplateTableProps> = ({
       dataIndex: "updatedAt",
       width: 160,
       valueType: "dateTime",
-      hideInSearch: true,
+      search: false,
       sorter: true,
     },
     {

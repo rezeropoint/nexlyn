@@ -57,7 +57,7 @@ const TagTable: React.FC<TagTableProps> = ({
       title: "标签颜色",
       dataIndex: "color",
       width: 150,
-      hideInSearch: true,
+      search: false,
       render: (_, record) => (
         <div className={styles.tagDisplay}>
           <Badge color={record.color || token.colorPrimary} />
@@ -69,7 +69,7 @@ const TagTable: React.FC<TagTableProps> = ({
       title: "描述",
       dataIndex: "description",
       ellipsis: true,
-      hideInSearch: true,
+      search: false,
       render: (text) => text || "-",
     },
     {

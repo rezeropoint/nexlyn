@@ -72,7 +72,7 @@ const DeviceTable: React.FC<DeviceTableProps> = ({
       title: "设备别名",
       dataIndex: "deviceAlias",
       ellipsis: true,
-      hideInSearch: true,
+      search: false,
       render: (text) => text || "-",
     },
     {
@@ -146,13 +146,13 @@ const DeviceTable: React.FC<DeviceTableProps> = ({
       title: "安装位置",
       dataIndex: "location",
       ellipsis: true,
-      hideInSearch: true,
+      search: false,
       render: (text) => text || "-",
     },
     {
       title: "标签",
       dataIndex: "tags",
-      hideInSearch: true,
+      search: false,
       render: (_, record) => {
         const tags = record.tags;
         if (!tags || tags.length === 0) return "-";
@@ -173,7 +173,7 @@ const DeviceTable: React.FC<DeviceTableProps> = ({
       dataIndex: "lastDataAt",
       width: 160,
       valueType: "dateTime",
-      hideInSearch: true,
+      search: false,
       render: (_, record) =>
         record.lastDataAt ? formatDateTime(record.lastDataAt) : "-",
     },
@@ -182,7 +182,7 @@ const DeviceTable: React.FC<DeviceTableProps> = ({
       dataIndex: "createdAt",
       width: 160,
       valueType: "dateTime",
-      hideInSearch: true,
+      search: false,
       render: (_, record) => formatDateTime(record.createdAt),
     },
     {

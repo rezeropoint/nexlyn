@@ -52,7 +52,7 @@ const DeviceTagTable: React.FC<DeviceTagTableProps> = ({
       dataIndex: "id",
       ellipsis: true,
       copyable: true,
-      hideInSearch: true,
+      search: false,
       width: 180,
     },
     {
@@ -70,13 +70,13 @@ const DeviceTagTable: React.FC<DeviceTagTableProps> = ({
       title: "描述",
       dataIndex: "description",
       ellipsis: true,
-      hideInSearch: true,
+      search: false,
       width: 200,
     },
     {
       title: "使用数量",
       dataIndex: "deviceCount",
-      hideInSearch: true,
+      search: false,
       width: 100,
       render: (_, record) => (
         <Tag color={record.deviceCount > 0 ? "green" : "default"}>
@@ -88,7 +88,7 @@ const DeviceTagTable: React.FC<DeviceTagTableProps> = ({
       title: "创建时间",
       dataIndex: "createdAt",
       valueType: "dateTime",
-      hideInSearch: true,
+      search: false,
       sorter: true,
       width: 180,
       render: (_, record) =>
@@ -98,7 +98,7 @@ const DeviceTagTable: React.FC<DeviceTagTableProps> = ({
       title: "更新时间",
       dataIndex: "updatedAt",
       valueType: "dateTime",
-      hideInSearch: true,
+      search: false,
       sorter: true,
       width: 180,
       render: (_, record) =>

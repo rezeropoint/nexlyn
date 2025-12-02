@@ -144,7 +144,7 @@ const UserTable: React.FC<UserTableProps> = ({
       dataIndex: "createdAt",
       width: 160,
       valueType: "dateTime",
-      hideInSearch: true,
+      search: false,
       render: (_, record: API.UserBrief) => formatDateTime(record.createdAt),
     },
     {
@@ -152,7 +152,7 @@ const UserTable: React.FC<UserTableProps> = ({
       dataIndex: "updatedAt",
       width: 160,
       valueType: "dateTime",
-      hideInSearch: true,
+      search: false,
       render: (_, record: API.UserBrief) => formatDateTime(record.updatedAt),
     },
     {
@@ -171,7 +171,7 @@ const UserTable: React.FC<UserTableProps> = ({
       title: "同步状态",
       dataIndex: "syncStatus",
       width: 150,
-      hideInSearch: true,
+      search: false,
       render: (_, record) => {
         const isSynced = syncStatusMap[record.id];
         if (isSynced === undefined) {

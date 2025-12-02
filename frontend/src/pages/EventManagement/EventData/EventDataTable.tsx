@@ -41,7 +41,7 @@ const EventDataTable: React.FC<EventDataTableProps> = ({
         dataIndex: "slp_journey_id",
         width: 100,
         fixed: "left",
-        hideInSearch: true,
+        search: false,
         render: (text) => <Tag>{text}</Tag>,
       },
       {
@@ -78,7 +78,7 @@ const EventDataTable: React.FC<EventDataTableProps> = ({
         width: 150,
         ellipsis: true,
         valueType: getProTableValueType(field.fieldType) as any,
-        hideInSearch: !field.isSearchable,
+        search: field.isSearchable,
         render: (text) => {
           // 处理不同类型的显示
           if (field.fieldType === "boolean") {
@@ -98,14 +98,14 @@ const EventDataTable: React.FC<EventDataTableProps> = ({
         title: "节点名称",
         dataIndex: "slp_vertex_name",
         width: 120,
-        hideInSearch: true,
+        search: false,
         render: (text) => text || "-",
       },
       {
         title: "处理人",
         dataIndex: "slp_user_name",
         width: 100,
-        hideInSearch: true,
+        search: false,
         render: (text) => text || "-",
       },
       {
@@ -113,14 +113,14 @@ const EventDataTable: React.FC<EventDataTableProps> = ({
         dataIndex: "slp_created_at",
         valueType: "dateTime",
         width: 160,
-        hideInSearch: true,
+        search: false,
       },
       {
         title: "更新时间",
         dataIndex: "slp_updated_at",
         valueType: "dateTime",
         width: 160,
-        hideInSearch: true,
+        search: false,
       },
     ];
 

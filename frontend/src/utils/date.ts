@@ -70,7 +70,7 @@ export const createDateTimeColumn = (
   dataIndex: string,
   options: {
     width?: number;
-    hideInSearch?: boolean;
+    search?: boolean | { transform?: (value: any) => any };
     sorter?: boolean;
     format?: string;
   } = {}
@@ -79,7 +79,7 @@ export const createDateTimeColumn = (
   dataIndex,
   width: options.width || 160,
   valueType: "dateTime" as const,
-  hideInSearch: options.hideInSearch !== false,
+  search: options.search ?? false,
   sorter: options.sorter || false,
   render: (_: any, record: any) =>
     formatDateTime(record[dataIndex], options.format),

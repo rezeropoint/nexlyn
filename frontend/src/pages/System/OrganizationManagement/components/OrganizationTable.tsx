@@ -186,14 +186,14 @@ const OrganizationTable: React.FC<OrganizationTableProps> = ({
       ellipsis: true,
       copyable: true,
       fixed: "left",
-      hideInSearch: true,
+      search: false,
     },
     {
       title: "组织名称",
       dataIndex: "name",
       ellipsis: true,
       fixed: "left",
-      hideInSearch: true,
+      search: false,
       minWidth: 150,
     },
     {
@@ -268,7 +268,7 @@ const OrganizationTable: React.FC<OrganizationTableProps> = ({
       title: "同步状态",
       dataIndex: "syncStatus",
       width: 150,
-      hideInSearch: true,
+      search: false,
       render: (_, record) => {
         const isSynced = syncStatusMap[record.id];
         if (isSynced === undefined) {

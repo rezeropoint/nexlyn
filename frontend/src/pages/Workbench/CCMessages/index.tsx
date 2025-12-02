@@ -69,19 +69,19 @@ const CCMessages: React.FC = () => {
       title: "流程ID",
       dataIndex: "flowId",
       width: 100,
-      hideInSearch: true,
+      search: false,
     },
     {
       title: "Journey ID",
       dataIndex: "journeyId",
       width: 120,
-      hideInSearch: true,
+      search: false,
     },
     {
       title: "抄送时间",
       dataIndex: "createdAt",
       width: 180,
-      hideInSearch: true,
+      search: false,
       render: (text) =>
         text ? dayjs(text as string).format("YYYY-MM-DD HH:mm:ss") : "-",
     },
@@ -89,7 +89,7 @@ const CCMessages: React.FC = () => {
       title: "更新时间",
       dataIndex: "updatedAt",
       width: 180,
-      hideInSearch: true,
+      search: false,
       render: (text) =>
         text ? dayjs(text as string).format("YYYY-MM-DD HH:mm:ss") : "-",
     },

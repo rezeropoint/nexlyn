@@ -78,7 +78,7 @@ const TagTable: React.FC<TagTableProps> = ({
       dataIndex: 'description',
       width: 200,
       ellipsis: true,
-      hideInSearch: true,
+      search: false,
       render: (_, record) => (
         record.description || (
           <span style={{ color: 'var(--ant-color-text-tertiary)' }}>-</span>
@@ -89,7 +89,7 @@ const TagTable: React.FC<TagTableProps> = ({
       title: '创建时间',
       dataIndex: 'createdAt',
       width: 180,
-      hideInSearch: true,
+      search: false,
       render: (text: any) =>
         text ? dayjs.unix(text).format('YYYY-MM-DD HH:mm:ss') : '-',
     },
@@ -97,7 +97,7 @@ const TagTable: React.FC<TagTableProps> = ({
       title: '更新时间',
       dataIndex: 'updatedAt',
       width: 180,
-      hideInSearch: true,
+      search: false,
       render: (text: any) =>
         text ? dayjs.unix(text).format('YYYY-MM-DD HH:mm:ss') : '-',
     },

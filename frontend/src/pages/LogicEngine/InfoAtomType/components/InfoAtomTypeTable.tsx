@@ -64,14 +64,14 @@ const InfoAtomTypeTable: React.FC<InfoAtomTypeTableProps> = ({
       title: '版本',
       dataIndex: 'version',
       width: 100,
-      hideInSearch: true,
+      search: false,
       render: (text) => <Tag color="blue">{text}</Tag>,
     },
     {
       title: '标签',
       dataIndex: 'tags',
       width: 200,
-      hideInSearch: true,
+      search: false,
       render: (_, record) => (
         <Space wrap>
           {record.tags && record.tags.length > 0 ? (
@@ -87,7 +87,7 @@ const InfoAtomTypeTable: React.FC<InfoAtomTypeTableProps> = ({
       title: '字段数量',
       dataIndex: 'fieldCount',
       width: 100,
-      hideInSearch: true,
+      search: false,
       render: (_, record) => (
         <Tag color="green">{record.dataFormat.fields.length} 个字段</Tag>
       ),
@@ -96,7 +96,7 @@ const InfoAtomTypeTable: React.FC<InfoAtomTypeTableProps> = ({
       title: '数据类型',
       dataIndex: 'dataPlural',
       width: 100,
-      hideInSearch: true,
+      search: false,
       render: (_, record) => (
         <Tag color={record.dataFormat.dataPlural ? 'orange' : 'default'}>
           {record.dataFormat.dataPlural ? '数组' : '单条'}
@@ -107,7 +107,7 @@ const InfoAtomTypeTable: React.FC<InfoAtomTypeTableProps> = ({
       title: '字段类型',
       dataIndex: 'fieldTypes',
       width: 200,
-      hideInSearch: true,
+      search: false,
       render: (_, record) => (
         <Space wrap>
           {[...new Set(record.dataFormat.fields.map((f) => f.fieldType))].map(
@@ -124,7 +124,7 @@ const InfoAtomTypeTable: React.FC<InfoAtomTypeTableProps> = ({
       title: '创建时间',
       dataIndex: 'createdAt',
       width: 180,
-      hideInSearch: true,
+      search: false,
       render: (text: any) =>
         text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '-',
     },

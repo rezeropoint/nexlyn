@@ -101,19 +101,19 @@ const ProposedJourneys: React.FC = () => {
       title: "流程ID",
       dataIndex: "flowId",
       width: 100,
-      hideInSearch: true,
+      search: false,
     },
     {
       title: "Journey ID",
       dataIndex: "id",
       width: 120,
-      hideInSearch: true,
+      search: false,
     },
     {
       title: "当前节点ID",
       dataIndex: "currentVertexId",
       width: 120,
-      hideInSearch: true,
+      search: false,
     },
     {
       title: "状态",
@@ -141,7 +141,7 @@ const ProposedJourneys: React.FC = () => {
       title: "发起人",
       dataIndex: ["user", "name"],
       width: 120,
-      hideInSearch: true,
+      search: false,
       render: (_, record) => {
         if (record.user) {
           return record.user.nickname || record.user.name;
@@ -153,7 +153,7 @@ const ProposedJourneys: React.FC = () => {
       title: "创建时间",
       dataIndex: "createdAt",
       width: 180,
-      hideInSearch: true,
+      search: false,
       render: (text) =>
         text ? dayjs(text as string).format("YYYY-MM-DD HH:mm:ss") : "-",
     },
@@ -161,7 +161,7 @@ const ProposedJourneys: React.FC = () => {
       title: "更新时间",
       dataIndex: "updatedAt",
       width: 180,
-      hideInSearch: true,
+      search: false,
       render: (text) =>
         text ? dayjs(text as string).format("YYYY-MM-DD HH:mm:ss") : "-",
     },

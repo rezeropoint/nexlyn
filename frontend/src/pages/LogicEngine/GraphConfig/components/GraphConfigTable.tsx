@@ -86,7 +86,7 @@ const GraphConfigTable: React.FC<GraphConfigTableProps> = ({
       title: '图标',
       dataIndex: 'icon',
       width: 80,
-      hideInSearch: true,
+      search: false,
       align: 'center',
       render: (_, record) => {
         const IconComponent = record.icon ? getIconComponent(record.icon) : null;
@@ -102,7 +102,7 @@ const GraphConfigTable: React.FC<GraphConfigTableProps> = ({
       title: '版本',
       dataIndex: 'version',
       width: 100,
-      hideInSearch: true,
+      search: false,
       render: (text) => <Tag color="blue">{text}</Tag>,
     },
     {
@@ -110,14 +110,14 @@ const GraphConfigTable: React.FC<GraphConfigTableProps> = ({
       dataIndex: 'description',
       width: 250,
       ellipsis: true,
-      hideInSearch: true,
+      search: false,
       render: (text) => text || <span style={{ color: 'var(--ant-color-text-tertiary)' }}>-</span>,
     },
     {
       title: '标签',
       dataIndex: 'tags',
       width: 200,
-      hideInSearch: true,
+      search: false,
       render: (_, record) => (
         <Space wrap>
           {record.tags && record.tags.length > 0 ? (
@@ -151,7 +151,7 @@ const GraphConfigTable: React.FC<GraphConfigTableProps> = ({
       title: '创建时间',
       dataIndex: 'createdAt',
       width: 180,
-      hideInSearch: true,
+      search: false,
       render: (text: any) => (text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '-'),
     },
     {

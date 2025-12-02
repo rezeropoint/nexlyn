@@ -178,7 +178,7 @@ const DeviceTable: React.FC<DeviceTableProps> = ({
       key: "deviceId",
       width: 160,
       copyable: true,
-      hideInSearch: true,
+      search: false,
       ellipsis: true,
       render: (_, record) => record.deviceId || record.device_id,
     },
@@ -187,14 +187,14 @@ const DeviceTable: React.FC<DeviceTableProps> = ({
       dataIndex: "name",
       key: "name",
       ellipsis: true,
-      hideInSearch: true,
+      search: false,
     },
     {
       title: "设备别名",
       dataIndex: "deviceAlias",
       key: "deviceAlias",
       ellipsis: true,
-      hideInSearch: true,
+      search: false,
       render: (_, record) => {
         const alias = record.deviceAlias || record.device_alias;
         return (
@@ -217,7 +217,7 @@ const DeviceTable: React.FC<DeviceTableProps> = ({
       key: "manufacturer",
       width: 100,
       ellipsis: true,
-      hideInSearch: true,
+      search: false,
     },
     {
       title: "设备状态",
@@ -241,7 +241,7 @@ const DeviceTable: React.FC<DeviceTableProps> = ({
       dataIndex: "tags",
       key: "tags",
       ellipsis: true,
-      hideInSearch: true,
+      search: false,
       render: (_, record) => (
         <Space size={[4, 4]} wrap>
           {record.tags && record.tags.length > 0 ? (
@@ -328,7 +328,7 @@ const DeviceTable: React.FC<DeviceTableProps> = ({
       key: "option",
       width: 140,
       fixed: "right",
-      hideInSearch: true,
+      search: false,
       render: (_, record) => {
         const actions = [];
 

@@ -65,7 +65,7 @@ const MediaTable: React.FC<MediaTableProps> = ({
         dataIndex: "pluginName",
         width: 110,
         ellipsis: true,
-        hideInSearch: true,
+        search: false,
         render: (_, r) => r.pluginName || "-",
       },
       {
@@ -79,14 +79,14 @@ const MediaTable: React.FC<MediaTableProps> = ({
         title: "音频",
         dataIndex: "audioTrack",
         width: 160,
-        hideInSearch: true,
+        search: false,
         render: (_, r) => formatTrack(r.audioTrack),
       },
       {
         title: "视频",
         dataIndex: "videoTrack",
         width: 200,
-        hideInSearch: true,
+        search: false,
         render: (_, r) => formatTrack(r.videoTrack),
       },
       {
@@ -111,28 +111,28 @@ const MediaTable: React.FC<MediaTableProps> = ({
         title: "类型",
         dataIndex: "type",
         width: 90,
-        hideInSearch: true,
+        search: false,
         render: (_, r) => typeTag(r.type),
       },
       {
         title: "订阅",
         dataIndex: "subscribers",
         width: 80,
-        hideInSearch: true,
+        search: false,
       },
       {
         title: "创建时间",
         dataIndex: "startTime",
         width: 160,
         valueType: "dateTime",
-        hideInSearch: true,
+        search: false,
         render: (_, r) => formatDateTime(r.startTime),
       },
       {
         title: "BPS",
         dataIndex: "videoTrack",
         width: 100,
-        hideInSearch: true,
+        search: false,
         render: (_, r) => {
           const fmt = (v?: number) => {
             if (typeof v !== "number") return "-";
@@ -149,7 +149,7 @@ const MediaTable: React.FC<MediaTableProps> = ({
         title: "录制",
         dataIndex: "recording",
         width: 120,
-        hideInSearch: true,
+        search: false,
         render: (_, r) =>
           r.recording && r.recording.length > 0 ? r.recording.join(",") : "-",
       },

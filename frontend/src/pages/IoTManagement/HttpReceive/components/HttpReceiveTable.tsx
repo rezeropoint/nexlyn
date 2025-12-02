@@ -41,7 +41,7 @@ const HttpReceiveTable: React.FC<HttpReceiveTableProps> = ({
       dataIndex: "id",
       key: "endpoint",
       width: 300,
-      hideInSearch: true,
+      search: false,
       render: (_, record) => (
         <Tooltip title="点击复制完整端点地址">
           <Typography.Text
@@ -58,7 +58,7 @@ const HttpReceiveTable: React.FC<HttpReceiveTableProps> = ({
       dataIndex: "enabled",
       width: 100,
       align: "center",
-      hideInSearch: true,
+      search: false,
       render: (_, record) => (
         <Switch
           checked={record.enabled}
@@ -73,7 +73,7 @@ const HttpReceiveTable: React.FC<HttpReceiveTableProps> = ({
       dataIndex: "description",
       width: 200,
       ellipsis: true,
-      hideInSearch: true,
+      search: false,
       render: (text) => text || "-",
     },
     {
@@ -81,7 +81,7 @@ const HttpReceiveTable: React.FC<HttpReceiveTableProps> = ({
       dataIndex: "createdAt",
       width: 180,
       valueType: "dateTime",
-      hideInSearch: true,
+      search: false,
       sorter: true,
     },
     {
