@@ -215,6 +215,9 @@ export default {
       changeOrigin: true,
       pathRewrite: { '^/api': '/api' },
       timeout: 10000, // 10秒超时，对应 nginx 配置
+      headers: {
+        Connection: 'close', // 禁用 Keep-Alive，避免频繁请求时 ECONNRESET
+      },
     },
   },
   /**
