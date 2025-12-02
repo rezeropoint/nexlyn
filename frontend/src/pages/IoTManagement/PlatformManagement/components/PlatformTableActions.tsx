@@ -1,7 +1,7 @@
 import type { PlatformMetadata } from "@/services/iot";
-import { Space } from "antd";
+import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
+import { Button, Popconfirm, Space } from "antd";
 import React from "react";
-import styles from "./PlatformTableActions.less";
 
 interface PlatformTableActionsProps {
   record: PlatformMetadata;
@@ -19,10 +19,25 @@ const PlatformTableActions: React.FC<PlatformTableActionsProps> = ({
 }) => {
   return (
     <Space size="small">
-      <a onClick={() => onEdit(record)}>编辑</a>
-      <a onClick={() => onDelete(record)} className={styles.deleteButton}>
-        删除
-      </a>
+      <Button
+        type="link"
+        size="small"
+        icon={<EditOutlined />}
+        onClick={() => onEdit(record)}
+      >
+        编辑
+      </Button>
+      <Popconfirm
+        title="确认删除"
+        description="删除后将无法恢复，确认删除该平台配置？"
+        onConfirm={() => onDelete(record)}
+        okText="确认"
+        cancelText="取消"
+      >
+        <Button type="link" size="small" danger icon={<DeleteOutlined />}>
+          删除
+        </Button>
+      </Popconfirm>
     </Space>
   );
 };

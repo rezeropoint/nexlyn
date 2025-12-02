@@ -30,14 +30,6 @@ const PlatformTable: React.FC<PlatformTableProps> = ({
   // 表格列定义
   const columns: ProColumns<PlatformMetadata>[] = [
     {
-      title: "配置ID",
-      dataIndex: "id",
-      width: 180,
-      ellipsis: true,
-      copyable: true,
-      fixed: "left",
-    },
-    {
       title: "配置名称",
       dataIndex: "name",
       width: 200,
@@ -112,16 +104,13 @@ const PlatformTable: React.FC<PlatformTableProps> = ({
       actionRef={actionRef}
       rowKey="id"
       columns={columns}
-      scroll={{ x: 1400 }}
-      search={{
-        labelWidth: 120,
-      }}
+      scroll={{ x: 1200 }}
+      search={false}
       request={async (params, _sort) => {
         try {
           const response = await iotApi.getPlatformList({
             page: params.current,
             pageSize: params.pageSize,
-            keyword: params.id, // 使用ID字段作为关键词搜索
           });
 
           return {
@@ -149,8 +138,13 @@ const PlatformTable: React.FC<PlatformTableProps> = ({
         setting: true,
       }}
       toolBarRender={() => [
-        <Button type="primary" key="primary" onClick={onCreatePlatform}>
-          <PlusOutlined /> 新建平台配置
+        <Button
+          type="primary"
+          key="primary"
+          icon={<PlusOutlined />}
+          onClick={onCreatePlatform}
+        >
+          新建平台配置
         </Button>,
       ]}
       dateFormatter="string"
