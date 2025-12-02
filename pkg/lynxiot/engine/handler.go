@@ -88,6 +88,11 @@ func newIoTClient(ctx context.Context, config Config, dbConn sqlx.SqlConn, redis
 				Path:   core.HttpReceiveConfigPrefix, // HTTP数据接收配置
 				Struct: &core.HttpReceiveConfig{},
 			},
+			// 平台配置（仅写入不监听，但需要注册类型以支持 GetConfig 读取）
+			{
+				Path:   "platform-skylark/",
+				Struct: &core.PlatformConfig{},
+			},
 		},
 	})
 
