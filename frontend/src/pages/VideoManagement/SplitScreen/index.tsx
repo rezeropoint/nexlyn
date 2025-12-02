@@ -39,22 +39,26 @@ const SplitScreenMonitor: React.FC = () => {
     }
   }, [initialState?.currentUser]);
 
-  // 处理通道播放
-  const handleChannelPlay = (
-    gridIndex: number,
-    channelInfo: ChannelPlayInfo
-  ) => {
-    const newPlayingChannels = new Map(playingChannels);
-    newPlayingChannels.set(gridIndex, channelInfo);
-    setPlayingChannels(newPlayingChannels);
-  };
+  // 处理通道播放 - 使用 useCallback + 函数式更新避免依赖 playingChannels
+  const handleChannelPlay = useCallback(
+    (gridIndex: number, channelInfo: ChannelPlayInfo) => {
+      setPlayingChannels((prev) => {
+        const newMap = new Map(prev);
+        newMap.set(gridIndex, channelInfo);
+        return newMap;
+      });
+    },
+    []
+  );
 
-  // 停止播放
-  const handleStopPlay = (gridIndex: number) => {
-    const newPlayingChannels = new Map(playingChannels);
-    newPlayingChannels.delete(gridIndex);
-    setPlayingChannels(newPlayingChannels);
-  };
+  // 停止播放 - 使用 useCallback + 函数式更新避免依赖 playingChannels
+  const handleStopPlay = useCallback((gridIndex: number) => {
+    setPlayingChannels((prev) => {
+      const newMap = new Map(prev);
+      newMap.delete(gridIndex);
+      return newMap;
+    });
+  }, []);
 
   // 清空所有播放
   const handleClearAll = () => {
