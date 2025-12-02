@@ -3,6 +3,7 @@ package plugin_nexlyn
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -89,13 +90,46 @@ func (u *JWTUser) IsSameTenant(tenantKey string) bool {
 	return u.GetTenantKey() == tenantKey
 }
 
+// sendUnauthorizedResponse 发送认证失败响应，根据错误类型返回不同的reason
+func sendUnauthorizedResponse(w http.ResponseWriter, err error) {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http.StatusUnauthorized)
+
+	response := map[string]any{
+		"code": 401,
+	}
+
+	switch {
+	case err == nil:
+		response["message"] = "未授权访问"
+		response["reason"] = "UNAUTHORIZED"
+	case errors.Is(err, jwt.ErrTokenExpired):
+		response["message"] = "登录已过期，请重新登录"
+		response["reason"] = "TOKEN_EXPIRED"
+	case errors.Is(err, jwt.ErrTokenMalformed):
+		response["message"] = "无效的令牌格式"
+		response["reason"] = "TOKEN_MALFORMED"
+	case errors.Is(err, jwt.ErrTokenNotValidYet):
+		response["message"] = "令牌尚未生效"
+		response["reason"] = "TOKEN_NOT_VALID_YET"
+	case errors.Is(err, jwt.ErrTokenSignatureInvalid):
+		response["message"] = "令牌签名无效"
+		response["reason"] = "TOKEN_SIGNATURE_INVALID"
+	default:
+		response["message"] = "未授权访问"
+		response["reason"] = "UNAUTHORIZED"
+	}
+
+	json.NewEncoder(w).Encode(response)
+}
+
 // JWTAuthMiddleware JWT认证中间件
 func (n *NexlynPlugin) JWTAuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// 从请求头获取Authorization token
 		authHeader := r.Header.Get("Authorization")
 		if authHeader == "" {
-			http.Error(w, "未提供认证token", http.StatusUnauthorized)
+			sendUnauthorizedResponse(w, nil)
 			return
 		}
 
@@ -104,7 +138,7 @@ func (n *NexlynPlugin) JWTAuthMiddleware(next http.HandlerFunc) http.HandlerFunc
 		if strings.HasPrefix(authHeader, "Bearer ") {
 			tokenString = authHeader[7:]
 		} else {
-			http.Error(w, "认证格式错误，需要Bearer token", http.StatusUnauthorized)
+			sendUnauthorizedResponse(w, jwt.ErrTokenMalformed)
 			return
 		}
 
@@ -112,39 +146,39 @@ func (n *NexlynPlugin) JWTAuthMiddleware(next http.HandlerFunc) http.HandlerFunc
 		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 			// 验证签名方法
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, fmt.Errorf("非法的签名方法: %v", token.Header["alg"])
+				return nil, jwt.ErrTokenSignatureInvalid
 			}
 			return []byte(n.Auth.AccessSecret), nil
 		})
 
 		if err != nil {
-			http.Error(w, fmt.Sprintf("Token解析失败: %v", err), http.StatusUnauthorized)
+			sendUnauthorizedResponse(w, err)
 			return
 		}
 
 		if !token.Valid {
-			http.Error(w, "Token无效", http.StatusUnauthorized)
+			sendUnauthorizedResponse(w, nil)
 			return
 		}
 
 		// 获取claims
 		claims, ok := token.Claims.(jwt.MapClaims)
 		if !ok {
-			http.Error(w, "Token claims格式错误", http.StatusUnauthorized)
+			sendUnauthorizedResponse(w, jwt.ErrTokenMalformed)
 			return
 		}
 
 		// 获取payload
 		payload, exists := claims["payload"]
 		if !exists {
-			http.Error(w, "Token中未找到payload", http.StatusUnauthorized)
+			sendUnauthorizedResponse(w, jwt.ErrTokenMalformed)
 			return
 		}
 
 		// 确保payload是字符串类型
 		payloadStr, ok := payload.(string)
 		if !ok {
-			http.Error(w, "Token payload格式错误", http.StatusUnauthorized)
+			sendUnauthorizedResponse(w, jwt.ErrTokenMalformed)
 			return
 		}
 
