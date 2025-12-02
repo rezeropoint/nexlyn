@@ -143,12 +143,7 @@ func newIoTClient(ctx context.Context, config Config, dbConn sqlx.SqlConn, redis
 			PodName:          config.PodName,
 			LynxGraphGRPCURL: config.LynxGraphGRPCURL,
 		},
-		func(id string) (*core.PlatformConfig, bool) {
-			// 从 platformManager 获取平台配置
-			// 注意：这里需要先查询元数据获取 type 和 tenantID
-			// 为了简化，这里返回 nil（如果需要使用，需要扩展 platform.Manager 接口）
-			return nil, false
-		},
+		platformMgr.GetByID,
 		skylarkEngine,
 		workgroupMgr.SubmitAsync,
 	)
