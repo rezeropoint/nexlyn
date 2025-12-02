@@ -45,10 +45,10 @@ const HttpReceiveTable: React.FC<HttpReceiveTableProps> = ({
       render: (_, record) => (
         <Tooltip title="点击复制完整端点地址">
           <Typography.Text
-            copyable={{ text: `/api/iot/v1/data-receive/${record.id}` }}
+            copyable={{ text: `/api/v1/data-receive/${record.id}` }}
             code
           >
-            POST /api/iot/v1/data-receive/{record.id.slice(0, 8)}...
+            POST /api/v1/data-receive/{record.id.slice(0, 8)}...
           </Typography.Text>
         </Tooltip>
       ),
