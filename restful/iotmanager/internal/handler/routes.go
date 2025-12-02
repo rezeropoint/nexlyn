@@ -138,7 +138,7 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Handler: httpreceive.ReceiveDataHandler(serverCtx),
 			},
 		},
-		rest.WithPrefix("/api/iot/v1"),
+		rest.WithPrefix("/api/v1"),
 		rest.WithTimeout(30000*time.Millisecond),
 	)
 

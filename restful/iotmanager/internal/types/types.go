@@ -560,7 +560,7 @@ type HttpReceiveDispatchConfig struct {
 
 type HttpReceiveFieldMapping struct {
 	FieldName    string `json:"fieldName"`             // 自定义字段名
-	SourcePath   string `json:"sourcePath"`            // JSON 字段路径
+	SourcePath   string `json:"sourcePath"`            // JSON 字段路径，支持：点分隔(data.temp)、数组索引(Result.Tags[0])、混合(data.items[2].name)
 	FieldType    string `json:"fieldType,optional"`    // 字段类型
 	DefaultValue string `json:"defaultValue,optional"` // 默认值
 }

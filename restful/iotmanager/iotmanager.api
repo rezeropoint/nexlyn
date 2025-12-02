@@ -228,7 +228,7 @@ service IotManager {
 
 // ===== HTTP 数据接收接口组（无认证）=====
 @server (
-	prefix:  /api/iot/v1
+	prefix:  /api/v1
 	group:   httpreceive
 	timeout: 30s
 )
