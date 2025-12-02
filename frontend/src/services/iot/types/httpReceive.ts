@@ -12,7 +12,7 @@ export interface HttpReceiveFieldMapping {
   //   - 点分隔：data.temp
   //   - 数组索引：Result.Tags[0]
   //   - 混合使用：data.items[2].name
-  fieldType?: string; // 字段类型（string/number/boolean）
+  fieldType?: string; // 字段类型（string/imageURL/imageBase64）
   defaultValue?: string; // 默认值（可选，字段不存在时使用）
 }
 

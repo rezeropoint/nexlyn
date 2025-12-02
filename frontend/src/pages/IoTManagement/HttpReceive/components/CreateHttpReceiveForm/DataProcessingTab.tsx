@@ -11,16 +11,15 @@ import {
   ProFormTextArea,
 } from "@ant-design/pro-components";
 import { useModel } from "@umijs/max";
-import { Alert, Card, Divider, Space, Spin, Tag, Typography } from "antd";
+import { Alert, Card, Divider, Flex, Space, Spin, Tag, Typography } from "antd";
 import React, { useEffect, useState } from "react";
 import {
   DISPATCH_TYPE_COLORS,
   DISPATCH_TYPE_OPTIONS,
-  FIELD_TYPE_OPTIONS,
+  getFieldTypeOptions,
+  getSupportedFieldTypes,
   TIMESTAMP_FORMAT_OPTIONS,
 } from "../../constants";
-
-const { Text } = Typography;
 
 /**
  * 数据处理配置标签页组件
@@ -85,13 +84,12 @@ const DataProcessingTab: React.FC = () => {
   }, [initialState?.currentUser?.tenantInfo?.tenantId]);
 
   return (
-    <>
+    <Flex vertical gap={16}>
       <Alert
         message="数据处理与分发配置"
         description="配置如何从 HTTP 请求体中提取数据，以及数据的分发目标。请求体必须是 JSON 格式。字段名可自定义，无需映射到预定义的标准字段。"
         type="info"
         showIcon
-        style={{ marginBottom: 16 }}
       />
 
       {/* ===== 时间戳配置 ===== */}
@@ -125,72 +123,112 @@ const DataProcessingTab: React.FC = () => {
       {/* ===== 字段映射配置 ===== */}
       <Divider orientation="left">字段映射配置</Divider>
 
-      <Alert
-        message="自定义字段映射"
-        description="定义要从 JSON 请求体中提取的字段。字段名由您自定义，可根据业务需要命名（如 temperature、humidity 等）。"
-        type="info"
-        showIcon
-        style={{ marginBottom: 16 }}
-      />
+      {/* 使用 ProFormDependency 监听分发配置，动态调整字段类型选项 */}
+      <ProFormDependency name={["dispatchConfigs"]}>
+        {({ dispatchConfigs }) => {
+          const supportedTypes = getSupportedFieldTypes(dispatchConfigs);
+          const fieldTypeOptions = getFieldTypeOptions(supportedTypes);
 
-      <ProFormList
-        name="fieldMappings"
-        label="字段映射列表"
-        tooltip="定义如何从请求体中提取数据字段"
-        creatorButtonProps={{
-          position: "bottom",
-          creatorButtonText: "+ 添加字段映射",
+          return (
+            <>
+              <Alert
+                message="自定义字段映射"
+                description={
+                  dispatchConfigs?.length > 0
+                    ? `根据当前分发配置，支持的字段类型：${fieldTypeOptions.map((o) => o.label).join("、")}`
+                    : "定义要从 JSON 请求体中提取的字段。字段名由您自定义，可根据业务需要命名（如 temperature、humidity 等）。"
+                }
+                type="info"
+                showIcon
+              />
+
+              <ProFormList
+                name="fieldMappings"
+                label="字段映射列表"
+                tooltip="定义如何从请求体中提取数据字段"
+                creatorButtonProps={{
+                  position: "bottom",
+                  creatorButtonText: "+ 添加字段映射",
+                }}
+                copyIconProps={false}
+                deleteIconProps={{ tooltipText: "删除此映射" }}
+                itemRender={({ listDom, action }, { index }) => (
+                  <Card
+                    size="small"
+                    title={
+                      <Typography.Text strong>
+                        映射规则 #{index + 1}
+                      </Typography.Text>
+                    }
+                    extra={action}
+                  >
+                    {listDom}
+                  </Card>
+                )}
+              >
+                <Space
+                  direction="vertical"
+                  style={{ width: "100%" }}
+                  size="middle"
+                >
+                  <ProFormText
+                    name="fieldName"
+                    label="字段名称"
+                    placeholder="例如：temperature、humidity、status"
+                    tooltip="自定义的字段名称，将作为分发数据中的 key"
+                    rules={[{ required: true, message: "请输入字段名称" }]}
+                  />
+
+                  <ProFormText
+                    name="sourcePath"
+                    label="源字段路径"
+                    placeholder="例如：data.temp、sensors.temperature、temp"
+                    tooltip="请求体 JSON 中的数据字段路径，使用点分隔符"
+                    rules={[{ required: true, message: "请输入源字段路径" }]}
+                  />
+
+                  <ProFormSelect
+                    name="fieldType"
+                    label="字段类型"
+                    placeholder="请选择字段类型"
+                    options={fieldTypeOptions}
+                    tooltip="数据字段的类型（根据分发配置自动过滤可用类型）"
+                    initialValue="string"
+                    rules={[
+                      {
+                        validator: (_, value) => {
+                          if (value && !supportedTypes.includes(value)) {
+                            return Promise.reject(
+                              new Error(
+                                `字段类型 "${value}" 与当前分发配置不兼容`
+                              )
+                            );
+                          }
+                          return Promise.resolve();
+                        },
+                      },
+                    ]}
+                  />
+
+                  {/* 只有 string 类型支持默认值 */}
+                  <ProFormDependency name={["fieldType"]}>
+                    {({ fieldType }) =>
+                      fieldType === "string" || !fieldType ? (
+                        <ProFormText
+                          name="defaultValue"
+                          label="默认值"
+                          placeholder="当源字段不存在时使用的默认值"
+                          tooltip="可选，当源字段不存在或为空时使用此值（仅字符串类型支持）"
+                        />
+                      ) : null
+                    }
+                  </ProFormDependency>
+                </Space>
+              </ProFormList>
+            </>
+          );
         }}
-        copyIconProps={false}
-        deleteIconProps={{ tooltipText: "删除此映射" }}
-        itemRender={({ listDom, action }, { index }) => (
-          <Card
-            size="small"
-            style={{ marginBottom: 8 }}
-            title={
-              <Text strong style={{ fontSize: 13 }}>
-                映射规则 #{index + 1}
-              </Text>
-            }
-            extra={action}
-          >
-            {listDom}
-          </Card>
-        )}
-      >
-        <Space direction="vertical" style={{ width: "100%" }} size="middle">
-          <ProFormText
-            name="fieldName"
-            label="字段名称"
-            placeholder="例如：temperature、humidity、status"
-            tooltip="自定义的字段名称，将作为分发数据中的 key"
-            rules={[{ required: true, message: "请输入字段名称" }]}
-          />
-
-          <ProFormText
-            name="sourcePath"
-            label="源字段路径"
-            placeholder="例如：data.temp、sensors.temperature、temp"
-            tooltip="请求体 JSON 中的数据字段路径，使用点分隔符"
-            rules={[{ required: true, message: "请输入源字段路径" }]}
-          />
-
-          <ProFormSelect
-            name="fieldType"
-            label="字段类型"
-            placeholder="请选择字段类型"
-            options={FIELD_TYPE_OPTIONS}
-            tooltip="数据字段的类型"
-          />
-
-          <ProFormText
-            name="defaultValue"
-            label="默认值"
-            placeholder="当源字段不存在时使用的默认值"
-            tooltip="可选，当源字段不存在或为空时使用此值"
-          />
-        </Space>
-      </ProFormList>
+      </ProFormDependency>
 
       {/* ===== 分发配置 ===== */}
       <Divider orientation="left">分发配置</Divider>
@@ -209,11 +247,10 @@ const DataProcessingTab: React.FC = () => {
           itemRender={({ listDom, action }, { index }) => (
             <Card
               size="small"
-              style={{ marginBottom: 8 }}
               title={
-                <Text strong style={{ fontSize: 13 }}>
+                <Typography.Text strong>
                   分发配置 #{index + 1}
-                </Text>
+                </Typography.Text>
               }
               extra={action}
             >
@@ -368,7 +405,7 @@ const DataProcessingTab: React.FC = () => {
           </Space>
         </ProFormList>
       </Spin>
-    </>
+    </Flex>
   );
 };
 

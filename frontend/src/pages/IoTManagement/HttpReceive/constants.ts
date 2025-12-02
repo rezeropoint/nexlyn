@@ -79,13 +79,66 @@ export const TIMESTAMP_FORMAT_NAMES: Record<string, string> = {
   rfc3339: "RFC 3339",
 };
 
-// 字段类型选项
-export const FIELD_TYPE_OPTIONS = [
+// 所有字段类型选项
+export const ALL_FIELD_TYPE_OPTIONS = [
   { label: "字符串", value: "string" },
+  { label: "图片URL", value: "imageURL" },
+  { label: "图片Base64", value: "imageBase64" },
   { label: "整数", value: "int" },
   { label: "浮点数", value: "float" },
   { label: "布尔值", value: "bool" },
 ];
+
+// Skylark 支持的字段类型（go-skylark FieldType）
+export const SKYLARK_FIELD_TYPES = ["string", "imageURL", "imageBase64"];
+
+// LynxGraph 支持的字段类型（lynxgraph/core FieldType）
+export const LYNXGRAPH_FIELD_TYPES = ["string", "int", "float", "bool"];
+
+// 各分发类型支持的字段类型映射
+export const DISPATCH_SUPPORTED_FIELD_TYPES: Record<string, string[]> = {
+  skylark_flows: SKYLARK_FIELD_TYPES,
+  skylark_forms: SKYLARK_FIELD_TYPES,
+  lynxgraph: LYNXGRAPH_FIELD_TYPES,
+  log: ALL_FIELD_TYPE_OPTIONS.map((opt) => opt.value), // log 支持所有类型
+};
+
+// 根据分发配置获取支持的字段类型（取交集）
+export const getSupportedFieldTypes = (
+  dispatchConfigs?: Array<{ type?: string }>
+): string[] => {
+  if (!dispatchConfigs || dispatchConfigs.length === 0) {
+    // 无分发配置时，支持所有类型
+    return ALL_FIELD_TYPE_OPTIONS.map((opt) => opt.value);
+  }
+
+  // 计算所有分发配置支持类型的交集
+  let result: string[] | null = null;
+  for (const dc of dispatchConfigs) {
+    if (!dc.type) continue;
+    const supported =
+      DISPATCH_SUPPORTED_FIELD_TYPES[dc.type] ||
+      ALL_FIELD_TYPE_OPTIONS.map((opt) => opt.value);
+    if (result === null) {
+      result = [...supported];
+    } else {
+      // 取交集
+      result = result.filter((x) => supported.includes(x));
+    }
+  }
+
+  return result ?? ALL_FIELD_TYPE_OPTIONS.map((opt) => opt.value);
+};
+
+// 根据支持的类型过滤字段类型选项
+export const getFieldTypeOptions = (supportedTypes: string[]) => {
+  return ALL_FIELD_TYPE_OPTIONS.filter((opt) =>
+    supportedTypes.includes(opt.value)
+  );
+};
+
+// 向后兼容：默认字段类型选项（所有类型）
+export const FIELD_TYPE_OPTIONS = ALL_FIELD_TYPE_OPTIONS;
 
 // 每页显示数量
 export const DEFAULT_PAGE_SIZE = 10;

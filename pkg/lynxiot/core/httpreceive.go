@@ -22,7 +22,7 @@ type HttpReceiveFieldMapping struct {
 	//   - 点分隔：data.temp
 	//   - 数组索引：Result.Tags[0]
 	//   - 混合使用：data.items[2].name
-	FieldType    FieldType `json:"fieldType"`              // 字段类型（string/number/boolean）
+	FieldType    FieldType `json:"fieldType"`              // 字段类型（string/imageURL/imageBase64）
 	DefaultValue string    `json:"defaultValue,omitempty"` // 默认值（可选，字段不存在时使用）
 }
 
@@ -61,6 +61,42 @@ const (
 	HttpReceiveConfigPrefix = "http-receive/" // HTTP接收配置根前缀
 )
 
+// HTTP Receive 专用的字段类型常量（用于 LynxGraph 分发）
+// 注意：这些与 lynxgraph/core 的 FieldType 保持一致
+const (
+	HttpReceiveFieldTypeInt   FieldType = "int"   // 整型（LynxGraph）
+	HttpReceiveFieldTypeFloat FieldType = "float" // 浮点型（LynxGraph）
+	HttpReceiveFieldTypeBool  FieldType = "bool"  // 布尔型（LynxGraph）
+)
+
+// 各分发类型支持的字段类型
+var (
+	// Skylark 支持的字段类型（go-skylark FieldType）
+	SkylarkSupportedFieldTypes = map[FieldType]bool{
+		FieldTypeString:      true, // string
+		FieldTypeImage:       true, // imageURL
+		FieldTypeImageBase64: true, // imageBase64
+	}
+
+	// LynxGraph 支持的字段类型（lynxgraph/core FieldType）
+	LynxGraphSupportedFieldTypes = map[FieldType]bool{
+		FieldTypeString:         true, // string
+		HttpReceiveFieldTypeInt:   true, // int
+		HttpReceiveFieldTypeFloat: true, // float
+		HttpReceiveFieldTypeBool:  true, // bool
+	}
+
+	// 所有支持的字段类型（用于 log 或无分发配置时）
+	AllSupportedFieldTypes = map[FieldType]bool{
+		FieldTypeString:           true,
+		FieldTypeImage:            true,
+		FieldTypeImageBase64:      true,
+		HttpReceiveFieldTypeInt:   true,
+		HttpReceiveFieldTypeFloat: true,
+		HttpReceiveFieldTypeBool:  true,
+	}
+)
+
 // BuildHttpReceiveConfigKey 构建HTTP接收配置的Etcd key
 // 格式: http-receive/{configId}
 // 例如: http-receive/550e8400-e29b-41d4-a716-446655440000
@@ -68,12 +104,56 @@ func BuildHttpReceiveConfigKey(configId string) string {
 	return fmt.Sprintf("%s%s", HttpReceiveConfigPrefix, configId)
 }
 
-// ValidateHttpReceiveFieldMappings 验证HTTP接收字段映射
-// 说明：HTTP 接收处理任意格式的 JSON 数据，不需要验证标准字段
-func ValidateHttpReceiveFieldMappings(mappings []HttpReceiveFieldMapping) error {
+// GetSupportedFieldTypes 根据分发配置获取支持的字段类型
+// 返回所有分发配置的交集（即所有分发目标都支持的类型）
+func GetSupportedFieldTypes(dispatchConfigs []DispatchConfig) map[FieldType]bool {
+	if len(dispatchConfigs) == 0 {
+		// 无分发配置时，支持所有类型
+		return AllSupportedFieldTypes
+	}
+
+	// 计算所有分发配置支持类型的交集
+	var result map[FieldType]bool
+	for i, dc := range dispatchConfigs {
+		var supported map[FieldType]bool
+		switch dc.Type {
+		case DispatchTypeSkylarkFlows, DispatchTypeSkylarkForms:
+			supported = SkylarkSupportedFieldTypes
+		case DispatchTypeLynxGraph:
+			supported = LynxGraphSupportedFieldTypes
+		case DispatchTypeLog:
+			supported = AllSupportedFieldTypes
+		default:
+			supported = AllSupportedFieldTypes
+		}
+
+		if i == 0 {
+			// 第一个分发配置，直接复制
+			result = make(map[FieldType]bool)
+			for k, v := range supported {
+				result[k] = v
+			}
+		} else {
+			// 后续分发配置，取交集
+			for k := range result {
+				if !supported[k] {
+					delete(result, k)
+				}
+			}
+		}
+	}
+
+	return result
+}
+
+// ValidateHttpReceiveFieldMappingsWithDispatch 验证HTTP接收字段映射（考虑分发配置）
+func ValidateHttpReceiveFieldMappingsWithDispatch(mappings []HttpReceiveFieldMapping, dispatchConfigs []DispatchConfig) error {
 	if len(mappings) == 0 {
 		return fmt.Errorf("字段映射列表不能为空")
 	}
+
+	// 获取支持的字段类型
+	supportedTypes := GetSupportedFieldTypes(dispatchConfigs)
 
 	// 验证每个映射
 	for i, mapping := range mappings {
@@ -87,18 +167,29 @@ func ValidateHttpReceiveFieldMappings(mappings []HttpReceiveFieldMapping) error 
 			return fmt.Errorf("字段映射[%d]: 源路径不能为空", i)
 		}
 
-		// 验证字段类型
-		validTypes := map[FieldType]bool{
-			FieldTypeString:  true,
-			FieldTypeNumber:  true,
-			FieldTypeBoolean: true,
-		}
-		if !validTypes[mapping.FieldType] {
+		// 验证字段类型是否在所有支持的类型中
+		if !AllSupportedFieldTypes[mapping.FieldType] {
 			return fmt.Errorf("字段映射[%d]: 无效的字段类型 %s", i, mapping.FieldType)
+		}
+
+		// 验证字段类型是否与分发配置兼容
+		if !supportedTypes[mapping.FieldType] {
+			return fmt.Errorf("字段映射[%d]: 字段类型 %s 与分发配置不兼容", i, mapping.FieldType)
+		}
+
+		// 只有 string 类型支持默认值
+		if mapping.DefaultValue != "" && mapping.FieldType != FieldTypeString {
+			return fmt.Errorf("字段映射[%d]: 只有 string 类型支持默认值", i)
 		}
 	}
 
 	return nil
+}
+
+// ValidateHttpReceiveFieldMappings 验证HTTP接收字段映射（向后兼容，不检查分发配置）
+// Deprecated: 请使用 ValidateHttpReceiveFieldMappingsWithDispatch
+func ValidateHttpReceiveFieldMappings(mappings []HttpReceiveFieldMapping) error {
+	return ValidateHttpReceiveFieldMappingsWithDispatch(mappings, nil)
 }
 
 // Validate 验证HTTP接收配置的有效性
@@ -113,8 +204,8 @@ func (config *HttpReceiveConfig) Validate() error {
 		return fmt.Errorf("字段映射列表不能为空")
 	}
 
-	// 验证字段映射
-	if err := ValidateHttpReceiveFieldMappings(config.FieldMappings); err != nil {
+	// 验证字段映射（考虑分发配置的兼容性）
+	if err := ValidateHttpReceiveFieldMappingsWithDispatch(config.FieldMappings, config.DispatchConfigs); err != nil {
 		return fmt.Errorf("字段映射验证失败: %w", err)
 	}
 
