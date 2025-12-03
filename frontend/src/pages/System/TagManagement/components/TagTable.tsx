@@ -48,13 +48,6 @@ const TagTable: React.FC<TagTableProps> = ({
   // 表格列定义
   const columns: ProColumns<API.TagDefinition>[] = [
     {
-      title: "标签ID",
-      dataIndex: "id",
-      ellipsis: true,
-      copyable: true,
-      search: false,
-    },
-    {
       title: "标签名称",
       dataIndex: "label",
       ellipsis: true,

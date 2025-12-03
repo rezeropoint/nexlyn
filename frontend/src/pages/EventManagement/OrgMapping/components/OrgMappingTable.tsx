@@ -24,14 +24,6 @@ const OrgMappingTable: React.FC<OrgMappingTableProps> = ({
 }) => {
   const columns: ProColumns<OrgMapping>[] = [
     {
-      title: "ID",
-      dataIndex: "id",
-      key: "id",
-      search: false,
-      width: 280,
-      ellipsis: true,
-    },
-    {
       title: "远程组织值",
       dataIndex: "remoteOrgValue",
       key: "remoteOrgValue",

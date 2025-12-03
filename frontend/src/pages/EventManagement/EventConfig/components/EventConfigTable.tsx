@@ -24,12 +24,6 @@ const EventConfigTable: React.FC<EventConfigTableProps> = ({
 }) => {
   const columns: ProColumns<EventConfigWithFields>[] = [
     {
-      title: "ID",
-      dataIndex: "id",
-      key: "id",
-      search: false,
-    },
-    {
       title: "配置名称",
       dataIndex: "name",
       key: "name",

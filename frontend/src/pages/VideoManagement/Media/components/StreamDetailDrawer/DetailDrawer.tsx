@@ -300,7 +300,6 @@ const DetailDrawer: React.FC<DetailDrawerProps> = ({
           showQuickJumper: true,
         }}
         columns={[
-          { title: "ID", dataIndex: "id", width: 80 },
           { title: "插件", dataIndex: "pluginName", width: 110 },
           { title: "类型", dataIndex: "type", width: 90 },
           {

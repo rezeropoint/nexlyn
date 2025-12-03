@@ -98,20 +98,8 @@ const ProposedJourneys: React.FC = () => {
       ),
     },
     {
-      title: "流程ID",
-      dataIndex: "flowId",
-      width: 100,
-      search: false,
-    },
-    {
       title: "Journey ID",
       dataIndex: "id",
-      width: 120,
-      search: false,
-    },
-    {
-      title: "当前节点ID",
-      dataIndex: "currentVertexId",
       width: 120,
       search: false,
     },

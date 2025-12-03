@@ -40,11 +40,6 @@ const RuntimeDataTab: React.FC<RuntimeDataTabProps> = () => {
           dataSource={[]}
           columns={[
             {
-              title: 'ID',
-              dataIndex: 'id',
-              width: 80,
-            },
-            {
               title: '信息原子ID',
               dataIndex: 'infoAtomId',
               width: 150,

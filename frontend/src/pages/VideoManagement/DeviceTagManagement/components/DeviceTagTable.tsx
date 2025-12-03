@@ -48,14 +48,6 @@ const DeviceTagTable: React.FC<DeviceTagTableProps> = ({
   // 表格列定义
   const columns: ProColumns<DeviceTag>[] = [
     {
-      title: "标签ID",
-      dataIndex: "id",
-      ellipsis: true,
-      copyable: true,
-      search: false,
-      width: 180,
-    },
-    {
       title: "标签名称",
       dataIndex: "tagName",
       ellipsis: true,
