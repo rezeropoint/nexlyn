@@ -648,28 +648,6 @@ func ConvertCoreJourneyDetailToTypes(detail *core.JourneyDetail) types.JourneyDe
 		// types.FlowUser 的 Nickname 和 Identifier 保持空值（core无此字段）
 	}
 
-	// 转换附件列表
-	// 注意：core.Attachment.Size 是 string 类型（如 "1.2 MB"），types.Attachment.Size 是 int64
-	// core.Attachment 没有 UploadedBy 和 CreatedAt 字段
-	attachments := make([]types.Attachment, 0, len(detail.Attachments))
-	for _, att := range detail.Attachments {
-		// 尝试解析 Size 字符串为字节数（简化处理，实际可能需要更复杂的解析）
-		// 如果无法解析，使用 0
-		size := int64(0)
-		// TODO: 实现 Size 字符串解析（如 "1.2 MB" -> 字节数）
-		// 暂时保持为 0
-
-		attachments = append(attachments, types.Attachment{
-			Id:         att.ID,
-			Name:       att.Name,
-			Url:        att.DownloadURL, // core 使用 DownloadURL
-			Size:       size,            // core.Size 是 string，需要解析
-			MimeType:   att.MimeType,
-			UploadedBy: 0,  // core 无此字段，设为 0
-			CreatedAt:  "", // core 无此字段，设为空字符串
-		})
-	}
-
 	// 转换审批节点ID列表（可能为空）
 	reviewerVertexIds := make([]int64, 0)
 	if detail.ReviewerVertexIDs != nil {
@@ -695,8 +673,7 @@ func ConvertCoreJourneyDetailToTypes(detail *core.JourneyDetail) types.JourneyDe
 		ReviewerVertexIds:        reviewerVertexIds,
 		CurrentDurationThreshold: currentDurationThreshold,
 		Initiator:                initiator,
-		BusinessData:             detail.BusinessData,
-		Attachments:              attachments,
+		BusinessData:             detail.BusinessData, // 图片字段返回 URL
 	}
 }
 

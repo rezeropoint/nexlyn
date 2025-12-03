@@ -24,7 +24,7 @@ type (
 		EventConfigId string `json:"eventConfigId"` // 关联事件配置ID
 		FieldName     string `json:"fieldName"` // 远程表字段名
 		DisplayName   string `json:"displayName"` // 展示名称
-		FieldType     string `json:"fieldType"` // 字段类型：string/number/date/datetime/boolean
+		FieldType     string `json:"fieldType"` // 字段类型：string/number/date/datetime/boolean/imageBase64
 		IsVisible     bool   `json:"isVisible"` // 是否在列表页展示
 		DisplayOrder  int    `json:"displayOrder"` // 展示顺序
 		IsSearchable  bool   `json:"isSearchable"` // 是否可搜索

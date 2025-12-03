@@ -214,6 +214,7 @@ export enum FieldType {
   DATE = "date",
   DATETIME = "datetime",
   BOOLEAN = "boolean",
+  IMAGE_BASE64 = "imageBase64",
 }
 
 // ===== 流程状态枚举 =====

@@ -78,8 +78,7 @@ export interface JourneyDetail {
   reviewerVertexIds?: number[]; // 审批节点ID列表
   currentDurationThreshold?: string; // 当前节点超时阈值
   initiator?: FlowUser; // 发起人信息
-  businessData?: Record<string, any>; // 业务字段值
-  attachments?: Attachment[]; // 附件列表
+  businessData?: Record<string, any>; // 业务字段值（图片字段为URL）
 }
 
 /**

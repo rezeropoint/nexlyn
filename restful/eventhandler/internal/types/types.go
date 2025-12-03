@@ -149,7 +149,7 @@ type FieldConfig struct {
 	EventConfigId string `json:"eventConfigId"`      // 关联事件配置ID
 	FieldName     string `json:"fieldName"`          // 远程表字段名
 	DisplayName   string `json:"displayName"`        // 展示名称
-	FieldType     string `json:"fieldType"`          // 字段类型：string/number/date/datetime/boolean
+	FieldType     string `json:"fieldType"`          // 字段类型：string/number/date/datetime/boolean/imageBase64
 	IsVisible     bool   `json:"isVisible"`          // 是否在列表页展示
 	DisplayOrder  int    `json:"displayOrder"`       // 展示顺序
 	IsSearchable  bool   `json:"isSearchable"`       // 是否可搜索
@@ -477,8 +477,7 @@ type JourneyDetail struct {
 	ReviewerVertexIds        []int64                `json:"reviewerVertexIds,optional"`        // 审批节点ID列表
 	CurrentDurationThreshold string                 `json:"currentDurationThreshold,optional"` // 当前节点超时阈值
 	Initiator                FlowUser               `json:"initiator,optional"`                // 发起人信息
-	BusinessData             map[string]interface{} `json:"businessData,optional"`             // 字段值
-	Attachments              []Attachment           `json:"attachments,optional"`              // 附件列表
+	BusinessData             map[string]interface{} `json:"businessData,optional"`             // 字段值（图片字段为URL）
 }
 
 type JourneyFullDetail struct {

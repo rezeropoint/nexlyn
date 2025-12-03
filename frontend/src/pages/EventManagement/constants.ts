@@ -15,6 +15,7 @@ export const FIELD_TYPE_OPTIONS = [
   { label: "日期", value: "date" },
   { label: "日期时间", value: "datetime" },
   { label: "布尔值", value: "boolean" },
+  { label: "图片(Base64)", value: "imageBase64" },
 ];
 
 export const FIELD_TYPE_MAP: Record<string, { text: string; color: string }> = {
@@ -23,6 +24,7 @@ export const FIELD_TYPE_MAP: Record<string, { text: string; color: string }> = {
   date: { text: "日期", color: "orange" },
   datetime: { text: "日期时间", color: "purple" },
   boolean: { text: "布尔值", color: "cyan" },
+  imageBase64: { text: "图片(Base64)", color: "magenta" },
 };
 
 // ===== 流程状态映射 =====

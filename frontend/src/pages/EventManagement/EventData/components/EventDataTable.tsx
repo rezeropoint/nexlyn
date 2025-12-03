@@ -5,7 +5,8 @@ import {
   ProTable,
 } from "@ant-design/pro-components";
 import { EyeOutlined } from "@ant-design/icons";
-import { Button, Select, Space } from "antd";
+import { Button, Image, Select, Space } from "antd";
+import { formatBase64Src } from "../../utils/imageRenderer";
 import { useApp } from "@/utils/appContext";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import type {
@@ -46,18 +47,43 @@ const EventDataTable: React.FC<EventDataTableProps> = ({
   const buildColumns = (backendColumns?: ColumnInfo[]): ProColumns<any>[] => {
     // 优先使用后端返回的列信息
     if (backendColumns && backendColumns.length > 0) {
-      return backendColumns.map((col) => ({
-        title: col.displayName || col.field,
-        dataIndex: col.field,
-        key: col.field,
-        ellipsis: true,
-        valueType:
-          col.type === "datetime"
-            ? "dateTime"
-            : col.type === "number"
-            ? "digit"
-            : "text",
-      }));
+      return backendColumns.map((col) => {
+        // 图片类型使用自定义渲染
+        if (col.type === "imageBase64") {
+          return {
+            title: col.displayName || col.field,
+            dataIndex: col.field,
+            key: col.field,
+            width: 100,
+            render: (_: any, record: any) => {
+              const value = record[col.field];
+              if (!value) return "-";
+              return (
+                <Image
+                  src={formatBase64Src(value)}
+                  width={60}
+                  height={60}
+                  style={{ objectFit: "cover", borderRadius: 4 }}
+                  preview={{ mask: "预览" }}
+                />
+              );
+            },
+          };
+        }
+        // 其他类型使用 valueType
+        return {
+          title: col.displayName || col.field,
+          dataIndex: col.field,
+          key: col.field,
+          ellipsis: true,
+          valueType:
+            col.type === "datetime"
+              ? "dateTime"
+              : col.type === "number"
+                ? "digit"
+                : "text",
+        };
+      });
     }
 
     // 兜底：返回空数组，等待后端数据

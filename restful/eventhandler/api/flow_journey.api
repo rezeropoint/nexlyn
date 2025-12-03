@@ -53,8 +53,7 @@ type (
 		ReviewerVertexIds        []int64                `json:"reviewerVertexIds,optional"`          // 审批节点ID列表
 		CurrentDurationThreshold string                 `json:"currentDurationThreshold,optional"`   // 当前节点超时阈值
 		Initiator                FlowUser               `json:"initiator,optional"`                  // 发起人信息
-		BusinessData             map[string]interface{} `json:"businessData,optional"`               // 字段值
-		Attachments              []Attachment           `json:"attachments,optional"`                // 附件列表
+		BusinessData             map[string]interface{} `json:"businessData,optional"`               // 字段值（图片字段为URL）
 	}
 
 	// Moment 审批历史节点

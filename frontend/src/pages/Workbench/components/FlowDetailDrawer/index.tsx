@@ -32,6 +32,7 @@ import {
   Descriptions,
   Empty,
   Flex,
+  Image,
   Popconfirm,
   Space,
   Spin,
@@ -39,6 +40,10 @@ import {
   Timeline,
   Typography,
 } from "antd";
+import {
+  getImageSrc,
+  isImage,
+} from "@/pages/EventManagement/utils/imageRenderer";
 import classNames from "classnames";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -535,7 +540,19 @@ const FlowDetailDrawer: React.FC<FlowDetailDrawerProps> = ({
                 >
                   {Object.entries(detail.businessData).map(([key, value]) => (
                     <Descriptions.Item label={key} key={key}>
-                      {typeof value === "object" ? JSON.stringify(value) : String(value)}
+                      {isImage(value) ? (
+                        <Image
+                          src={getImageSrc(value as string)}
+                          width={80}
+                          height={80}
+                          style={{ objectFit: "cover", borderRadius: 4 }}
+                          preview={{ mask: "预览" }}
+                        />
+                      ) : typeof value === "object" ? (
+                        JSON.stringify(value)
+                      ) : (
+                        String(value)
+                      )}
                     </Descriptions.Item>
                   ))}
                 </Descriptions>
@@ -590,35 +607,6 @@ const FlowDetailDrawer: React.FC<FlowDetailDrawerProps> = ({
                 <Empty description="暂无审批历史" />
               )}
             </section>
-
-            {detail.attachments && detail.attachments.length > 0 && (
-              <section className={styles.block}>
-                <div className={styles.blockHeader}>
-                  <Text strong>附件</Text>
-                  <Badge count={detail.attachments.length} />
-                </div>
-                  <div className={styles.attachmentList}>
-                    {detail.attachments.map((attachment) => (
-                      <a
-                        key={attachment.id}
-                        href={attachment.url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className={styles.attachmentItem}
-                      >
-                        <FileOutlined className={styles.attachmentIcon} />
-                        <div>
-                          <div className={styles.attachmentName}>{attachment.name}</div>
-                          <div className={styles.attachmentMeta}>
-                            {(attachment.size / 1024).toFixed(1)} KB ·{" "}
-                            {dayjs(attachment.createdAt).format("MM-DD HH:mm")}
-                          </div>
-                        </div>
-                      </a>
-                    ))}
-                  </div>
-              </section>
-            )}
 
             {/* 审批操作表单 */}
             <div className={classNames(styles.approvalFormWrapper, { [styles.hidden]: !shouldShowForm })}>

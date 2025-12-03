@@ -15,6 +15,7 @@ import {
   Descriptions,
   Drawer,
   Empty,
+  Image,
   Space,
   Spin,
   Tag,
@@ -24,6 +25,7 @@ import {
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import React from "react";
+import { formatBase64Src, isBase64Image } from "../../utils/imageRenderer";
 import "./EventDataTable.less";
 
 // 启用 UTC 插件
@@ -33,14 +35,28 @@ const { Text, Title } = Typography;
 
 /**
  * 渲染字段值（支持多种类型）
+ * @param value 字段值
+ * @param fieldType 可选的字段类型（用于优先判断）
  */
-const renderValue = (value: any) => {
+const renderValue = (value: any, fieldType?: string) => {
   if (value === null || value === undefined) {
     return <Text type="secondary">-</Text>;
   }
   if (typeof value === "boolean") {
     return (
       <Tag color={value ? "success" : "default"}>{value ? "是" : "否"}</Tag>
+    );
+  }
+  // 图片类型：根据 fieldType 或内容检测
+  if (fieldType === "imageBase64" || isBase64Image(value)) {
+    return (
+      <Image
+        src={formatBase64Src(value)}
+        width={80}
+        height={80}
+        style={{ objectFit: "cover", borderRadius: 4 }}
+        preview={{ mask: "预览" }}
+      />
     );
   }
   if (typeof value === "object") {
@@ -140,10 +156,14 @@ const calculateDrawerWidth = (
 
   const businessData = detail.latestBusinessData;
 
-  // 计算最长字段值的长度
+  // 计算最长字段值的长度（排除图片类型，图片会渲染为固定尺寸）
   let maxValueLength = 0;
 
   Object.values(businessData).forEach((value) => {
+    // 跳过图片类型字段，图片渲染为固定尺寸不影响宽度
+    if (isBase64Image(value)) {
+      return;
+    }
     const valueStr = value !== null && value !== undefined ? String(value) : "";
     maxValueLength = Math.max(maxValueLength, valueStr.length);
   });
@@ -339,7 +359,7 @@ const EventDetailDrawer: React.FC<EventDetailDrawerProps> = ({
                             label={col.displayName || col.field}
                             key={col.field}
                           >
-                            {renderValue(detail.latestBusinessData[col.field])}
+                            {renderValue(detail.latestBusinessData[col.field], col.type)}
                           </Descriptions.Item>
                         );
                       }
