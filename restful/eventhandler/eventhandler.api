@@ -104,9 +104,10 @@ service EventHandler {
 
 // ===== 事件数据查询接口组 =====
 @server (
-	prefix: /api/v1
-	jwt:    Auth
-	group:  eventdata
+	prefix:  /api/v1
+	jwt:     Auth
+	group:   eventdata
+	timeout: 5s
 )
 service EventHandler {
 	@doc "查询事件数据列表（动态字段，Journey聚合，返回最新Assignment）"

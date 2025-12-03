@@ -5,6 +5,7 @@ package handler
 
 import (
 	"net/http"
+	"time"
 
 	eventconfig "github.com/rezeropoint/nexlyn/restful/eventhandler/internal/handler/eventconfig"
 	eventdata "github.com/rezeropoint/nexlyn/restful/eventhandler/internal/handler/eventdata"
@@ -73,6 +74,7 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 		},
 		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
 		rest.WithPrefix("/api/v1"),
+		rest.WithTimeout(5000*time.Millisecond),
 	)
 
 	server.AddRoutes(
