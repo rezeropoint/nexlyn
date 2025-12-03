@@ -21,7 +21,7 @@ require (
 	github.com/rezeropoint/casbinx v1.0.6
 	github.com/rezeropoint/etcdtrigger v1.0.0
 	github.com/rezeropoint/etcdtrigger/v2 v2.0.0
-	github.com/rezeropoint/go-skylark/v2 v2.7.2-beta20251203
+	github.com/rezeropoint/go-skylark/v2 v2.7.3-beta20251203
 	go.mongodb.org/mongo-driver v1.17.4
 	go.opentelemetry.io/otel/trace v1.38.0
 	golang.org/x/image v0.22.0
