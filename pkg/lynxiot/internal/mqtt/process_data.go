@@ -133,10 +133,21 @@ func (m *mqttManager) processBusinessData(
 	).Info("成功提取业务数据字段")
 
 	// 8. 将提取的字段转换为 TypedValue 格式（用于过滤和分发）
+	// 构建字段名到类型的映射
+	fieldTypeMap := make(map[core.FieldName]core.FieldType)
+	for _, mapping := range dataConfig.FieldMappings {
+		fieldTypeMap[mapping.StandardField] = mapping.FieldType
+	}
+
 	typedData := make(map[string]core.TypedValue)
 	for fieldName, value := range extractedFields {
+		// 优先使用配置中的字段类型，如果没有配置则使用 Go 类型名
+		fieldType := string(fieldTypeMap[fieldName])
+		if fieldType == "" {
+			fieldType = fmt.Sprintf("%T", value)
+		}
 		typedData[string(fieldName)] = core.TypedValue{
-			Type:  fmt.Sprintf("%T", value),
+			Type:  fieldType,
 			Value: value,
 		}
 	}
@@ -223,6 +234,7 @@ func (m *mqttManager) processBusinessData(
 			ConfigType: "business_data",
 			TenantID:   dataConfig.TenantID,
 			DeviceID:   deviceID,
+			Timestamp:  timestamp * 1000, // 转为毫秒
 		}
 
 		// 调用分发函数

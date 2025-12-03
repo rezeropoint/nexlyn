@@ -332,8 +332,8 @@ func (m *httpReceiveManager) ProcessData(ctx context.Context, configId string, d
 	// 5. 字段映射提取
 	extractedFields := m.extractFieldsByMapping(ctx, data, config.FieldMappings)
 
-	// 6. 转换为 TypedValue 格式
-	typedData := m.convertToTypedValue(extractedFields)
+	// 6. 转换为 TypedValue 格式（使用配置中的字段类型）
+	typedData := m.convertToTypedValue(extractedFields, config.FieldMappings)
 
 	// 7. 数据分发
 	if len(config.DispatchConfigs) > 0 && m.dispatchInfoFunc != nil {
@@ -342,6 +342,7 @@ func (m *httpReceiveManager) ProcessData(ctx context.Context, configId string, d
 			ConfigType: "http_receive",
 			TenantID:   config.TenantID,
 			DeviceID:   deviceID,
+			Timestamp:  timestamp * 1000, // 转为毫秒
 		}
 		if err := m.dispatchInfoFunc(ctx, config.DispatchConfigs, &typedData, taskInfo); err != nil {
 			logx.WithContext(ctx).WithFields(

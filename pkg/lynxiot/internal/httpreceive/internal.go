@@ -144,13 +144,26 @@ func (m *httpReceiveManager) parseTimestamp(ctx context.Context, data map[string
 
 // convertToTypedValue 将字段值映射转换为 TypedValue 格式
 // 用于数据分发
-// 参数：extractedFields - 自定义字段名到值的映射
-func (m *httpReceiveManager) convertToTypedValue(extractedFields map[string]any) map[string]core.TypedValue {
+// 参数：
+//   - extractedFields: 自定义字段名到值的映射
+//   - fieldMappings: 字段映射配置（用于获取配置的字段类型）
+func (m *httpReceiveManager) convertToTypedValue(extractedFields map[string]any, fieldMappings []core.HttpReceiveFieldMapping) map[string]core.TypedValue {
+	// 构建字段名到类型的映射
+	fieldTypeMap := make(map[string]core.FieldType)
+	for _, mapping := range fieldMappings {
+		fieldTypeMap[mapping.FieldName] = mapping.FieldType
+	}
+
 	result := make(map[string]core.TypedValue)
 	for fieldName, value := range extractedFields {
+		// 优先使用配置中的字段类型，如果没有配置则自动检测
+		fieldType := string(fieldTypeMap[fieldName])
+		if fieldType == "" {
+			fieldType = detectValueType(value)
+		}
 		result[fieldName] = core.TypedValue{
 			Value: value,
-			Type:  detectValueType(value),
+			Type:  fieldType,
 		}
 	}
 	return result
