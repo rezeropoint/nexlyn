@@ -11,7 +11,7 @@ const (
 	// ControlTopicFormat 控制主题格式
 	// 格式: nexlyn/iot/{category}/{model}/{device_id}/{suffix}
 	// 示例: nexlyn/iot/ai_box/AI-200/box001/control
-	ControlTopicFormat = "github.com/rezeropoint/nexlyn/iot/%s/%s/%s/%s"
+	ControlTopicFormat = "nexlyn/iot/%s/%s/%s/%s"
 
 	// ControlDeviceRedisKeyFormat 控制设备Redis键格式（存储当前正在执行的命令）
 	// 格式: iot:control:device:{device_id}

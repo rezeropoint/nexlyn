@@ -54,7 +54,7 @@ type GetAllOnlineDevicesFunc func() ([]UnboundDevice, error)
 // MQTT主题常量
 const (
 	// MQTTTopicPrefix MQTT主题前缀
-	MQTTTopicPrefix = "github.com/rezeropoint/nexlyn/iot"
+	MQTTTopicPrefix = "nexlyn/iot"
 
 	// MQTTTopicStatusOnline 在线状态主题后缀
 	MQTTTopicStatusOnline = "status/online"
