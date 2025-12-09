@@ -235,6 +235,7 @@ const DataProcessingTab: React.FC<DataProcessingTabProps> = ({
         options={[
           { label: "Unix时间戳（秒）", value: "unix" },
           { label: "Unix时间戳（毫秒）", value: "unix_ms" },
+          { label: "Unix时间戳（微秒）", value: "unix_micro" },
           { label: "ISO 8601", value: "iso8601" },
           { label: "RFC 3339", value: "rfc3339" },
         ]}

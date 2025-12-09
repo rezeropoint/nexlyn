@@ -65,7 +65,7 @@ export const DISPATCH_TYPE_COLORS: Record<string, string> = {
 export const TIMESTAMP_FORMAT_OPTIONS = [
   { label: "Unix 时间戳 (秒) - 如: 1732608000", value: "unix" },
   { label: "Unix 时间戳 (毫秒) - 如: 1732608000000", value: "unix_ms" },
-  { label: "Unix 时间戳 (纳秒) - 如: 1732608000000000000", value: "unix_nano" },
+  { label: "Unix 时间戳 (微秒) - 如: 1732608000000000", value: "unix_micro" },
   { label: "ISO 8601 - 如: 2024-11-26T12:00:00Z", value: "iso8601" },
   { label: "RFC 3339 - 如: 2024-11-26T12:00:00+08:00", value: "rfc3339" },
 ];
@@ -74,7 +74,7 @@ export const TIMESTAMP_FORMAT_OPTIONS = [
 export const TIMESTAMP_FORMAT_NAMES: Record<string, string> = {
   unix: "Unix 时间戳 (秒)",
   unix_ms: "Unix 时间戳 (毫秒)",
-  unix_nano: "Unix 时间戳 (纳秒)",
+  unix_micro: "Unix 时间戳 (微秒)",
   iso8601: "ISO 8601",
   rfc3339: "RFC 3339",
 };

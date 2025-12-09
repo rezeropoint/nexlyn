@@ -212,11 +212,11 @@ func (config *HttpReceiveConfig) Validate() error {
 	// 验证时间戳格式
 	if config.TimestampFormat != "" {
 		validFormats := map[TimestampFormat]bool{
-			TimestampFormatUnix:     true,
-			TimestampFormatUnixMs:   true,
-			TimestampFormatUnixNano: true,
-			TimestampFormatISO8601:  true,
-			TimestampFormatRFC3339:  true,
+			TimestampFormatUnix:      true,
+			TimestampFormatUnixMs:    true,
+			TimestampFormatUnixMicro: true,
+			TimestampFormatISO8601:   true,
+			TimestampFormatRFC3339:   true,
 		}
 		if !validFormats[config.TimestampFormat] {
 			return fmt.Errorf("无效的时间戳格式: %s", config.TimestampFormat)
