@@ -1,16 +1,62 @@
 // PermissionSelector.less - 权限选择器样式文件
 
-// 信息图标颜色
-.infoIcon {
-  color: var(--ant-color-info);
+// 搜索图标
+.searchIcon {
+  color: var(--ant-color-text-tertiary);
 }
 
-// 已选择统计信息样式
-.selectedStats {
-  padding: 8px;
-  border-top: 1px solid var(--ant-color-border-secondary);
+// 搜索输入框
+.searchInput {
+  flex: 1;
+  max-width: 400px;
 }
 
-.selectedStatsText {
+// 统计卡片
+.statsCard {
+  background-color: var(--ant-color-fill-quaternary);
+}
+
+// 树形卡片
+.treeCard {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+// 分类计数标签
+.countTag {
+  margin-left: 4px;
   font-size: var(--ant-font-size-sm);
+}
+
+// 权限项容器
+.permissionItem {
+  flex-wrap: nowrap;
+}
+
+// 权限 key 显示
+.permissionKey {
+  font-size: var(--ant-font-size-sm);
+  font-family: var(--ant-font-family-code);
+}
+
+// 权限树样式
+.permissionTree {
+  :global {
+    .ant-tree-treenode {
+      padding: 4px 0;
+    }
+
+    .ant-tree-node-content-wrapper {
+      flex: 1;
+      min-width: 0;
+    }
+
+    // 分类节点样式
+    .ant-tree-treenode-switcher-open,
+    .ant-tree-treenode-switcher-close {
+      > .ant-tree-node-content-wrapper {
+        font-weight: 500;
+      }
+    }
+  }
 }

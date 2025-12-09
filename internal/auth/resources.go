@@ -48,7 +48,7 @@ const (
 	// 权限: gb28181_stats:read, gb28181_stats:write, gb28181_stats:delete
 	ResourceGB28181Stats = "gb28181_stats"
 
-	// ============ Skylark事件管理资源 ============
+	// ============ 事件平台管理资源 ============
 
 	// ResourceSkylarkPlatform Skylark平台配置资源
 	// 权限: skylark_platform:read, skylark_platform:write, skylark_platform:delete
@@ -70,13 +70,9 @@ const (
 	// 权限: flow_journey:write (审批操作权限)
 	ResourceFlowJourney = "flow_journey"
 
-	// ResourceFlow 流程管理资源
+	// ResourceFlow 事件流程管理资源
 	// 权限: flow:read (查询流程), flow:write (创建流程), flow:delete (终止流程)
 	ResourceFlow = "flow"
-
-	// ResourceForm 表单管理资源
-	// 权限: form:write (提交表单)
-	ResourceForm = "form"
 
 	// ============ LynxGraph逻辑引擎资源 ============
 

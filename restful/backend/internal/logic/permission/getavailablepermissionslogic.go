@@ -66,10 +66,11 @@ func (l *GetAvailablePermissionsLogic) GetAvailablePermissions() (resp *types.Ge
 	permissions := make([]types.PermissionItem, len(permissionMetadata))
 	for i, pm := range permissionMetadata {
 		permissions[i] = types.PermissionItem{
-			Resource:    pm.Resource,
-			Action:      pm.Action,
-			Description: pm.Description,
-			Category:    pm.Category,
+			Resource:     pm.Resource,
+			ResourceName: pm.ResourceName,
+			Action:       pm.Action,
+			Description:  pm.Description,
+			Category:     pm.Category,
 		}
 	}
 

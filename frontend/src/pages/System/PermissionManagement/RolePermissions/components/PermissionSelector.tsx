@@ -1,7 +1,8 @@
 import type { PermissionItem } from "@/services/permission/role";
-import { InfoCircleOutlined } from "@ant-design/icons";
-import { Card, Space, Tag, Tooltip, Transfer, Typography } from "antd";
-import React, { useEffect, useState } from "react";
+import { SearchOutlined } from "@ant-design/icons";
+import { Card, Empty, Flex, Input, Tag, Tree, Typography } from "antd";
+import type { DataNode } from "antd/es/tree";
+import React, { useCallback, useMemo, useState } from "react";
 import styles from "./PermissionSelector.less";
 
 const { Text } = Typography;
@@ -13,13 +14,9 @@ interface PermissionSelectorProps {
   disabled?: boolean;
 }
 
-interface TransferItem {
-  key: string;
-  title: string;
-  description: string;
-  category: string;
-  disabled?: boolean;
-}
+// 前缀常量，用于区分不同层级的节点
+const CATEGORY_PREFIX = "category:";
+const RESOURCE_PREFIX = "resource:";
 
 const PermissionSelector: React.FC<PermissionSelectorProps> = ({
   value = [],
@@ -27,157 +24,311 @@ const PermissionSelector: React.FC<PermissionSelectorProps> = ({
   availablePermissions,
   disabled = false,
 }) => {
-  const [targetKeys, setTargetKeys] = useState<React.Key[]>(value);
-  const [selectedKeys, setSelectedKeys] = useState<React.Key[]>([]);
+  const [searchValue, setSearchValue] = useState("");
+  const [expandedKeys, setExpandedKeys] = useState<React.Key[]>([]);
+  const [autoExpandParent, setAutoExpandParent] = useState(true);
 
-  useEffect(() => {
-    setTargetKeys(value);
-  }, [value]);
+  // 按分类和资源分组权限：category -> resource -> permissions
+  const groupedPermissions = useMemo(() => {
+    const result: Record<string, Record<string, PermissionItem[]>> = {};
 
-  // 将权限项转换为Transfer组件需要的格式
-  const dataSource: TransferItem[] = availablePermissions.map((item) => ({
-    key: `${item.resource}:${item.action}`,
-    title: item.description,
-    description: `${item.resource}:${item.action}`,
-    category: item.category,
-  }));
-
-  // 按分类分组权限
-  const groupedPermissions = availablePermissions.reduce((groups, item) => {
-    if (!groups[item.category]) {
-      groups[item.category] = [];
+    for (const item of availablePermissions) {
+      if (!result[item.category]) {
+        result[item.category] = {};
+      }
+      if (!result[item.category][item.resource]) {
+        result[item.category][item.resource] = [];
+      }
+      result[item.category][item.resource].push(item);
     }
-    groups[item.category].push(item);
-    return groups;
-  }, {} as Record<string, PermissionItem[]>);
 
-  const handleChange = (
-    newTargetKeys: React.Key[],
-    _direction: string,
-    _moveKeys: React.Key[]
-  ) => {
-    setTargetKeys(newTargetKeys);
-    onChange?.(newTargetKeys as string[]);
-  };
+    return result;
+  }, [availablePermissions]);
 
-  const handleSelectChange = (
-    sourceSelectedKeys: React.Key[],
-    targetSelectedKeys: React.Key[]
-  ) => {
-    setSelectedKeys([...sourceSelectedKeys, ...targetSelectedKeys]);
-  };
+  // 分类排序顺序
+  const categoryOrder = useMemo(() => {
+    return Object.keys(groupedPermissions).sort((a, b) => a.localeCompare(b));
+  }, [groupedPermissions]);
 
-  // 自定义渲染项目
-  const renderItem = (item: TransferItem) => {
-    const customLabel = (
-      <Space direction="vertical" size="small" style={{ width: "100%" }}>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
-          <Text strong>{item.title}</Text>
-          <Tooltip title={`资源权限: ${item.description}`}>
-            <InfoCircleOutlined className={styles.infoIcon} />
-          </Tooltip>
-        </div>
-        <div>
-          <Tag color="blue">{item.category}</Tag>
-          <Text type="secondary" style={{ fontSize: "12px" }}>
-            {item.description}
-          </Text>
-        </div>
-      </Space>
-    );
-
-    return {
-      label: customLabel,
-      value: item.key,
-    };
-  };
-
-  // 渲染权限分类统计
-  const renderFooter = (props: any) => {
-    const { direction } = props;
-    if (direction === "right") {
-      const selectedCategories = targetKeys.reduce((categories, key) => {
-        const permission = availablePermissions.find(
-          (item) => `${item.resource}:${item.action}` === String(key)
-        );
-        if (permission) {
-          categories[permission.category] =
-            (categories[permission.category] || 0) + 1;
-        }
-        return categories;
-      }, {} as Record<string, number>);
-
-      return (
-        <div className={styles.selectedStats}>
-          <Text type="secondary" className={styles.selectedStatsText}>
-            已选择 {targetKeys.length} 个权限
-          </Text>
-          <div style={{ marginTop: "4px" }}>
-            {Object.entries(selectedCategories).map(([category, count]) => (
-              <Tag key={category} style={{ margin: "2px" }}>
-                {category}: {count}
-              </Tag>
-            ))}
-          </div>
-        </div>
+  // 构建三级树形数据：分类 -> 资源 -> 权限
+  const treeData = useMemo((): DataNode[] => {
+    return categoryOrder.map((category) => {
+      const resources = groupedPermissions[category];
+      const resourceKeys = Object.keys(resources).sort((a, b) =>
+        a.localeCompare(b)
       );
+
+      // 统计该分类下的总权限数
+      const totalPerms = resourceKeys.reduce(
+        (sum, r) => sum + resources[r].length,
+        0
+      );
+
+      return {
+        key: `${CATEGORY_PREFIX}${category}`,
+        title: (
+          <Flex align="center" gap={8}>
+            <Text strong>{category}</Text>
+            <Tag className={styles.countTag}>{totalPerms}</Tag>
+          </Flex>
+        ),
+        children: resourceKeys.map((resource) => {
+          const permissions = resources[resource];
+          // 使用后端返回的 resourceName
+          const resourceName = permissions[0]?.resourceName || resource;
+
+          return {
+            key: `${RESOURCE_PREFIX}${category}:${resource}`,
+            title: (
+              <Flex align="center" gap={8}>
+                <Text>{resourceName}</Text>
+                <Tag className={styles.countTag}>{permissions.length}</Tag>
+              </Flex>
+            ),
+            children: permissions.map((perm) => ({
+              key: `${perm.resource}:${perm.action}`,
+              title: (
+                <Flex align="center" gap={8} className={styles.permissionItem}>
+                  <Text>{perm.description}</Text>
+                  <Text type="secondary" className={styles.permissionKey}>
+                    {perm.action}
+                  </Text>
+                </Flex>
+              ),
+            })),
+          };
+        }),
+      };
+    });
+  }, [categoryOrder, groupedPermissions]);
+
+  // 搜索过滤后的树形数据
+  const filteredTreeData = useMemo((): DataNode[] => {
+    if (!searchValue.trim()) {
+      return treeData;
     }
-    return null;
-  };
+
+    const lowerSearch = searchValue.toLowerCase();
+
+    return treeData
+      .map((categoryNode) => {
+        const category = (categoryNode.key as string).replace(
+          CATEGORY_PREFIX,
+          ""
+        );
+        const categoryMatches = category.toLowerCase().includes(lowerSearch);
+
+        // 过滤资源节点
+        const filteredResources = (categoryNode.children || [])
+          .map((resourceNode) => {
+            const resourceKey = (resourceNode.key as string).replace(
+              RESOURCE_PREFIX,
+              ""
+            );
+            const resource = resourceKey.split(":")[1];
+
+            // 过滤权限节点
+            const filteredPerms = (resourceNode.children || []).filter(
+              (permNode) => {
+                const permKey = permNode.key as string;
+                const perm = availablePermissions.find(
+                  (p) => `${p.resource}:${p.action}` === permKey
+                );
+                if (!perm) return false;
+
+                return (
+                  categoryMatches ||
+                  perm.description.toLowerCase().includes(lowerSearch) ||
+                  perm.resourceName.toLowerCase().includes(lowerSearch) ||
+                  perm.action.toLowerCase().includes(lowerSearch)
+                );
+              }
+            );
+
+            if (filteredPerms.length === 0) {
+              return null;
+            }
+
+            return {
+              ...resourceNode,
+              children: filteredPerms,
+            };
+          })
+          .filter(Boolean) as DataNode[];
+
+        if (filteredResources.length === 0) {
+          return null;
+        }
+
+        return {
+          ...categoryNode,
+          children: filteredResources,
+        };
+      })
+      .filter(Boolean) as DataNode[];
+  }, [treeData, searchValue, availablePermissions]);
+
+  // 搜索时自动展开所有匹配的节点
+  const searchExpandedKeys = useMemo(() => {
+    if (!searchValue.trim()) {
+      return expandedKeys;
+    }
+
+    const keys: React.Key[] = [];
+    for (const categoryNode of filteredTreeData) {
+      keys.push(categoryNode.key);
+      for (const resourceNode of categoryNode.children || []) {
+        keys.push(resourceNode.key);
+      }
+    }
+    return keys;
+  }, [searchValue, filteredTreeData, expandedKeys]);
+
+  // 处理勾选变化
+  const handleCheck = useCallback(
+    (
+      checked: React.Key[] | { checked: React.Key[]; halfChecked: React.Key[] }
+    ) => {
+      const checkedKeys = Array.isArray(checked) ? checked : checked.checked;
+
+      // 过滤掉分类和资源节点的 key，只保留权限节点的 key
+      const permissionKeys = checkedKeys
+        .map(String)
+        .filter(
+          (key) =>
+            !key.startsWith(CATEGORY_PREFIX) &&
+            !key.startsWith(RESOURCE_PREFIX)
+        );
+
+      onChange?.(permissionKeys);
+    },
+    [onChange]
+  );
+
+  // 处理展开/折叠
+  const handleExpand = useCallback((keys: React.Key[]) => {
+    setExpandedKeys(keys);
+    setAutoExpandParent(false);
+  }, []);
+
+  // 统计已选择的权限（按分类）
+  const selectedStats = useMemo(() => {
+    const stats: Record<string, { selected: number; total: number }> = {};
+
+    for (const category of categoryOrder) {
+      const resources = groupedPermissions[category];
+      let selected = 0;
+      let total = 0;
+
+      for (const resource of Object.keys(resources)) {
+        const permissions = resources[resource];
+        total += permissions.length;
+        selected += permissions.filter((perm) =>
+          value.includes(`${perm.resource}:${perm.action}`)
+        ).length;
+      }
+
+      stats[category] = { selected, total };
+    }
+
+    return stats;
+  }, [categoryOrder, groupedPermissions, value]);
+
+  // 全选/全不选
+  const handleSelectAll = useCallback(() => {
+    if (value.length === availablePermissions.length) {
+      onChange?.([]);
+    } else {
+      const allKeys = availablePermissions.map(
+        (p) => `${p.resource}:${p.action}`
+      );
+      onChange?.(allKeys);
+    }
+  }, [value.length, availablePermissions, onChange]);
+
+  if (availablePermissions.length === 0) {
+    return (
+      <Card size="small">
+        <Empty description="暂无可用权限" />
+      </Card>
+    );
+  }
 
   return (
-    <div>
-      {/* 权限分类概览 */}
-      <Card size="small" style={{ marginBottom: "16px" }}>
-        <Text strong>权限分类概览:</Text>
-        <div style={{ marginTop: "8px" }}>
-          {Object.entries(groupedPermissions).map(([category, permissions]) => (
-            <Tag key={category} color="default" style={{ margin: "2px" }}>
-              {category} ({permissions.length}个)
-            </Tag>
-          ))}
-        </div>
+    <Flex vertical gap={12}>
+      {/* 搜索框和统计 */}
+      <Flex justify="space-between" align="center" gap={16}>
+        <Input
+          placeholder="搜索权限（支持描述、资源名、分类）"
+          prefix={<SearchOutlined className={styles.searchIcon} />}
+          value={searchValue}
+          onChange={(e) => setSearchValue(e.target.value)}
+          allowClear
+          disabled={disabled}
+          className={styles.searchInput}
+        />
+        <Flex align="center" gap={8}>
+          <Text type="secondary">
+            已选 {value.length}/{availablePermissions.length}
+          </Text>
+          {!disabled && (
+            <Typography.Link onClick={handleSelectAll}>
+              {value.length === availablePermissions.length
+                ? "取消全选"
+                : "全选"}
+            </Typography.Link>
+          )}
+        </Flex>
+      </Flex>
+
+      {/* 分类统计 */}
+      <Card size="small" className={styles.statsCard}>
+        <Flex wrap="wrap" gap={4}>
+          {categoryOrder.map((category) => {
+            const stat = selectedStats[category];
+            const isFullSelected = stat.selected === stat.total;
+            const isPartialSelected = stat.selected > 0 && !isFullSelected;
+
+            return (
+              <Tag
+                key={category}
+                color={
+                  isFullSelected
+                    ? "success"
+                    : isPartialSelected
+                      ? "processing"
+                      : "default"
+                }
+              >
+                {category}: {stat.selected}/{stat.total}
+              </Tag>
+            );
+          })}
+        </Flex>
       </Card>
 
-      {/* 权限选择器 */}
-      <Transfer
-        dataSource={dataSource}
-        targetKeys={targetKeys}
-        selectedKeys={selectedKeys}
-        onChange={handleChange}
-        onSelectChange={handleSelectChange}
-        render={renderItem}
-        footer={renderFooter}
-        titles={["可用权限", "已选权限"]}
-        showSearch={!disabled}
-        disabled={disabled}
-        filterOption={(inputValue, item) =>
-          item.title?.toLowerCase().includes(inputValue.toLowerCase()) ||
-          item.description?.toLowerCase().includes(inputValue.toLowerCase()) ||
-          item.category?.toLowerCase().includes(inputValue.toLowerCase())
-        }
-        oneWay={false}
-        style={{ width: "100%" }}
-        listStyle={{
-          width: "45%",
-          height: "400px",
-        }}
-      />
-
-      {/* 选择统计 */}
-      <div style={{ marginTop: "16px", textAlign: "center" }}>
-        <Text type="secondary">
-          共 {availablePermissions.length} 个可用权限，已选择{" "}
-          {targetKeys.length} 个
-        </Text>
-      </div>
-    </div>
+      {/* 权限树 */}
+      <Card size="small" className={styles.treeCard}>
+        {filteredTreeData.length > 0 ? (
+          <Tree
+            checkable
+            disabled={disabled}
+            checkedKeys={value}
+            expandedKeys={
+              searchValue.trim() ? searchExpandedKeys : expandedKeys
+            }
+            autoExpandParent={autoExpandParent}
+            onCheck={handleCheck}
+            onExpand={handleExpand}
+            treeData={filteredTreeData}
+            className={styles.permissionTree}
+            selectable={false}
+          />
+        ) : (
+          <Empty description="未找到匹配的权限" />
+        )}
+      </Card>
+    </Flex>
   );
 };
 

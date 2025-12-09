@@ -34,6 +34,7 @@ export interface GetRoleListRequest {
 // 权限项
 export interface PermissionItem {
   resource: string;
+  resourceName: string;
   action: string;
   description: string;
   category: string;

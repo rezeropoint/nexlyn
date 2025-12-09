@@ -803,10 +803,11 @@ type PageParamsRequest struct {
 }
 
 type PermissionItem struct {
-	Resource    string `json:"resource"`    // 资源
-	Action      string `json:"action"`      // 操作
-	Description string `json:"description"` // 权限描述
-	Category    string `json:"category"`    // 权限分类
+	Resource     string `json:"resource"`     // 资源标识
+	ResourceName string `json:"resourceName"` // 资源中文名
+	Action       string `json:"action"`       // 操作
+	Description  string `json:"description"`  // 权限描述
+	Category     string `json:"category"`     // 权限分类
 }
 
 type PermissionRule struct {

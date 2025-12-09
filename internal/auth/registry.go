@@ -6,10 +6,11 @@ import (
 
 // PermissionMetadata 权限元数据
 type PermissionMetadata struct {
-	Resource    string // 资源
-	Action      string // 操作
-	Description string // 描述
-	Category    string // 分类
+	Resource     string // 资源标识
+	ResourceName string // 资源中文名
+	Action       string // 操作
+	Description  string // 描述
+	Category     string // 分类
 }
 
 // PermissionRegistry 权限注册中心
