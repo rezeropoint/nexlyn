@@ -237,12 +237,12 @@ func (m *mqttManager) parseTimestamp(ctx context.Context, data map[string]any, t
 			timestamp = ms / 1000
 		}
 
-	case core.TimestampFormatUnixNano:
-		// Unix时间戳（纳秒），转换为秒
-		var ns int64
-		ns, err = convertToInt64(rawValue)
+	case core.TimestampFormatUnixMicro:
+		// Unix时间戳（微秒），转换为秒
+		var us int64
+		us, err = convertToInt64(rawValue)
 		if err == nil {
-			timestamp = ns / 1e9
+			timestamp = us / 1e6
 		}
 
 	case core.TimestampFormatISO8601, core.TimestampFormatRFC3339:

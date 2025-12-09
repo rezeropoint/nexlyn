@@ -92,14 +92,18 @@ func (m *dispatcherManager) dispatchToLynxGraph(ctx context.Context, config core
 	// 创建 gRPC 客户端
 	client := pb.NewLynxEngineClient(conn)
 
-	// 构造请求
+	// 构造请求（优先使用原始数据时间戳，未设置时使用当前时间）
+	timestamp := taskInfo.Timestamp
+	if timestamp == 0 {
+		timestamp = time.Now().UnixMilli()
+	}
 	request := &pb.InfoAtomRequest{
 		TenantId:       taskInfo.TenantID,
 		InfoAtomTypeId: config.InfoAtomTypeID,
 		Source:         taskInfo.DeviceID,
 		RawData:        rawData,
 		Tags:           extractTags(config),
-		Timestamp:      time.Now().UnixMilli(),
+		Timestamp:      timestamp,
 	}
 
 	// 调用 gRPC 接口

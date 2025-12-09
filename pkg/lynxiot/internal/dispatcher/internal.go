@@ -31,6 +31,7 @@ func (m *dispatcherManager) dispatchLog(ctx context.Context, data *map[string]co
 		logx.Field("pod", m.config.PodName),
 		logx.Field("configType", taskInfo.ConfigType),
 		logx.Field("task_id", taskInfo.TaskId),
+		logx.Field("timestamp", taskInfo.Timestamp),
 		logx.Field("module", "dispatcher"),
 		logx.Field("operation", "dispatch_log"),
 		logx.Field("status", "data"),

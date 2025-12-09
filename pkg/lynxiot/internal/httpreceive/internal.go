@@ -84,6 +84,16 @@ func (m *httpReceiveManager) parseTimestamp(ctx context.Context, data map[string
 	var timestamp int64
 	var err error
 
+	logx.WithContext(ctx).WithFields(
+		logx.Field("service", m.config.ServiceName),
+		logx.Field("pod", m.config.PodName),
+		logx.Field("module", "http_receive"),
+		logx.Field("operation", "parse_timestamp"),
+		logx.Field("format", format),
+		logx.Field("raw_value", rawValue),
+		logx.Field("timestamp_path", timestampPath),
+	).Debug("解析时间戳")
+
 	switch format {
 	case core.TimestampFormatUnix:
 		// Unix时间戳（秒）
@@ -97,12 +107,12 @@ func (m *httpReceiveManager) parseTimestamp(ctx context.Context, data map[string
 			timestamp = ms / 1000
 		}
 
-	case core.TimestampFormatUnixNano:
-		// Unix时间戳（纳秒），转换为秒
-		var ns int64
-		ns, err = convertToInt64(rawValue)
+	case core.TimestampFormatUnixMicro:
+		// Unix时间戳（微秒），转换为秒
+		var us int64
+		us, err = convertToInt64(rawValue)
 		if err == nil {
-			timestamp = ns / 1e9
+			timestamp = us / 1e6
 		}
 
 	case core.TimestampFormatISO8601, core.TimestampFormatRFC3339:
