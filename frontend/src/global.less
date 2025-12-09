@@ -111,3 +111,29 @@ ol {
     color: var(--ant-color-text-placeholder);
   }
 }
+
+/**
+ * 浅色主题顶部菜单选中状态增强
+ * 解决 ProLayout token 配置不生效的问题
+ * @see https://github.com/ant-design/pro-components/issues/7023
+ */
+.ant-pro-top-nav-header {
+  // 选中菜单项 - 浅蓝色背景 + 蓝色文字（包括悬浮状态）
+  .ant-menu-light .ant-menu-item-selected,
+  .ant-menu-light .ant-menu-item-selected:hover {
+    background-color: var(--ant-color-primary-bg);
+
+    &::after {
+      border-bottom-color: var(--ant-color-primary);
+    }
+
+    .ant-menu-title-content {
+      color: var(--ant-color-primary);
+    }
+  }
+
+  // 非选中项悬浮状态 - 浅灰背景
+  .ant-menu-light .ant-menu-item:hover:not(.ant-menu-item-selected) {
+    background-color: var(--ant-color-fill-tertiary);
+  }
+}
