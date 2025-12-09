@@ -247,6 +247,27 @@ export const layout: RunTimeLayoutConfig = ({
     layout: "mix",
     splitMenus: true,
     appList,
+    // 菜单配置：根据权限自动过滤菜单项
+    menu: {
+      locale: true,
+      params: {
+        // 当用户信息变化时，重新计算菜单权限
+        userId: initialState?.currentUser?.userKey,
+      },
+    },
+    // 过滤无权限的菜单项
+    menuDataRender: (menuData) => {
+      const filterMenuData = (data: any[]): any[] => {
+        return data
+          .filter((item) => !item.unaccessible)
+          .map((item) => ({
+            ...item,
+            children: item.children ? filterMenuData(item.children) : undefined,
+            routes: item.routes ? filterMenuData(item.routes) : undefined,
+          }));
+      };
+      return filterMenuData(menuData);
+    },
     actionsRender: () => [
       <Question key="doc" />,
       <SelectLang key="SelectLang" />,

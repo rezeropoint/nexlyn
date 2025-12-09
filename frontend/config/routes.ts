@@ -67,6 +67,7 @@ export default [
     name: '视频管理',
     icon: 'VideoCameraOutlined',
     path: '/video-management',
+    access: 'canAccessVideoModule',
     routes: [
       {
         path: '/video-management',
@@ -77,12 +78,14 @@ export default [
         icon: 'VideoCameraOutlined',
         path: '/video-management/device',
         component: './VideoManagement/Device',
+        access: 'canAccessGB28181Device',
       },
       {
         name: '分屏监控',
         icon: 'AppstoreOutlined',
         path: '/video-management/split-screen',
         component: './VideoManagement/SplitScreen',
+        access: 'canAccessGB28181SplitScreen',
       },
       {
         name: '标签管理',
@@ -103,7 +106,7 @@ export default [
         icon: 'PlaySquareOutlined',
         path: '/video-management/recording',
         component: './VideoManagement/RecordingManagement',
-        // access: 'canAccessRecordingManagement', // 需要gb28181_device:read权限
+        access: 'canAccessGB28181Recording',
       },
     ],
   },
@@ -163,6 +166,7 @@ export default [
     name: '物联管理',
     icon: 'ApiOutlined',
     path: '/iot-management',
+    access: 'canAccessIoTModule',
     routes: [
       {
         path: '/iot-management',
@@ -173,30 +177,35 @@ export default [
         icon: 'ApiOutlined',
         path: '/iot-management/device-management',
         component: './IoTManagement/DeviceManagement',
+        access: 'canAccessIoTDevice',
       },
       {
         name: '设备模板',
         icon: 'ProfileOutlined',
         path: '/iot-management/sensor-template',
         component: './IoTManagement/SensorTemplate',
+        access: 'canAccessIoTTemplate',
       },
       {
         name: '设备标签',
         icon: 'TagsOutlined',
         path: '/iot-management/device-tag',
         component: './IoTManagement/DeviceTag',
+        access: 'canAccessIoTTag',
       },
       {
         name: '平台管理',
         icon: 'CloudServerOutlined',
         path: '/iot-management/platform-management',
         component: './IoTManagement/PlatformManagement',
+        access: 'canAccessIoTPlatform',
       },
       {
         name: 'HTTP 接收',
         icon: 'CloudDownloadOutlined',
         path: '/iot-management/http-receive',
         component: './IoTManagement/HttpReceive',
+        access: 'canAccessIoTHttpReceive',
       },
     ],
   },
@@ -204,6 +213,7 @@ export default [
     name: '逻辑引擎',
     icon: 'ApartmentOutlined',
     path: '/logic-engine',
+    access: 'canAccessLynxModule',
     routes: [
       {
         path: '/logic-engine',
@@ -214,30 +224,35 @@ export default [
         icon: 'DashboardOutlined',
         path: '/logic-engine/overview',
         component: './LogicEngine',
+        access: 'canAccessLynxOverview',
       },
       {
         name: '标签管理',
         icon: 'TagsOutlined',
         path: '/logic-engine/tag-management',
         component: './LogicEngine/TagManagement',
+        access: 'canAccessLynxTag',
       },
       {
         name: '信息原子',
         icon: 'NodeIndexOutlined',
         path: '/logic-engine/infoatom-type',
         component: './LogicEngine/InfoAtomType',
+        access: 'canAccessLynxInfoAtomType',
       },
       {
         name: '逻辑图配置',
         icon: 'PartitionOutlined',
         path: '/logic-engine/graph-config',
         component: './LogicEngine/GraphConfig',
+        access: 'canAccessLynxGraphConfig',
       },
       {
         name: '逻辑图详情',
         path: '/logic-engine/graph-config/:id',
         component: './LogicEngine/GraphConfig/Detail',
-        hideInMenu: true, // 不在菜单中显示
+        hideInMenu: true,
+        access: 'canAccessLynxGraphConfig',
       },
     ],
   },
@@ -245,6 +260,7 @@ export default [
     name: '事件管理',
     icon: 'DeploymentUnitOutlined',
     path: '/event-management',
+    access: 'canAccessEventModule',
     routes: [
       {
         path: '/event-management',
@@ -255,24 +271,28 @@ export default [
         icon: 'SearchOutlined',
         path: '/event-management/event-data',
         component: './EventManagement/EventData',
+        access: 'canAccessEventData',
       },
       {
         name: '事件配置',
         icon: 'ControlOutlined',
         path: '/event-management/event-config',
         component: './EventManagement/EventConfig',
+        access: 'canAccessEventConfig',
       },
       {
         name: '组织映射',
         icon: 'ApartmentOutlined',
         path: '/event-management/org-mapping',
         component: './EventManagement/OrgMapping',
+        access: 'canAccessOrgMapping',
       },
       {
         name: '平台配置',
         icon: 'CloudServerOutlined',
         path: '/event-management/platform-config',
         component: './EventManagement/PlatformConfig',
+        access: 'canAccessSkylarkPlatform',
       },
     ],
   },
@@ -280,6 +300,7 @@ export default [
     name: 'system',
     icon: 'setting',
     path: '/system',
+    access: 'canAccessSystemModule',
     routes: [
       {
         path: '/system',

@@ -274,6 +274,72 @@ export default function access(
     return hasPermission("gb28181_stream", "read");
   };
 
+  // ===== 物联管理权限 =====
+  const canAccessIoTDevice = () => hasPermission("iot_device", "read");
+  const canAccessIoTTemplate = () => hasPermission("iot_template", "read");
+  const canAccessIoTTag = () => hasPermission("iot_tag", "read");
+  const canAccessIoTPlatform = () => hasPermission("iot_platform", "read");
+  const canAccessIoTHttpReceive = () => hasPermission("iot_http_receive", "read");
+
+  // ===== 视频管理权限 =====
+  const canAccessGB28181Device = () => hasPermission("gb28181_device", "read");
+  const canAccessGB28181SplitScreen = () =>
+    hasPermission("gb28181_stream", "read");
+  const canAccessGB28181Recording = () =>
+    hasPermission("gb28181_stream", "read");
+
+  // ===== 逻辑引擎权限 =====
+  const canAccessLynxOverview = () => hasPermission("lynx_graphconfig", "read");
+  const canAccessLynxTag = () => hasPermission("lynx_tag", "read");
+  const canAccessLynxInfoAtomType = () =>
+    hasPermission("lynx_infoatomtype", "read");
+  const canAccessLynxGraphConfig = () =>
+    hasPermission("lynx_graphconfig", "read");
+
+  // ===== 事件管理权限 =====
+  const canAccessEventData = () => hasPermission("event_data", "read");
+  const canAccessEventConfig = () => hasPermission("event_config", "read");
+  const canAccessOrgMapping = () => hasPermission("org_mapping", "read");
+  const canAccessSkylarkPlatform = () =>
+    hasPermission("skylark_platform", "read");
+
+  // ===== 模块级权限检查（用于一级菜单）=====
+  // 物联管理模块：任一子页面有权限则显示
+  const canAccessIoTModule = () =>
+    hasAnyPermission("iot_device") ||
+    hasAnyPermission("iot_template") ||
+    hasAnyPermission("iot_tag") ||
+    hasAnyPermission("iot_platform") ||
+    hasAnyPermission("iot_http_receive");
+
+  // 视频管理模块
+  const canAccessVideoModule = () =>
+    hasAnyPermission("gb28181_device") ||
+    hasAnyPermission("gb28181_stream") ||
+    hasAnyPermission("gb28181_tag");
+
+  // 逻辑引擎模块
+  const canAccessLynxModule = () =>
+    hasAnyPermission("lynx_graphconfig") ||
+    hasAnyPermission("lynx_tag") ||
+    hasAnyPermission("lynx_infoatomtype");
+
+  // 事件管理模块
+  const canAccessEventModule = () =>
+    hasAnyPermission("event_data") ||
+    hasAnyPermission("event_config") ||
+    hasAnyPermission("org_mapping") ||
+    hasAnyPermission("skylark_platform");
+
+  // 系统管理模块
+  const canAccessSystemModule = () =>
+    hasAnyPermission("user") ||
+    hasAnyPermission("permission") ||
+    hasAnyPermission("tenant") ||
+    hasAnyPermission("tag_user") ||
+    hasAnyPermission("tag_tenant") ||
+    hasAnyPermission("organization");
+
   // 组织管理权限
   const canManageOrganizations = () => hasAnyPermission("organization");
   const canCreateOrganizations = () => hasPermission("organization", "write");
@@ -353,6 +419,37 @@ export default function access(
 
     // GB28181流媒体管理权限
     canAccessMediaManagement,
+
+    // 物联管理权限
+    canAccessIoTDevice,
+    canAccessIoTTemplate,
+    canAccessIoTTag,
+    canAccessIoTPlatform,
+    canAccessIoTHttpReceive,
+
+    // 视频管理权限（补充）
+    canAccessGB28181Device,
+    canAccessGB28181SplitScreen,
+    canAccessGB28181Recording,
+
+    // 逻辑引擎权限
+    canAccessLynxOverview,
+    canAccessLynxTag,
+    canAccessLynxInfoAtomType,
+    canAccessLynxGraphConfig,
+
+    // 事件管理权限
+    canAccessEventData,
+    canAccessEventConfig,
+    canAccessOrgMapping,
+    canAccessSkylarkPlatform,
+
+    // 模块级权限（用于一级菜单）
+    canAccessIoTModule,
+    canAccessVideoModule,
+    canAccessLynxModule,
+    canAccessEventModule,
+    canAccessSystemModule,
 
     // 组织管理权限
     canManageOrganizations,
