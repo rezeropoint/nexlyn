@@ -210,6 +210,21 @@ LynxGraph 采用**混合存储架构**，根据数据特性选择存储方案：
 - **查询优化**：List 只查 PostgreSQL，Get 先验证 PostgreSQL 权限再读 MongoDB
 - **删除流程**：PostgreSQL（软删除）→ MongoDB → Etcd 通知
 
+**MongoDB 客户端配置**：
+
+必须配置 `DefaultDocumentM: true`，让驱动将文档解码为 `map[string]any` 而非 `bson.D`：
+
+```go
+mongoClient, _ := mongo.Connect(
+    options.Client().ApplyURI(uri).SetBSONOptions(&options.BSONOptions{
+        DefaultDocumentM: true,
+    }),
+)
+mon.Inject(uri, mongoClient)  // 注入到 go-zero
+```
+
+> 原因：积木配置使用 `map[string]any` 存储，若不配置则 MongoDB 返回 `bson.D` 类型导致类型断言失败。
+
 **详细 Schema**：参见 `nexlyn-deploy/postgres-init-scripts/010-lynxgraph-schema.sql`
 
 ---
@@ -466,7 +481,7 @@ db.graph.aggregate([
 
 ---
 
-**文档版本**：v2.0
-**最后更新**：2025-01-21
-**修订说明**：统一文档格式，明确各层职责边界，强调 Manager 返回 Core 对象
+**文档版本**：v2.1
+**最后更新**：2025-12-04
+**修订说明**：新增 MongoDB DefaultDocumentM 配置说明
 **维护者**：LynxGraph 引擎开发团队

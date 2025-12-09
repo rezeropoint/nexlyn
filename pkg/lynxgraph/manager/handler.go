@@ -182,6 +182,26 @@ func (m *manager) GetBlockSpec(blockKey core.BlockKey) (core.BlockSpec, error) {
 	return m.blockRegistry.GetSpec(blockKey)
 }
 
+// ValidateNodeConfig 验证节点配置（创建积木实例并调用 SetConfigure 验证必填字段）
+func (m *manager) ValidateNodeConfig(nodeConfig core.NodeConfig) error {
+	// 创建逻辑块实例
+	block, err := m.blockRegistry.CreateBlock(
+		nodeConfig.ID,
+		core.BlockKey{BlockType: nodeConfig.BlockType, Version: nodeConfig.BlockVersion},
+		nodeConfig.BlockConfig,
+	)
+	if err != nil {
+		return fmt.Errorf("创建逻辑块失败: %w", err)
+	}
+
+	// 调用 SetConfigure 验证配置（包括 check:"must" 标签的必填校验）
+	if err := block.SetConfigure(nodeConfig.BlockConfig); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // Tag Manager 方法代理
 // CreateTag 创建标签
 func (m *manager) CreateTag(ctx context.Context, metadata core.LynxTagMetadata) (string, error) {

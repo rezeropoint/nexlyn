@@ -60,6 +60,12 @@ graphContext, err := datastore.GetGraphContext(ctx, execCtx.GetTenantId(), graph
 | 变化率计算 | rate_of_change | standard/rateofchange/rateofchange.go | v1 |
 | 异常检测 | anomaly_detector | standard/anomaly/anomaly.go | v1 |
 | 趋势分析 | trend_analyzer | standard/trend/trend.go | v1 |
+| HTTP请求 | http_request | standard/httprequest/httprequest.go | v1 |
+| 时间窗口检查 | time_window_check | standard/timewindow/timewindow.go | v1 |
+| 条件路由 | switch | standard/switch/switch.go | v1 |
+| 假期检查 | holiday_check | standard/holidaycheck/holidaycheck.go | v1 |
+| 外部数据库查询 | query_database | standard/querydatabase/querydatabase.go | v1 |
+| 去重检查 | dedup_check | standard/dedupcheck/dedupcheck.go | v1 |
 
 ---
 

@@ -182,6 +182,29 @@ func (l *UpdateGraphConfigLogic) UpdateGraphConfig(req *types.UpdateGraphConfigR
 		UpdatedBy:   jwtUser.UserId, // 使用UserId（UUID）而非UserKey
 	}
 
+	// 验证所有节点的配置（包括必填字段校验）
+	for _, nodeConfig := range nodes {
+		if err := l.svcCtx.LynxManager.ValidateNodeConfig(nodeConfig); err != nil {
+			logx.WithContext(l.ctx).WithFields(
+				logx.Field("service", l.svcCtx.Config.RestConf.Name),
+				logx.Field("pod", l.svcCtx.PodName),
+				logx.Field("module", "lynxmanager_graphconfig"),
+				logx.Field("operation", "update_graphconfig"),
+				logx.Field("status", "failed"),
+				logx.Field("node_id", nodeConfig.ID),
+				logx.Field("block_type", nodeConfig.BlockType),
+				logx.Field("error", err.Error()),
+			).Error("节点配置验证失败")
+
+			return &types.UpdateGraphConfigResponse{
+				BaseResponse: types.BaseResponse{
+					Code:    400,
+					Message: "节点配置验证失败: " + err.Error(),
+				},
+			}, nil
+		}
+	}
+
 	// 调用Manager更新逻辑图配置
 	err = l.svcCtx.LynxManager.UpdateGraphConfig(l.ctx, graphConfig)
 	if err != nil {

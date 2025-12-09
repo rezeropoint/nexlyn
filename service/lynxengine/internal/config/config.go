@@ -42,4 +42,20 @@ type Config struct {
 
 	// IoTQuery gRPC客户端配置
 	IoTQueryClient zrpc.RpcClientConf
+
+	// 外部数据源配置（用于 QueryDatabase 积木）
+	ExternalDataSources []ExternalDataSourceConfig
+}
+
+// ExternalDataSourceConfig 外部数据源配置
+type ExternalDataSourceConfig struct {
+	Name         string // 数据源名称（唯一标识，积木中通过此名称引用）
+	Driver       string // 数据库驱动：postgres
+	Host         string
+	Port         int
+	Database     string
+	Username     string
+	Password     string
+	MaxOpenConns int // 最大打开连接数，默认 10
+	MaxIdleConns int // 最大空闲连接数，默认 5
 }

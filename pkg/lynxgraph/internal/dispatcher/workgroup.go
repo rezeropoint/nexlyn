@@ -1,6 +1,6 @@
 package dispatcher
 
-import "fmt"
+import "github.com/zeromicro/go-zero/core/logx"
 
 // startWorkers 启动工作池
 func (r *dispatcherRegistry) startWorkers() {
@@ -31,7 +31,7 @@ func (r *dispatcherRegistry) worker() {
 			err := r.processInfoAtom(infoAtom)
 			if err != nil {
 				// 记录错误但不终止工作者
-				fmt.Printf("处理信息原子失败: %v\n", err)
+				logx.WithContext(r.ctx).Errorf("[Dispatcher] 处理信息原子失败: %v", err)
 			}
 		}
 	}

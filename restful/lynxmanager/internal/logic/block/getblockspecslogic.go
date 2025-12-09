@@ -134,6 +134,14 @@ func (l *GetBlockSpecsLogic) GetBlockSpecs(req *types.GetBlockSpecsRequest) (res
 			}
 		}
 
+		// 序列化OutputSchema为JSON字符串
+		outputSchemaStr := ""
+		if outputSchema := spec.OutputSchema(); outputSchema != nil {
+			if data, err := json.Marshal(outputSchema); err == nil {
+				outputSchemaStr = string(data)
+			}
+		}
+
 		// 将core.BlockSpec转换为types.BlockSpec
 		list = append(list, types.BlockSpec{
 			BlockType:    string(key.BlockType),
@@ -142,7 +150,7 @@ func (l *GetBlockSpecsLogic) GetBlockSpecs(req *types.GetBlockSpecsRequest) (res
 			Description:  spec.Description(),
 			Category:     category,
 			InputSchema:  "",              // 暂不实现InputSchema序列化
-			OutputSchema: "",              // 暂不实现OutputSchema序列化
+			OutputSchema: outputSchemaStr, // 输出Schema（用于边条件智能提示）
 			ConfigSchema: configSchemaStr, // 序列化为JSON字符串
 		})
 	}

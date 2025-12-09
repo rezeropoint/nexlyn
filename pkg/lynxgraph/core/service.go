@@ -12,7 +12,7 @@ type ServiceType string
 const (
 	ServiceTypeSkylarkEngine ServiceType = "skylark_engine" // Skylark流程引擎
 	ServiceTypeSensorData    ServiceType = "sensor_data"    // 传感器历史数据查询服务
-	// 后续可扩展其他服务类型...
+	ServiceTypeExternalDB    ServiceType = "external_db"    // 外部数据库查询服务（用于QueryDatabase积木）
 )
 
 type Service interface {

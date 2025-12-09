@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/cache"
 	"github.com/zeromicro/go-zero/core/stores/monc"
 	"github.com/zeromicro/go-zero/core/syncx"
@@ -265,8 +266,7 @@ func (s *BaseStore) GetInfoAtom(ctx context.Context, tenantId, id string) (InfoA
 		if atomType == nil {
 			// 如果找不到对应的类型，记录警告但继续处理
 			// 这里可以根据实际需求决定是否要直接返回错误
-			fmt.Printf("警告: 无法找到信息原子类型 ID=%s\n",
-				tempAtomForUnmarshal.Kind.ID)
+			logx.WithContext(ctx).Infof("[Store] 无法找到信息原子类型 ID=%s", tempAtomForUnmarshal.Kind.ID)
 		}
 	}
 

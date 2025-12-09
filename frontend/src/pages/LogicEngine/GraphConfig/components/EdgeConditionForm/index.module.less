@@ -1,0 +1,93 @@
+/**
+ * 边条件配置表单样式
+ */
+
+.container {
+  width: 100%;
+}
+
+.logicRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.logicLabel {
+  font-size: 12px;
+  color: var(--ant-color-text-secondary);
+  white-space: nowrap;
+}
+
+.logicSelect {
+  width: 140px;
+}
+
+.conditionList {
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.conditionCard {
+  background-color: var(--ant-color-fill-quaternary);
+
+  :global(.ant-card-head) {
+    min-height: 32px;
+    padding: 0 8px;
+    border-bottom: none;
+  }
+
+  :global(.ant-card-body) {
+    padding: 8px 12px;
+  }
+}
+
+.fieldLabel {
+  width: 56px;
+  flex-shrink: 0;
+  font-size: 12px;
+  color: var(--ant-color-text-secondary);
+}
+
+.sourceSelect {
+  width: 140px;
+}
+
+.pathInputFull {
+  flex: 1;
+  min-width: 120px;
+}
+
+.contextPathRow {
+  flex: 1;
+}
+
+.contextKeySelect {
+  width: 100px;
+}
+
+.subfieldInput {
+  flex: 1;
+  min-width: 60px;
+}
+
+.operatorSelect {
+  width: 100px;
+  flex-shrink: 0;
+}
+
+.valueInputFlex {
+  flex: 1;
+  min-width: 80px;
+}
+
+.addBtn {
+  margin-top: 4px;
+}
+
+.emptyTip {
+  display: block;
+  margin-top: 8px;
+  font-size: 12px;
+  text-align: center;
+}

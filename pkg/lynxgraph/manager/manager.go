@@ -26,6 +26,9 @@ type Manager interface {
 	GetBlockKeyAll() []core.BlockKey                             // GetBlockKeyAll 获取所有逻辑块的key
 	GetBlockSpec(blockKey core.BlockKey) (core.BlockSpec, error) // GetBlockSpec 获取逻辑块规格
 
+	// ValidateNodeConfig 验证节点配置（创建积木实例并调用 SetConfigure 验证必填字段）
+	ValidateNodeConfig(nodeConfig core.NodeConfig) error
+
 	// Tag管理接口
 	CreateTag(ctx context.Context, metadata core.LynxTagMetadata) (string, error)                                      // 创建标签
 	GetTag(ctx context.Context, tagID string, tenantID string) (*core.LynxTag, error)                                  // 获取标签详情

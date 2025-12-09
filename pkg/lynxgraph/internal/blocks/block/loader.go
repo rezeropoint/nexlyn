@@ -4,10 +4,16 @@ import (
 	"github.com/rezeropoint/nexlyn/pkg/lynxgraph/core"
 	"github.com/rezeropoint/nexlyn/pkg/lynxgraph/internal/blocks/skylark/journeys"
 	"github.com/rezeropoint/nexlyn/pkg/lynxgraph/internal/blocks/standard/anomaly"
+	"github.com/rezeropoint/nexlyn/pkg/lynxgraph/internal/blocks/standard/dedupcheck"
+	"github.com/rezeropoint/nexlyn/pkg/lynxgraph/internal/blocks/standard/holidaycheck"
+	"github.com/rezeropoint/nexlyn/pkg/lynxgraph/internal/blocks/standard/httprequest"
 	"github.com/rezeropoint/nexlyn/pkg/lynxgraph/internal/blocks/standard/log"
+	"github.com/rezeropoint/nexlyn/pkg/lynxgraph/internal/blocks/standard/querydatabase"
 	"github.com/rezeropoint/nexlyn/pkg/lynxgraph/internal/blocks/standard/queryhistorydata"
 	"github.com/rezeropoint/nexlyn/pkg/lynxgraph/internal/blocks/standard/rateofchange"
 	"github.com/rezeropoint/nexlyn/pkg/lynxgraph/internal/blocks/standard/statistical"
+	switchblock "github.com/rezeropoint/nexlyn/pkg/lynxgraph/internal/blocks/standard/switch"
+	"github.com/rezeropoint/nexlyn/pkg/lynxgraph/internal/blocks/standard/timewindow"
 	"github.com/rezeropoint/nexlyn/pkg/lynxgraph/internal/blocks/standard/trend"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -136,6 +142,108 @@ func RegisterStandardBlocks(reg BlockRegistry, service core.Service) error {
 			core.BlockKey{BlockType: core.BlockTypeTrendAnalyzer, Version: trendSpec.Version()},
 			trend.NewTrendAnalyzerBlock,
 			trendSpec,
+		)
+		if err != nil {
+			logx.Must(core.ErrRegisterStandardBlock)
+		}
+	}
+
+	// 注册 HttpRequestBlock（HTTP 请求）
+	httpRequestSpec := httprequest.GetHttpRequestSpec()
+	if !checkServiceDependencies(httpRequestSpec, service) {
+		logx.Infof("跳过注册 %s: 缺少服务依赖 %v",
+			core.BlockTypeHttpRequest,
+			httpRequestSpec.RequiredServiceTypes())
+	} else {
+		err := reg.Register(
+			core.BlockKey{BlockType: core.BlockTypeHttpRequest, Version: httpRequestSpec.Version()},
+			httprequest.NewHttpRequestBlock,
+			httpRequestSpec,
+		)
+		if err != nil {
+			logx.Must(core.ErrRegisterStandardBlock)
+		}
+	}
+
+	// 注册 TimeWindowCheckBlock（时间窗口检查）
+	timeWindowCheckSpec := timewindow.GetTimeWindowCheckSpec()
+	if !checkServiceDependencies(timeWindowCheckSpec, service) {
+		logx.Infof("跳过注册 %s: 缺少服务依赖 %v",
+			core.BlockTypeTimeWindowCheck,
+			timeWindowCheckSpec.RequiredServiceTypes())
+	} else {
+		err := reg.Register(
+			core.BlockKey{BlockType: core.BlockTypeTimeWindowCheck, Version: timeWindowCheckSpec.Version()},
+			timewindow.NewTimeWindowCheckBlock,
+			timeWindowCheckSpec,
+		)
+		if err != nil {
+			logx.Must(core.ErrRegisterStandardBlock)
+		}
+	}
+
+	// 注册 SwitchBlock（条件路由）
+	switchSpec := switchblock.GetSwitchSpec()
+	if !checkServiceDependencies(switchSpec, service) {
+		logx.Infof("跳过注册 %s: 缺少服务依赖 %v",
+			core.BlockTypeSwitch,
+			switchSpec.RequiredServiceTypes())
+	} else {
+		err := reg.Register(
+			core.BlockKey{BlockType: core.BlockTypeSwitch, Version: switchSpec.Version()},
+			switchblock.NewSwitchBlock,
+			switchSpec,
+		)
+		if err != nil {
+			logx.Must(core.ErrRegisterStandardBlock)
+		}
+	}
+
+	// 注册 HolidayCheckBlock（假期检查）
+	holidayCheckSpec := holidaycheck.GetHolidayCheckSpec()
+	if !checkServiceDependencies(holidayCheckSpec, service) {
+		logx.Infof("跳过注册 %s: 缺少服务依赖 %v",
+			core.BlockTypeHolidayCheck,
+			holidayCheckSpec.RequiredServiceTypes())
+	} else {
+		err := reg.Register(
+			core.BlockKey{BlockType: core.BlockTypeHolidayCheck, Version: holidayCheckSpec.Version()},
+			holidaycheck.NewHolidayCheckBlock,
+			holidayCheckSpec,
+		)
+		if err != nil {
+			logx.Must(core.ErrRegisterStandardBlock)
+		}
+	}
+
+	// 注册 QueryDatabaseBlock（外部数据库查询）
+	queryDatabaseSpec := querydatabase.GetQueryDatabaseSpec()
+	if !checkServiceDependencies(queryDatabaseSpec, service) {
+		logx.Infof("跳过注册 %s: 缺少服务依赖 %v",
+			core.BlockTypeQueryDatabase,
+			queryDatabaseSpec.RequiredServiceTypes())
+	} else {
+		err := reg.Register(
+			core.BlockKey{BlockType: core.BlockTypeQueryDatabase, Version: queryDatabaseSpec.Version()},
+			querydatabase.NewQueryDatabaseBlock,
+			queryDatabaseSpec,
+		)
+		if err != nil {
+			logx.Must(core.ErrRegisterStandardBlock)
+		}
+	}
+
+	// 注册 DedupCheckBlock（去重检查）
+	dedupCheckSpec := dedupcheck.GetDedupCheckSpec()
+	if !checkServiceDependencies(dedupCheckSpec, service) {
+		logx.Infof("跳过注册 %s: 缺少服务依赖 %v",
+			core.BlockTypeDedupCheck,
+			dedupCheckSpec.RequiredServiceTypes())
+	} else {
+		err := reg.Register(
+			core.BlockKey{BlockType: core.BlockTypeDedupCheck, Version: dedupCheckSpec.Version()},
+			dedupcheck.NewDedupCheckBlock,
+			dedupCheckSpec,
 		)
 		if err != nil {
 			logx.Must(core.ErrRegisterStandardBlock)

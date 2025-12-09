@@ -3,6 +3,7 @@ package journeys
 import (
 	"context"
 	"fmt"
+	"regexp"
 
 	"github.com/rezeropoint/nexlyn/pkg/lynxgraph/core"
 
@@ -13,10 +14,11 @@ import (
 const SkylarkJourneyCreateVersion = "v1"
 
 type Config struct {
-	App        string `json:"app" check:"must"`        // Skylark实例，一般是域名
-	FlowId     int64  `json:"flowId" check:"must"`     // 流程ID
-	UserID     int64  `json:"userID" check:"must"`     // 用户ID
-	AuthHeader string `json:"authHeader" check:"must"` // 认证头
+	App        string            `json:"app" check:"must"`    // Skylark实例，一般是域名
+	FlowId     int64             `json:"flowId" check:"must"` // 流程ID
+	UserID     int64             `json:"userId" check:"must"` // 用户ID
+	AuthHeader string            `json:"authHeader"`          // 认证头（可选，用于外部调用）
+	Data       map[string]string `json:"data"`                // 字段映射，key=目标字段名，value=源字段（支持 {{atom.xxx}}）
 }
 
 // SkylarkJourneyCreateBlock 实现一个动作逻辑块
@@ -72,7 +74,14 @@ func (b *SkylarkJourneyCreateBlock) Execute(ctx context.Context, execCtx core.Ex
 	infoAtom := execCtx.GetInfoAtom()
 
 	// 4. 将InfoAtom的Payload转换为TypedValue格式
-	data := convertPayloadToTypedValue(infoAtom)
+	var data map[string]skylarkCore.TypedValue
+	if len(config.Data) > 0 {
+		// 使用配置的字段映射
+		data = convertWithMapping(config.Data, infoAtom)
+	} else {
+		// 默认行为：使用全部 Payload
+		data = convertPayloadToTypedValue(infoAtom)
+	}
 
 	// 5. 调用Skylark引擎创建流程
 	err = skylarkEngine.CreateFlow(
@@ -95,28 +104,41 @@ func GetSkylarkJourneyCreateSpec() core.BlockSpec {
 	return core.NewBasicBlockSpec(
 		"SkylarkJourneyCreate",
 		SkylarkJourneyCreateVersion,
-		"创建一个新的 Skylark 流程记录，将信息原子转换为 Skylark 流程记录（自动从ExecutionContext获取InfoAtom）",
-		[]string{"input", "output"},
-		map[string]any{ // 配置模式
+		"创建一个新的 Skylark 流程记录，将信息原子转换为 Skylark 流程记录",
+		[]string{"action", "skylark", "workflow"},
+		map[string]any{
 			"app": map[string]any{
 				"type":        "string",
-				"description": "Skylark实例，一般是域名",
+				"title":       "Skylark 实例",
+				"description": "Skylark 实例标识，一般是域名",
+				"placeholder": "smp.example.com",
 				"check":       "must",
 			},
 			"flowId": map[string]any{
 				"type":        "integer",
-				"description": "流程ID",
+				"title":       "流程 ID",
+				"description": "要触发的 Skylark 流程 ID",
 				"check":       "must",
 			},
-			"userID": map[string]any{
+			"userId": map[string]any{
 				"type":        "integer",
-				"description": "用户ID",
+				"title":       "用户 ID",
+				"description": "触发流程的用户 ID",
 				"check":       "must",
 			},
 			"authHeader": map[string]any{
 				"type":        "string",
-				"description": "认证头",
-				"check":       "must",
+				"title":       "认证头",
+				"description": "Skylark API 认证头（可选，用于外部调用）",
+				"placeholder": "Bearer xxx",
+			},
+			"data": map[string]any{
+				"type":        "object",
+				"title":       "字段映射",
+				"description": "自定义字段映射，key=目标字段名，value=源字段（支持 {{atom.xxx}}）。不配置则使用全部 InfoAtom 数据",
+				"additionalProperties": map[string]any{
+					"type": "string",
+				},
 			},
 		},
 		[]core.ServiceType{core.ServiceTypeSkylarkEngine},
@@ -196,4 +218,78 @@ func convertWithInference(payload map[string]any) map[string]skylarkCore.TypedVa
 	}
 
 	return result
+}
+
+// convertWithMapping 根据配置的字段映射转换数据
+// mapping: key=目标字段名, value=源字段表达式（支持 {{atom.xxx}}）
+func convertWithMapping(mapping map[string]string, infoAtom core.InfoAtom) map[string]skylarkCore.TypedValue {
+	result := make(map[string]skylarkCore.TypedValue)
+	payload := infoAtom.GetPayload()
+	atomType := infoAtom.GetType()
+
+	// 构建字段类型映射（用于确定 TypedValue 的类型）
+	fieldTypes := make(map[string]core.FieldType)
+	if atomType != nil {
+		for _, field := range atomType.GetDataFormat().Fields {
+			fieldTypes[field.FieldKey] = field.FieldType
+		}
+	}
+
+	// 匹配 {{atom.xxx}} 格式的变量
+	re := regexp.MustCompile(`^\{\{atom\.(\w+)\}\}$`)
+
+	for targetKey, sourceExpr := range mapping {
+		// 检查是否是简单变量引用
+		if match := re.FindStringSubmatch(sourceExpr); match != nil {
+			fieldName := match[1]
+			if value, ok := payload[fieldName]; ok {
+				// 确定类型
+				typeName := inferType(value)
+				if ft, ok := fieldTypes[fieldName]; ok {
+					typeName = convertFieldType(ft)
+				}
+				result[targetKey] = skylarkCore.TypedValue{
+					Type:  typeName,
+					Value: value,
+				}
+			}
+		} else {
+			// 字符串模板替换
+			value := replaceVariables(sourceExpr, payload)
+			result[targetKey] = skylarkCore.TypedValue{
+				Type:  "string",
+				Value: value,
+			}
+		}
+	}
+
+	return result
+}
+
+// replaceVariables 替换字符串中的 {{atom.xxx}} 变量
+func replaceVariables(template string, payload map[string]any) string {
+	re := regexp.MustCompile(`\{\{atom\.(\w+)\}\}`)
+	return re.ReplaceAllStringFunc(template, func(match string) string {
+		fieldName := re.FindStringSubmatch(match)[1]
+		if value, ok := payload[fieldName]; ok {
+			return fmt.Sprintf("%v", value)
+		}
+		return match
+	})
+}
+
+// inferType 推断值的类型
+func inferType(value any) string {
+	switch value.(type) {
+	case string:
+		return "string"
+	case int, int32, int64:
+		return "int"
+	case float32, float64:
+		return "float"
+	case bool:
+		return "bool"
+	default:
+		return "string"
+	}
 }

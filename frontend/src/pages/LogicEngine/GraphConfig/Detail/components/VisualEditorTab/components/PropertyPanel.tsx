@@ -23,7 +23,8 @@ import {
 import { Card, Divider, Empty, Spin, Tag, Typography } from "antd";
 
 const { Text } = Typography;
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import EdgeConditionForm, { type ContextOutputInfo } from "../../../../components/EdgeConditionForm";
 import DynamicBlockConfigForm from "../../DynamicBlockConfigForm";
 import styles from "./PropertyPanel.module.less";
 
@@ -31,9 +32,97 @@ interface PropertyPanelProps {
   selectedNode?: NodeConfig;
   selectedEdge?: EdgeConfig;
   tenantId?: string;
+  nodes?: NodeConfig[];
   onNodeUpdate?: (nodeId: string, updates: Partial<NodeConfig>) => void;
   onEdgeUpdate?: (edgeId: string, updates: Partial<EdgeConfig>) => void;
 }
+
+/**
+ * 从节点配置中提取所有 resultKey（上下文键）
+ */
+const extractContextKeys = (nodes: NodeConfig[]): string[] => {
+  const keys = new Set<string>();
+  nodes.forEach((node) => {
+    try {
+      const config =
+        typeof node.blockConfig === "string"
+          ? JSON.parse(node.blockConfig || "{}")
+          : node.blockConfig || {};
+      // 提取 resultKey 或 saveResultTo 字段
+      const resultKey = config.resultKey || config.saveResultTo;
+      if (resultKey) {
+        keys.add(resultKey);
+      }
+    } catch {
+      // 忽略解析错误
+    }
+  });
+  return Array.from(keys);
+};
+
+/**
+ * 从节点配置和积木规格中提取上下文输出信息
+ */
+const extractContextOutputInfos = (
+  nodes: NodeConfig[],
+  blockSpecs: Record<string, BlockSpec>
+): ContextOutputInfo[] => {
+  const infos: ContextOutputInfo[] = [];
+
+  nodes.forEach((node) => {
+    try {
+      const config =
+        typeof node.blockConfig === "string"
+          ? JSON.parse(node.blockConfig || "{}")
+          : node.blockConfig || {};
+
+      // 提取 resultKey 或 saveResultTo 字段
+      const contextKey = config.resultKey || config.saveResultTo;
+      if (!contextKey) return;
+
+      // 获取积木规格
+      const spec = blockSpecs[node.blockType];
+      if (!spec) return;
+
+      // 解析 outputSchema
+      let outputSchema = null;
+      if (spec.outputSchema) {
+        try {
+          outputSchema = JSON.parse(spec.outputSchema);
+        } catch {
+          // 忽略解析错误
+        }
+      }
+
+      // 提取动态键（如 TimeWindowCheck 的 windows[].name）
+      let dynamicKeys: string[] | undefined;
+      if (outputSchema?.keySource) {
+        // 解析 keySource（如 config.windows[].name）
+        const match = outputSchema.keySource.match(/^config\.(\w+)\[\]\.(\w+)$/);
+        if (match) {
+          const [, arrayField, nameField] = match;
+          const items = config[arrayField];
+          if (Array.isArray(items)) {
+            dynamicKeys = items
+              .map((item: Record<string, unknown>) => item[nameField])
+              .filter((name): name is string => typeof name === "string");
+          }
+        }
+      }
+
+      infos.push({
+        contextKey,
+        blockType: node.blockType,
+        outputSchema,
+        dynamicKeys,
+      });
+    } catch {
+      // 忽略解析错误
+    }
+  });
+
+  return infos;
+};
 
 /**
  * 属性面板组件
@@ -42,6 +131,7 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
   selectedNode,
   selectedEdge,
   tenantId,
+  nodes = [],
   onNodeUpdate,
   onEdgeUpdate,
 }) => {
@@ -51,6 +141,26 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
   const [loadingSpecs, setLoadingSpecs] = useState(false);
   const [infoAtomTypes, setInfoAtomTypes] = useState<InfoAtomType[]>([]);
   const [loadingInfoAtomTypes, setLoadingInfoAtomTypes] = useState(false);
+
+  // 从当前图的节点配置中提取上下文键
+  const contextKeys = useMemo(() => extractContextKeys(nodes), [nodes]);
+
+  // 从当前图的节点配置中提取上下文输出信息（用于边条件智能提示）
+  const contextOutputInfos = useMemo(
+    () => extractContextOutputInfos(nodes, blockSpecs),
+    [nodes, blockSpecs]
+  );
+
+  // 从入口节点提取所有订阅的信息原子类型 ID（用于积木配置的字段选择）
+  const subscribedInfoAtomTypeIds = useMemo(() => {
+    const ids = new Set<string>();
+    nodes.forEach((node) => {
+      if (node.isEntryPoint && node.subscribedInfoAtomTypeIDs) {
+        node.subscribedInfoAtomTypeIDs.forEach((id) => ids.add(id));
+      }
+    });
+    return Array.from(ids);
+  }, [nodes]);
 
   // 获取所有BlockSpecs
   useEffect(() => {
@@ -307,6 +417,8 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
                           blockConfig: JSON.stringify(values),
                         });
                       }}
+                      infoAtomTypes={infoAtomTypes}
+                      selectedInfoAtomTypeIds={subscribedInfoAtomTypeIds}
                     />
                   </Spin>
                 );
@@ -364,15 +476,15 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
         <Divider />
 
         <div className={styles.formSection}>
-          <div className={styles.sectionTitle}>边配置</div>
-          <ProFormTextArea
-            name="condition"
-            label="条件表达式"
-            placeholder="输入条件表达式（留空表示无条件）"
-            fieldProps={{
-              rows: 4,
-              className: styles.propertyPanelJsonEditor,
+          <div className={styles.sectionTitle}>通过条件</div>
+          <EdgeConditionForm
+            value={selectedEdge.condition}
+            onChange={(value) => {
+              onEdgeUpdate?.(selectedEdge.id, { condition: value });
             }}
+            infoAtomTypes={infoAtomTypes}
+            contextKeys={contextKeys}
+            contextOutputInfos={contextOutputInfos}
           />
         </div>
       </ProForm>

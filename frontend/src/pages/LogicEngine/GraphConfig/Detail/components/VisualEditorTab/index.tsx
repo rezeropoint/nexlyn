@@ -3,7 +3,9 @@
  * @description 使用AntV X6实现完整的图形编辑功能
  */
 
+import { getBlockSpecs } from "@/services/lynxmanager/api";
 import type {
+  BlockSpec,
   EdgeConfig,
   GraphConfigDetail,
   NodeConfig,
@@ -19,6 +21,60 @@ import GraphCanvas from "./components/GraphCanvas";
 import PropertyPanel from "./components/PropertyPanel";
 import Toolbar from "./components/Toolbar";
 import "./index.less";
+
+interface ConfigField {
+  type?: string;
+  title?: string;
+  check?: string;
+  properties?: Record<string, ConfigField>;
+  required?: string[];
+}
+
+/**
+ * 验证节点配置的必填字段
+ * @returns 错误信息数组，空数组表示验证通过
+ */
+const validateNodeConfigs = (
+  nodes: NodeConfig[],
+  blockSpecs: Record<string, BlockSpec>
+): string[] => {
+  const errors: string[] = [];
+
+  nodes.forEach((node) => {
+    const spec = blockSpecs[node.blockType];
+    if (!spec?.configSchema) return;
+
+    let schema: { properties?: Record<string, ConfigField>; required?: string[] };
+    try {
+      schema = JSON.parse(spec.configSchema);
+    } catch {
+      return;
+    }
+
+    const properties = schema.properties || {};
+    const requiredFields = schema.required || [];
+    const config = typeof node.blockConfig === "string"
+      ? JSON.parse(node.blockConfig || "{}")
+      : node.blockConfig || {};
+
+    // 检查每个字段
+    Object.entries(properties).forEach(([fieldName, fieldSchema]) => {
+      const isRequired = requiredFields.includes(fieldName) || fieldSchema.check === "must";
+      if (!isRequired) return;
+
+      const value = config[fieldName];
+      const isEmpty = value === undefined || value === null || value === "" ||
+        (Array.isArray(value) && value.length === 0);
+
+      if (isEmpty) {
+        const fieldTitle = fieldSchema.title || fieldName;
+        errors.push(`节点 "${node.id}" 的 "${fieldTitle}" 字段为必填项`);
+      }
+    });
+  });
+
+  return errors;
+};
 
 interface VisualEditorTabProps {
   data: GraphConfigDetail | null;
@@ -38,12 +94,32 @@ const VisualEditorTab: React.FC<VisualEditorTabProps> = ({
   const { message } = App.useApp();
   const canvasRef = useRef<GraphCanvasRef>(null);
   const [saving, setSaving] = useState(false);
+  const [blockSpecs, setBlockSpecs] = useState<Record<string, BlockSpec>>({});
 
   // 使用编辑器Hook管理状态
   const [editorState, editorActions] = useGraphEditor(
     data?.nodes || [],
     data?.edges || []
   );
+
+  // 获取所有 BlockSpecs 用于验证
+  useEffect(() => {
+    const fetchBlockSpecs = async () => {
+      try {
+        const response = await getBlockSpecs();
+        if (response.code === 0 && response.data?.list) {
+          const specsMap = response.data.list.reduce((acc, spec) => {
+            acc[spec.blockType] = spec;
+            return acc;
+          }, {} as Record<string, BlockSpec>);
+          setBlockSpecs(specsMap);
+        }
+      } catch (error) {
+        console.error("Failed to fetch block specs:", error);
+      }
+    };
+    fetchBlockSpecs();
+  }, []);
 
   // 追踪当前逻辑图ID，只在ID变化时重新加载数据
   const currentGraphIdRef = useRef<string | null>(null);
@@ -159,6 +235,17 @@ const VisualEditorTab: React.FC<VisualEditorTabProps> = ({
 
   // 保存逻辑图
   const handleSave = async () => {
+    // 客户端验证：检查所有节点的必填字段
+    const validationErrors = validateNodeConfigs(editorState.nodes, blockSpecs);
+    if (validationErrors.length > 0) {
+      // 显示第一个错误，更多错误在控制台输出
+      message.error(validationErrors[0]);
+      if (validationErrors.length > 1) {
+        console.warn("节点配置验证错误:", validationErrors);
+      }
+      return;
+    }
+
     setSaving(true);
     try {
       const success = await onSave(editorState.nodes, editorState.edges);
@@ -253,6 +340,7 @@ const VisualEditorTab: React.FC<VisualEditorTabProps> = ({
               selectedNode={selectedNode}
               selectedEdge={selectedEdge}
               tenantId={tenantId || data?.tenantId}
+              nodes={editorState.nodes}
               onNodeUpdate={(nodeId, updates) =>
                 editorActions.updateNode(nodeId, updates)
               }

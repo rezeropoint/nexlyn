@@ -33,7 +33,7 @@ Telemetry:
 # 开发服务器配置
 DevServer:
   Enabled: true
-  Port: 6064
+  Port: 6060
   HealthPath: "/healthz"
   MetricsPath: "/metrics"
 
@@ -162,9 +162,27 @@ SkylarkConfig:
     UserNameCacheTTL: 24h         # 用户名缓存时间（24小时）
     StatsCacheTTL: 5m             # 统计数据缓存时间（5分钟）
 
+  # 流程管理器配置
+  Flows:
+    FlowInfoCacheTTL: 3600        # Flow信息缓存时间（秒，默认1小时）
+    VertexInfoCacheTTL: 3600      # 节点信息缓存时间（秒，默认1小时）
+    VertexFieldCacheTTL: 3600     # 节点字段缓存时间（秒，默认1小时）
 # IoTQuery gRPC客户端配置
 IoTQueryClient:
   Endpoints:
     - iotquery:9993
   Timeout: 5000
   NonBlock: true
+
+# 外部数据源配置（用于 QueryDatabase 积木查询外部数据库）
+# 如需启用，取消注释并配置数据源：
+ExternalDataSources: 
+    - Name: "skylark"           # 数据源名称，积木中通过此名称引用
+      Driver: "postgres"
+      Host: "110.41.35.134"
+      Port: 5432
+      Database: "sync"
+      Username: "qmtttt"
+      Password: "Yx7#rMn92wLf!pQsT4vB"
+      MaxOpenConns: 10
+      MaxIdleConns: 5

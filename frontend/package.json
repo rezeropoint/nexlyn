@@ -61,6 +61,7 @@
     "classnames": "^2.5.1",
     "dagre": "^0.8.5",
     "dayjs": "^1.11.13",
+    "pgsql-ast-parser": "^12.0.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-icons": "^5.5.0",

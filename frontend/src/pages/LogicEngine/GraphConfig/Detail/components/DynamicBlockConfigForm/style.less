@@ -112,3 +112,130 @@
     border: 1px solid var(--ant-color-warning-border);
   }
 }
+
+// 标签中的必填标记
+.requiredMark {
+  margin-left: 4px;
+  color: var(--ant-color-error);
+}
+
+// 标签中的描述图标
+.descriptionIcon {
+  flex-shrink: 0;
+  margin-left: 8px;
+  color: var(--ant-color-text-tertiary);
+  cursor: help;
+}
+
+// 动态列表容器
+.arrayListContainer {
+  padding: 12px;
+  background-color: var(--ant-color-fill-tertiary);
+  border-radius: var(--ant-border-radius);
+}
+
+// 动态列表项
+.arrayListItem {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  padding: 12px;
+  margin-bottom: 8px;
+  background-color: var(--ant-color-bg-container);
+  border: 1px solid var(--ant-color-border-secondary);
+  border-radius: var(--ant-border-radius);
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+// 列表项内容区域
+.arrayListItemContent {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+// 列表项字段
+.arrayListItemField {
+  flex: 1;
+  min-width: 120px;
+}
+
+// 删除按钮容器
+.arrayListItemActions {
+  flex-shrink: 0;
+  padding-top: 4px;
+}
+
+// 添加按钮容器
+.arrayListAddButton {
+  margin-top: 8px;
+}
+
+// 空列表提示
+.arrayListEmpty {
+  padding: 16px;
+  color: var(--ant-color-text-tertiary);
+  text-align: center;
+}
+
+// 日志级别选项样式
+.levelOption {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+// 字符串数组容器
+.stringArrayContainer {
+  padding: 12px;
+  background-color: var(--ant-color-fill-tertiary);
+  border-radius: var(--ant-border-radius);
+}
+
+// 字符串数组项
+.stringArrayItem {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+
+  &:last-of-type {
+    margin-bottom: 0;
+  }
+}
+
+// 字符串数组索引标签
+.stringArrayIndex {
+  flex-shrink: 0;
+  width: 32px;
+  font-size: 12px;
+  font-family: "Monaco", "Menlo", "Ubuntu Mono", "Consolas", monospace;
+  color: var(--ant-color-text-tertiary);
+  text-align: center;
+}
+
+// 字符串数组添加按钮
+.stringArrayAddButton {
+  margin-top: 8px;
+}
+
+// SQL 编辑器容器
+.sqlEditorContainer {
+  :global {
+    .ant-form-item-explain-error {
+      margin-top: 4px;
+    }
+  }
+}
+
+// SQL 编辑器样式
+.sqlEditor {
+  font-size: 12px !important;
+  font-family: "Monaco", "Menlo", "Ubuntu Mono", "Consolas", "source-code-pro",
+    monospace !important;
+  line-height: 1.5 !important;
+}

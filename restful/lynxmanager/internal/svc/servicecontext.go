@@ -14,8 +14,11 @@ import (
 	"github.com/rezeropoint/casbinx/core"
 	"github.com/rezeropoint/casbinx/engine"
 	"github.com/zeromicro/go-zero/core/logx"
+	"github.com/zeromicro/go-zero/core/stores/mon"
 	"github.com/zeromicro/go-zero/core/stores/monc"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
+	"go.mongodb.org/mongo-driver/v2/mongo"
+	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
 type ServiceContext struct {
@@ -53,6 +56,21 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	logx.Infof("PostgreSQL连接成功: %s:%d/%s", c.DataSource.Host, c.DataSource.Port, c.DataSource.Database)
 
 	// 初始化 MongoDB 连接（带缓存）
+	// 配置 BSONOptions：让 MongoDB 驱动将文档解码为 map[string]any 而非 bson.D
+	mongoClient, err := mongo.Connect(
+		options.Client().
+			ApplyURI(c.MongoDBConf.URI).
+			SetBSONOptions(&options.BSONOptions{
+				DefaultDocumentM: true, // 文档解码为 bson.M (即 map[string]any)
+			}),
+	)
+	if err != nil {
+		logx.Must(fmt.Errorf("创建 MongoDB 客户端失败: %w", err))
+	}
+
+	// 注入预配置的客户端，让 go-zero 的 monc 使用它
+	mon.Inject(c.MongoDBConf.URI, mongoClient)
+
 	mongoDB := monc.MustNewModel(
 		c.MongoDBConf.URI,
 		c.MongoDBConf.DB,
@@ -60,7 +78,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		c.MongoDBConf.CacheConf,
 	)
 
-	logx.Infof("MongoDB连接成功: %s/%s", c.MongoDBConf.DB, c.MongoDBConf.Collection)
+	logx.Infof("MongoDB连接成功: %s/%s（已配置 map[string]any 解码）", c.MongoDBConf.DB, c.MongoDBConf.Collection)
 
 	// 初始化 CasbinX 权限管理（用于GORM的DSN格式）
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=disable",

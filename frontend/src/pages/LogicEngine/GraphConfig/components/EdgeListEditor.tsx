@@ -3,12 +3,12 @@
  */
 
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
-import { Button, Input, Select, Space, Table } from 'antd';
+import { Button, Input, Popconfirm, Select, Space, Table, Tooltip } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import React, { useCallback } from 'react';
 import { DEFAULT_EDGE } from '../constants';
 import type { EdgeItem, NodeItem } from '../types';
-import styles from './GraphConfigForm.less';
+import styles from './EdgeListEditor.module.less';
 
 interface EdgeListEditorProps {
   edges: EdgeItem[];
@@ -66,7 +66,7 @@ const EdgeListEditor: React.FC<EdgeListEditorProps> = ({ edges, nodes, onChange 
       width: 200,
       render: (text, _record, index) => (
         <Select
-          style={{ width: '100%' }}
+          className={styles.fullWidth}
           placeholder="请选择源节点"
           value={text}
           onChange={(value) => handleFieldChange(index, 'sourceID', value)}
@@ -84,7 +84,7 @@ const EdgeListEditor: React.FC<EdgeListEditorProps> = ({ edges, nodes, onChange 
       width: 200,
       render: (text, _record, index) => (
         <Select
-          style={{ width: '100%' }}
+          className={styles.fullWidth}
           placeholder="请选择目标节点"
           value={text}
           onChange={(value) => handleFieldChange(index, 'targetID', value)}
@@ -97,16 +97,21 @@ const EdgeListEditor: React.FC<EdgeListEditorProps> = ({ edges, nodes, onChange 
       ),
     },
     {
-      title: '条件表达式',
+      title: (
+        <Tooltip title="支持变量：context.xxx.yyy（图上下文）、atom.xxx（信息原子字段）">
+          条件表达式
+        </Tooltip>
+      ),
       dataIndex: 'condition',
-      width: 200,
+      width: 240,
       render: (text, _record, index) => (
         <Input.TextArea
-          placeholder="条件表达式（可选）"
+          placeholder='示例: context.time_window.window == "before_work"'
           value={text}
           onChange={(e) => handleFieldChange(index, 'condition', e.target.value)}
           rows={1}
           autoSize={{ minRows: 1, maxRows: 3 }}
+          className={styles.conditionInput}
         />
       ),
     },
@@ -115,15 +120,16 @@ const EdgeListEditor: React.FC<EdgeListEditorProps> = ({ edges, nodes, onChange 
       width: 80,
       fixed: 'right',
       render: (_, _record, index) => (
-        <Button
-          type="link"
-          danger
-          size="small"
-          icon={<DeleteOutlined />}
-          onClick={() => handleDelete(index)}
+        <Popconfirm
+          title="确认删除此边？"
+          onConfirm={() => handleDelete(index)}
+          okText="删除"
+          cancelText="取消"
         >
-          删除
-        </Button>
+          <Button type="link" danger size="small" icon={<DeleteOutlined />}>
+            删除
+          </Button>
+        </Popconfirm>
       ),
     },
   ];
