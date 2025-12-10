@@ -281,6 +281,21 @@ const Dashboard: React.FC = () => {
     [trendChartData, token, isDarkTheme],
   );
 
+  // 状态颜色映射（与 Hero KPI 卡片保持一致）
+  // 待处理(pending): warning 橙黄色
+  // 处理中(processing): primary 蓝色
+  // 已完成(finished): success 绿色
+  const statusColorMap: Record<string, string> = useMemo(
+    () => ({
+      待处理: token.colorWarning,
+      处理中: token.colorPrimary,
+      已完成: token.colorSuccess,
+      已终止: token.colorError,
+      已暂存: token.colorTextTertiary,
+    }),
+    [token],
+  );
+
   const statusPieConfig = useMemo(
     () => ({
       data: statusPieData,
@@ -292,6 +307,12 @@ const Dashboard: React.FC = () => {
           position: 'right',
           itemLabelFill: token.colorText,
           itemLabelFontSize: 12,
+        },
+      },
+      // 颜色映射：与 Hero KPI 卡片保持一致
+      scale: {
+        color: {
+          range: statusPieData.map((item) => statusColorMap[item.type] ?? token.colorPrimary),
         },
       },
       innerRadius: 0.6,
@@ -314,7 +335,7 @@ const Dashboard: React.FC = () => {
       },
       label: false, // 隐藏标签线和文字，空间不足
     }),
-    [statusPieData, statusStats?.total, token],
+    [statusPieData, statusStats?.total, token, statusColorMap],
   );
 
   const userColumnConfig = useMemo(
