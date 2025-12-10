@@ -744,7 +744,7 @@ export interface DeviceStatisticsParams {
 
 // 获取设备统计分析（包含设备和通道统计）
 export async function getDeviceStatistics(params: DeviceStatisticsParams) {
-  return request<DeviceStatisticsResponse>("/nexlyn/api/statistics/devices", {
+  return request<DeviceStatisticsResponse>("/api/v1/video/devices/statistics", {
     method: "GET",
     params: {
       ...params,
