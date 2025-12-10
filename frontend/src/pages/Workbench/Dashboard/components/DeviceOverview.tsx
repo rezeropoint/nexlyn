@@ -12,12 +12,11 @@ import { Pie } from '@ant-design/plots';
 import type { RadioChangeEvent } from 'antd';
 import { Card, Empty, Progress, Radio, Space, Spin, theme } from 'antd';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useModel } from 'umi';
 import {
   getUnifiedDeviceStatistics,
   type UnifiedDeviceStatisticsData,
 } from '@/services/device';
-import { CATEGORICAL_COLORS, getPieConfig } from '@/utils/antvTheme';
+import { CATEGORICAL_COLORS } from '@/utils/antvTheme';
 import { useApp } from '@/utils/appContext';
 import { getDeviceCategoryInfo } from '@/utils/deviceCategory';
 import styles from './DeviceOverview.less';
@@ -36,20 +35,11 @@ const DeviceOverview: React.FC<DeviceOverviewProps> = ({
 }) => {
   const { token } = theme.useToken();
   const { message } = useApp();
-  const { initialState } = useModel('@@initialState');
 
   const [loading, setLoading] = useState(false);
   const [statistics, setStatistics] =
     useState<UnifiedDeviceStatisticsData | null>(null);
   const [groupBy, setGroupBy] = useState<GroupByType>('none');
-
-  // 判断是否为暗色主题
-  const isDarkTheme = useMemo(
-    () =>
-      initialState?.themeMode === 'dark' ||
-      initialState?.themeMode === 'dark-compact',
-    [initialState?.themeMode],
-  );
 
   const fetchStatistics = useCallback(async () => {
     if (!orgId) return;
@@ -116,25 +106,39 @@ const DeviceOverview: React.FC<DeviceOverviewProps> = ({
     }
   }, [statistics, groupBy]);
 
-  // 饼图配置
+  // 甜甜圈图配置（细环，与流程状态的粗环形图区分）
   const pieConfig = useMemo(() => {
     const total = pieData.reduce((sum, item) => sum + item.value, 0);
-    const config = getPieConfig(pieData, 'value', 'type', {
-      innerRadius: 0.6,
-      colors: CATEGORICAL_COLORS,
-      token,
-      isDark: isDarkTheme,
+    return {
+      data: pieData,
+      angleField: 'value',
+      colorField: 'type',
+      radius: 0.9,
+      innerRadius: 0.75, // 细环甜甜圈，流程状态是 0.6 粗环
+      scale: {
+        color: {
+          range: CATEGORICAL_COLORS,
+        },
+      },
+      legend: false, // 使用自定义图例
+      label: false, // 隐藏标签线和文字，空间不足
+      // 中心统计文本
       statistic: {
         title: false,
-        content: String(total),
+        content: {
+          style: {
+            fontSize: 18,
+            fill: token.colorText,
+            fontWeight: 'bold',
+          },
+          content: String(total),
+        },
       },
-    });
-    return {
-      ...config,
-      legend: false, // 自定义图例或不显示
-      label: false, // 隐藏标签线和文字，空间不足
+      interaction: {
+        elementHighlight: true,
+      },
     };
-  }, [pieData, token, isDarkTheme]);
+  }, [pieData, token]);
 
   const renderContent = () => {
     if (!statistics) return <Empty description="暂无数据" />;
