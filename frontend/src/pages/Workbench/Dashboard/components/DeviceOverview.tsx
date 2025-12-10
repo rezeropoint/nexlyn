@@ -79,7 +79,7 @@ const DeviceOverview: React.FC<DeviceOverviewProps> = ({
     // 不清空数据，避免切换时内容区域高度突变
   };
 
-  // 计算统一在线率
+  // 计算统一在线率（设备 + 监控点）
   const unifiedOnlineRate = useMemo(() => {
     if (!statistics) return 0;
     const totalCount = statistics.deviceTotal + (statistics.channelTotal || 0);
@@ -144,44 +144,47 @@ const DeviceOverview: React.FC<DeviceOverviewProps> = ({
       <>
         {/* 顶部核心指标 */}
         <div className={styles.overviewSection}>
+          {/* IoT 设备统计 */}
           <div className={`${styles.metricItem} ${styles.total}`}>
-            <div className={styles.metricValue}>
-              {statistics.deviceTotal}
-              {hasChannelData && (
-                <span className={styles.metricSubValue}>
-                  {' '}
-                  (+{statistics.channelTotal})
-                </span>
-              )}
-            </div>
-            <div className={styles.metricLabel}>
-              总设备{hasChannelData ? '/监控点' : ''}
-            </div>
+            <div className={styles.metricValue}>{statistics.deviceTotal}</div>
+            <div className={styles.metricLabel}>总设备</div>
           </div>
           <div className={`${styles.metricItem} ${styles.online}`}>
-            <div className={styles.metricValue}>
-              {statistics.deviceOnline}
-              {hasChannelData && (
-                <span className={styles.metricSubValue}>
-                  {' '}
-                  (+{statistics.channelOnline})
-                </span>
-              )}
-            </div>
+            <div className={styles.metricValue}>{statistics.deviceOnline}</div>
             <div className={styles.metricLabel}>在线</div>
           </div>
           <div className={`${styles.metricItem} ${styles.offline}`}>
-            <div className={styles.metricValue}>
-              {statistics.deviceOffline}
-              {hasChannelData && (
-                <span className={styles.metricSubValue}>
-                  {' '}
-                  (+{statistics.channelOffline})
-                </span>
-              )}
-            </div>
+            <div className={styles.metricValue}>{statistics.deviceOffline}</div>
             <div className={styles.metricLabel}>离线</div>
           </div>
+
+          {/* 监控点统计（如有） */}
+          {hasChannelData && (
+            <>
+              <div className={styles.metricDivider} />
+              <div className={`${styles.metricItem} ${styles.channel}`}>
+                <div className={styles.metricValue}>
+                  {statistics.channelTotal}
+                </div>
+                <div className={styles.metricLabel}>总监控点</div>
+              </div>
+              <div className={`${styles.metricItem} ${styles.channelOnline}`}>
+                <div className={styles.metricValue}>
+                  {statistics.channelOnline}
+                </div>
+                <div className={styles.metricLabel}>监控点在线</div>
+              </div>
+              <div className={`${styles.metricItem} ${styles.channelOffline}`}>
+                <div className={styles.metricValue}>
+                  {statistics.channelOffline}
+                </div>
+                <div className={styles.metricLabel}>监控点离线</div>
+              </div>
+            </>
+          )}
+
+          {/* 在线率 */}
+          <div className={styles.metricDivider} />
           <div className={`${styles.metricItem} ${styles.rate}`}>
             <div className={styles.metricValue}>{unifiedOnlineRate}%</div>
             <div className={styles.metricLabel}>在线率</div>

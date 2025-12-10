@@ -6,16 +6,19 @@
 }
 
 .overviewSection {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
   margin-bottom: 24px;
-  align-items: stretch; // 确保子项高度一致
-  overflow: hidden; // 防止子项溢出
+  align-items: stretch;
+  justify-content: center;
+}
 
-  @media (max-width: 768px) {
-    grid-template-columns: repeat(2, 1fr);
-  }
+.metricDivider {
+  width: 1px;
+  background: var(--ant-color-border-secondary);
+  margin: 8px 4px;
+  align-self: stretch;
 }
 
 .metricItem {
@@ -50,6 +53,15 @@
     .metricValue {
       color: var(--ant-color-success);
     }
+  }
+  &.channel {
+    .metricValue { color: var(--ant-color-info); }
+  }
+  &.channelOnline {
+    .metricValue { color: var(--ant-color-success); }
+  }
+  &.channelOffline {
+    .metricValue { color: var(--ant-color-text-tertiary); }
   }
 }
 
