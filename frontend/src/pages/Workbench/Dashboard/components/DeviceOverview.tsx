@@ -132,6 +132,7 @@ const DeviceOverview: React.FC<DeviceOverviewProps> = ({
     return {
       ...config,
       legend: false, // 自定义图例或不显示
+      label: false, // 隐藏标签线和文字，空间不足
     };
   }, [pieData, token, isDarkTheme]);
 

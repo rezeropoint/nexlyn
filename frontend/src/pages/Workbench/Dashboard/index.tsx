@@ -258,13 +258,7 @@ const Dashboard: React.FC = () => {
       title: { content: '总计' },
       content: { content: String(statusStats?.total || 0) },
     },
-    label: {
-      text: (datum: any) => `${datum.type}\n${datum.value}`,
-      position: 'outside',
-      style: {
-        fill: 'var(--ant-color-text)',
-      },
-    },
+    label: false, // 隐藏标签线和文字，空间不足
   };
 
   const userColumnConfig = {
