@@ -252,6 +252,10 @@ export const getPieConfig = (
     statistic,
   } = options || {};
 
+  // 使用 token 颜色，确保暗色主题适配
+  const textColor = token?.colorText || '#000';
+  const textSecondaryColor = token?.colorTextSecondary || '#666';
+
   const config: any = {
     data,
     angleField,
@@ -260,20 +264,13 @@ export const getPieConfig = (
     innerRadius,
     legend: {
       position: 'bottom' as const,
-      itemName: {
-        style: {
-          fill: token?.colorText || '#000',
-          fontSize: 11,
-        },
-      },
+      itemLabelFill: textColor,
     },
     label: {
       text: colorField,
       position: 'spider',
-      style: {
-        fill: token?.colorText || '#000',
-        fontSize: 11,
-      },
+      fill: textColor,
+      fontSize: 11,
     },
     interactions: [{ type: 'element-active' }],
   };
@@ -294,7 +291,7 @@ export const getPieConfig = (
         ? {
             style: {
               fontSize: 12,
-              color: token.colorTextSecondary,
+              fill: textSecondaryColor,
             },
             content: statistic.title || '总计',
           }
@@ -303,7 +300,7 @@ export const getPieConfig = (
         ? {
             style: {
               fontSize: 18,
-              color: token.colorPrimary,
+              fill: token.colorText,
               fontWeight: 'bold',
             },
             content: statistic.content,

@@ -68,6 +68,11 @@ const Dashboard: React.FC = () => {
   const { token } = theme.useToken();
   const { message } = useApp();
   const { initialState } = useModel('@@initialState');
+
+  // 判断是否为暗色主题
+  const isDarkTheme =
+    initialState?.themeMode === 'dark' ||
+    initialState?.themeMode === 'dark-compact';
   const currentUser = initialState?.currentUser;
 
   const [pendingStats, setPendingStats] =
@@ -224,63 +229,123 @@ const Dashboard: React.FC = () => {
     [statusStats?.statusCounts],
   );
 
-  const trendLineConfig = {
-    data: trendChartData,
-    xField: 'date',
-    yField: 'count',
-    colorField: 'type',
-    shapeField: 'smooth',
-    legend: {
-      position: 'top' as const,
-    },
-    scale: {
-      color: {
-        range: [token.colorPrimary, token.colorSuccess],
+  const trendLineConfig = useMemo(
+    () => ({
+      data: trendChartData,
+      xField: 'date',
+      yField: 'count',
+      colorField: 'type',
+      shapeField: 'smooth',
+      // G2 5.0 / Ant Design Plots v2 图例配置需指定 channel (color)
+      legend: {
+        color: {
+          position: 'top',
+          itemLabelFill: token.colorText,
+          itemLabelFontSize: 12,
+        },
       },
-    },
-    style: {
-      strokeWidth: 3,
-    },
-    point: {
-      shapeField: 'circle',
-      sizeField: 5,
-    },
-    interaction: {
+      scale: {
+        color: {
+          range: [token.colorPrimary, token.colorSuccess],
+        },
+      },
+      style: {
+        strokeWidth: 3,
+      },
+      point: {
+        shapeField: 'circle',
+        sizeField: 5,
+      },
+      interaction: {
+        tooltip: {
+          shared: true,
+          crosshairs: true,
+        },
+      },
+      // 坐标轴配置 (Ant Design Plots v2 支持 axis.x / axis.y)
+      axis: {
+        x: {
+          labelFill: token.colorTextSecondary,
+          labelFontSize: 11,
+          lineStroke: token.colorBorder,
+        },
+        y: {
+          labelFill: token.colorTextSecondary,
+          labelFontSize: 11,
+          gridStroke: isDarkTheme ? token.colorBorderSecondary : token.colorFillQuaternary,
+          gridLineDash: [4, 4],
+        },
+      },
+      padding: 'auto' as const,
+    }),
+    [trendChartData, token, isDarkTheme],
+  );
+
+  const statusPieConfig = useMemo(
+    () => ({
+      data: statusPieData,
+      angleField: 'value',
+      colorField: 'type',
+      // G2 5.0 / Ant Design Plots v2 图例配置
+      legend: {
+        color: {
+          position: 'right',
+          itemLabelFill: token.colorText,
+          itemLabelFontSize: 12,
+        },
+      },
+      innerRadius: 0.6,
+      statistic: {
+        title: {
+          content: '总计',
+          style: {
+            fill: token.colorTextSecondary,
+            fontSize: 12,
+          },
+        },
+        content: {
+          content: String(statusStats?.total || 0),
+          style: {
+            fill: token.colorText,
+            fontSize: 18,
+            fontWeight: 'bold',
+          },
+        },
+      },
+      label: false, // 隐藏标签线和文字，空间不足
+    }),
+    [statusPieData, statusStats?.total, token],
+  );
+
+  const userColumnConfig = useMemo(
+    () => ({
+      data: userStats?.userMetrics || [],
+      xField: 'userName',
+      yField: 'count',
+      colorField: 'userName',
+      legend: false,
+      columnStyle: { radius: [6, 6, 0, 0] },
+      axis: {
+        x: {
+          labelFill: token.colorTextSecondary,
+          labelFontSize: 11,
+        },
+        y: {
+          labelFill: token.colorTextSecondary,
+          labelFontSize: 11,
+          gridStroke: isDarkTheme ? token.colorBorderSecondary : token.colorFillQuaternary,
+          gridLineDash: [4, 4],
+        },
+      },
       tooltip: {
-        shared: true,
-        crosshairs: true,
+        formatter: (datum: { userName: string; count: number }) => ({
+          name: datum.userName,
+          value: `${datum.count} 次处理`,
+        }),
       },
-    },
-    padding: 'auto' as const,
-  };
-
-  const statusPieConfig = {
-    data: statusPieData,
-    angleField: 'value',
-    colorField: 'type',
-    legend: { position: 'right' as const },
-    innerRadius: 0.6,
-    statistic: {
-      title: { content: '总计' },
-      content: { content: String(statusStats?.total || 0) },
-    },
-    label: false, // 隐藏标签线和文字，空间不足
-  };
-
-  const userColumnConfig = {
-    data: userStats?.userMetrics || [],
-    xField: 'userName',
-    yField: 'count',
-    colorField: 'userName',
-    legend: false,
-    columnStyle: { radius: [6, 6, 0, 0] },
-    tooltip: {
-      formatter: (datum: { userName: string; count: number }) => ({
-        name: datum.userName,
-        value: `${datum.count} 次处理`,
-      }),
-    },
-  };
+    }),
+    [userStats?.userMetrics, token, isDarkTheme],
+  );
 
   const priorityEmpty = !tasksLoading && priorityTasks.length === 0;
 
