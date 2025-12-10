@@ -377,7 +377,7 @@ const Dashboard: React.FC = () => {
 
       <div className={styles.mainLayout}>
         <div className={styles.leftColumn}>
-          {/* 第一行：设备运行概览 + 流程状态 */}
+          {/* 第一行：设备运行概览 + 流程状态/处理人效率 */}
           <div className={styles.analyticsRow}>
             <div className={styles.wideCard}>
               <DeviceOverview
@@ -385,73 +385,54 @@ const Dashboard: React.FC = () => {
                 refreshTrigger={refreshTrigger}
               />
             </div>
-            <Card
-              className={`${styles.sectionCard} ${styles.narrowCard}`}
-              title={
-                <span>
-                  <ThunderboltOutlined className="icon-primary" />
-                  <span style={{ marginLeft: 8 }}>流程状态</span>
-                </span>
-              }
-              extra={<span className={styles.sectionHint}>实时统计</span>}
-            >
-              <Spin spinning={statsLoading}>
-                {statusPieData.length > 0 ? (
-                  <div className={styles.eventHealth}>
-                    <div className={styles.eventChart}>
-                      <Pie {...statusPieConfig} height={180} />
-                    </div>
-                    <div className={styles.eventList}>
-                      {statusStats?.statusCounts?.map((item) => (
-                        <div key={item.statusKey} className={styles.eventItem}>
-                          <div className={styles.eventItemLabel}>
-                            {item.status}
-                          </div>
-                          <div className={styles.eventItemValue}>
-                            {item.count}
-                          </div>
-                          <Tag className={styles.eventTag}>
-                            {item.percentage.toFixed(1)}%
-                          </Tag>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ) : (
-                  <Empty description="暂无事件统计" />
-                )}
-              </Spin>
-            </Card>
+            <div className={styles.narrowColumn}>
+              <Card
+                className={`${styles.sectionCard} ${styles.halfHeightCard}`}
+                title={
+                  <span>
+                    <ThunderboltOutlined className="icon-primary" />
+                    <span style={{ marginLeft: 8 }}>流程状态</span>
+                  </span>
+                }
+                extra={<span className={styles.sectionHint}>实时统计</span>}
+              >
+                <Spin spinning={statsLoading}>
+                  {statusPieData.length > 0 ? (
+                    <Pie {...statusPieConfig} height={140} />
+                  ) : (
+                    <Empty description="暂无事件统计" />
+                  )}
+                </Spin>
+              </Card>
+              <Card
+                className={`${styles.sectionCard} ${styles.halfHeightCard}`}
+                title="处理人效率 TOP8"
+              >
+                <Spin spinning={statsLoading}>
+                  {userStats?.userMetrics && userStats.userMetrics.length > 0 ? (
+                    <Column {...userColumnConfig} height={140} />
+                  ) : (
+                    <Empty description="暂无处理人数据" />
+                  )}
+                </Spin>
+              </Card>
+            </div>
           </div>
 
-          {/* 第二行：事件趋势对比 + 处理人效率 */}
-          <div className={styles.analyticsRow}>
-            <Card
-              className={`${styles.sectionCard} ${styles.wideCard}`}
-              title="事件趋势对比"
-              extra={<span className={styles.sectionHint}>新增 vs 完成</span>}
-            >
-              <Spin spinning={statsLoading}>
-                {trendChartData.length > 0 ? (
-                  <Line {...trendLineConfig} height={200} />
-                ) : (
-                  <Empty description="暂无趋势数据" />
-                )}
-              </Spin>
-            </Card>
-            <Card
-              className={`${styles.sectionCard} ${styles.narrowCard}`}
-              title="处理人效率 TOP8"
-            >
-              <Spin spinning={statsLoading}>
-                {userStats?.userMetrics && userStats.userMetrics.length > 0 ? (
-                  <Column {...userColumnConfig} height={200} />
-                ) : (
-                  <Empty description="暂无处理人数据" />
-                )}
-              </Spin>
-            </Card>
-          </div>
+          {/* 第二行：事件趋势对比（全宽） */}
+          <Card
+            className={styles.sectionCard}
+            title="事件趋势对比"
+            extra={<span className={styles.sectionHint}>新增 vs 完成</span>}
+          >
+            <Spin spinning={statsLoading}>
+              {trendChartData.length > 0 ? (
+                <Line {...trendLineConfig} height={200} />
+              ) : (
+                <Empty description="暂无趋势数据" />
+              )}
+            </Spin>
+          </Card>
         </div>
 
         <div className={styles.rightColumn}>
