@@ -254,38 +254,47 @@
 }
 
 .leftColumn {
-  flex: 1.6; // 缩小左列比例
+  flex: 0 0 60%; // 左列占 60%
   display: flex;
   flex-direction: column;
   gap: 24px;
-}
-
-.rightColumn {
-  flex: 1.4; // 扩大右列比例，让待办任务更突出
-  position: sticky;
-  top: 88px;
+  min-width: 0; // 防止 flex 子项溢出
 
   @media (max-width: 1280px) {
-    position: static;
-    width: 100%;
+    flex: 1 1 100%;
   }
 }
 
-.healthRow {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 24px;
-  margin-bottom: 24px;
+.rightColumn {
+  flex: 0 0 40%; // 右列占 40%（待办任务）
+  position: sticky;
+  top: 88px;
+  min-width: 0;
 
   @media (max-width: 1280px) {
-    grid-template-columns: 1fr;
+    position: static;
+    flex: 1 1 100%;
   }
 }
 
 .analyticsRow {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  display: flex;
   gap: 24px;
+
+  @media (max-width: 992px) {
+    flex-direction: column;
+  }
+}
+
+.wideCard {
+  flex: 2; // 宽卡片占 2 份
+  min-width: 0;
+  overflow: hidden; // 防止子项溢出卡片边界
+}
+
+.narrowCard {
+  flex: 1; // 窄卡片占 1 份
+  min-width: 280px;
 }
 
 .sectionCard {
@@ -302,148 +311,9 @@
   }
 }
 
-// healthRow中的事件健康度卡片 - 视觉加强
-.healthRow .sectionCard:first-child {
-  border: 2px solid var(--ant-color-primary-border);
-  box-shadow: var(--ant-box-shadow-tertiary);
-}
-
 .sectionHint {
   font-size: 12px;
   color: var(--ant-color-text-tertiary);
-}
-
-.deviceOverview {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-  }
-}
-
-.deviceMetricItem {
-  text-align: center;
-  padding: 12px;
-  border-radius: 8px;
-  background: var(--ant-color-bg-elevated);
-  transition: all 0.2s ease;
-
-  &:hover {
-    background: var(--ant-color-fill-quaternary);
-    transform: translateY(-2px);
-  }
-}
-
-.deviceValue {
-  font-size: 32px;
-  font-weight: 600;
-  color: var(--ant-color-primary);
-  line-height: 1.2;
-}
-
-.deviceLabel {
-  color: var(--ant-color-text-tertiary);
-  font-size: 13px;
-  margin-top: 4px;
-}
-
-.deviceProgress {
-  grid-column: span 3;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 16px;
-  background: var(--ant-color-bg-elevated);
-  border-radius: 8px;
-
-  // 确保 Progress 组件占满宽度
-  :global(.ant-progress) {
-    width: 100%;
-  }
-
-  @media (max-width: 768px) {
-    grid-column: span 1;
-  }
-}
-
-.progressHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  > span:first-child {
-    font-size: 13px;
-    color: var(--ant-color-text-secondary);
-    font-weight: 500;
-  }
-}
-
-.deviceRate {
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--ant-color-success);
-}
-
-.deviceSplit {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
-  margin-bottom: 16px;
-}
-
-.deviceSplitItem {
-  background: var(--ant-color-bg-elevated);
-  border-radius: 12px;
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.splitHeader {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 500;
-}
-
-.splitValue {
-  font-size: 24px;
-  font-weight: 600;
-}
-
-.splitMeta {
-  display: flex;
-  justify-content: space-between;
-  font-size: 12px;
-  color: var(--ant-color-text-tertiary);
-}
-
-.deviceGroups {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 12px;
-}
-
-.deviceGroupItem {
-  padding: 12px;
-  border: 1px solid var(--ant-color-border-secondary);
-  border-radius: 10px;
-}
-
-.groupName {
-  font-weight: 600;
-  margin-bottom: 4px;
-}
-
-.groupStats {
-  display: flex;
-  justify-content: space-between;
-  font-size: 12px;
-  color: var(--ant-color-text-tertiary);
-  margin-bottom: 6px;
 }
 
 .eventHealth {

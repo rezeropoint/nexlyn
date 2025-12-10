@@ -1,0 +1,236 @@
+.deviceOverviewCard {
+  // 基础卡片样式复用 Workbench 的 sectionCard
+  :global(.ant-card-head) {
+    border-bottom: 1px solid var(--ant-color-border-secondary);
+  }
+}
+
+.overviewSection {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+  align-items: stretch; // 确保子项高度一致
+  overflow: hidden; // 防止子项溢出
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.metricItem {
+  padding: 12px 16px;
+  background: var(--ant-color-bg-elevated);
+  border-radius: 8px;
+  text-align: center;
+  transition: all 0.3s ease;
+  border: 1px solid transparent;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 80px; // 统一最小高度
+
+  &:hover {
+    background: var(--ant-color-fill-quaternary);
+    transform: translateY(-2px);
+    box-shadow: var(--ant-box-shadow-tertiary);
+  }
+
+  &.total {
+    .metricValue { color: var(--ant-color-primary); }
+  }
+  &.online {
+    .metricValue { color: var(--ant-color-success); }
+    &:hover { border-color: var(--ant-color-success-border); background: var(--ant-color-success-bg); }
+  }
+  &.offline {
+    .metricValue { color: var(--ant-color-text-tertiary); }
+  }
+  &.rate {
+    .metricValue {
+      color: var(--ant-color-success);
+    }
+  }
+}
+
+.metricValue {
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.metricSubValue {
+    font-size: 14px;
+    color: var(--ant-color-text-secondary);
+}
+
+.metricLabel {
+  font-size: 13px;
+  color: var(--ant-color-text-secondary);
+}
+
+
+.contentSection {
+  display: flex;
+  gap: 24px;
+  min-height: 320px;
+  transition: opacity 0.2s ease; // 平滑过渡避免抽搐
+  overflow: hidden; // 防止子项溢出
+
+  @media (max-width: 992px) {
+    flex-direction: column;
+    min-height: auto;
+  }
+}
+
+.chartColumn {
+  flex: 0 0 280px; // 减小固定宽度，为右侧留更多空间
+  max-width: 320px;
+  min-width: 240px; // 设置最小宽度
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--ant-color-fill-quaternary);
+  border-radius: 12px;
+  padding: 16px;
+  position: relative;
+  overflow: hidden; // 防止饼图溢出
+
+  @media (max-width: 992px) {
+    flex: none;
+    width: 100%;
+    max-width: none;
+    min-height: 240px;
+  }
+}
+
+.chartWrapper {
+    height: 200px;
+    width: 100%;
+}
+
+.chartLegend {
+  width: 100%;
+  margin-top: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+
+.legendItem {
+    font-size: 12px;
+}
+
+.legendDot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.legendValue {
+    font-weight: 600;
+}
+
+.listColumn {
+  flex: 1;
+  min-width: 0; // 防止 flex 子项溢出
+  overflow-y: auto;
+  overflow-x: hidden; // 防止水平溢出
+  padding-right: 4px;
+  max-height: 400px;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: var(--ant-color-fill-tertiary);
+    border-radius: 3px;
+  }
+}
+
+.listItem {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  margin-bottom: 8px;
+  background: var(--ant-color-bg-container);
+  border: 1px solid var(--ant-color-border-secondary);
+  border-radius: 8px;
+  transition: all 0.2s;
+
+  &:hover {
+    border-color: var(--ant-color-primary-border);
+    box-shadow: var(--ant-box-shadow-tertiary);
+    transform: translateX(4px);
+  }
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.itemIcon {
+  font-size: 20px;
+  margin-right: 12px;
+  padding: 8px;
+  border-radius: 8px;
+  background: var(--ant-color-fill-quaternary);
+}
+
+.itemContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.itemHeader {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  
+  .itemName {
+    font-weight: 600;
+    color: var(--ant-color-text);
+  }
+  .itemTotal {
+    font-size: 13px;
+    color: var(--ant-color-text-secondary);
+  }
+}
+
+.itemStats {
+  display: flex;
+  gap: 16px;
+  font-size: 12px;
+  color: var(--ant-color-text-tertiary);
+
+  span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    
+    &.online { color: var(--ant-color-success); }
+  }
+}
+
+.radioGroup {
+  margin-bottom: 16px;
+  text-align: center;
+  width: 100%;
+
+  :global(.ant-radio-group) {
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  :global(.ant-radio-button-wrapper) {
+    // 窄屏下缩小内边距
+    @media (max-width: 480px) {
+      padding-inline: 10px;
+      font-size: 12px;
+    }
+  }
+}
