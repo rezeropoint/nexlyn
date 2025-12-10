@@ -125,7 +125,7 @@ const PermissionSelector: React.FC<PermissionSelectorProps> = ({
               RESOURCE_PREFIX,
               ""
             );
-            const resource = resourceKey.split(":")[1];
+            const _resource = resourceKey.split(":")[1];
 
             // 过滤权限节点
             const filteredPerms = (resourceNode.children || []).filter(

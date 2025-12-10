@@ -154,11 +154,13 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
   // 从入口节点提取所有订阅的信息原子类型 ID（用于积木配置的字段选择）
   const subscribedInfoAtomTypeIds = useMemo(() => {
     const ids = new Set<string>();
-    nodes.forEach((node) => {
+    for (const node of nodes) {
       if (node.isEntryPoint && node.subscribedInfoAtomTypeIDs) {
-        node.subscribedInfoAtomTypeIDs.forEach((id) => ids.add(id));
+        for (const id of node.subscribedInfoAtomTypeIDs) {
+          ids.add(id);
+        }
       }
-    });
+    }
     return Array.from(ids);
   }, [nodes]);
 
