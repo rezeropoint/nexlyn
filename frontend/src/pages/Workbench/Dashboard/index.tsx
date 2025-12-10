@@ -228,22 +228,28 @@ const Dashboard: React.FC = () => {
     data: trendChartData,
     xField: 'date',
     yField: 'count',
-    seriesField: 'type',
-    smooth: true,
+    colorField: 'type',
+    shapeField: 'smooth',
     legend: {
       position: 'top' as const,
     },
-    color: [token.colorPrimary, token.colorSuccess],
-    lineStyle: {
-      lineWidth: 2,
+    scale: {
+      color: {
+        range: [token.colorPrimary, token.colorSuccess],
+      },
+    },
+    style: {
+      strokeWidth: 3,
     },
     point: {
-      size: 4,
-      shape: 'circle',
+      shapeField: 'circle',
+      sizeField: 5,
     },
-    tooltip: {
-      shared: true,
-      showCrosshairs: true,
+    interaction: {
+      tooltip: {
+        shared: true,
+        crosshairs: true,
+      },
     },
     padding: 'auto' as const,
   };
