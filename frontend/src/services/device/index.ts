@@ -60,23 +60,20 @@ export interface UnifiedDeviceStatisticsParams {
 
 /**
  * 获取摄像头设备统计
- * 注意：目前后端未实现 /api/v1/video/devices/statistics 接口，暂时返回空数据
  */
 async function getCameraStatistics(
-  _params: VideoDeviceStatisticsParams
+  params: VideoDeviceStatisticsParams
 ): Promise<VideoDeviceStatisticsData> {
-  // TODO: 等后端实现视频设备统计接口后再启用
-  // try {
-  //   const response = await getVideoDeviceStatistics(params);
-  //   if (response.code === 0 && response.data) {
-  //     return response.data;
-  //   }
-  //   return { deviceTotal: 0, deviceOnline: 0, deviceOffline: 0 };
-  // } catch (error) {
-  //   console.error("获取摄像头统计失败:", error);
-  //   return { deviceTotal: 0, deviceOnline: 0, deviceOffline: 0 };
-  // }
-  return { deviceTotal: 0, deviceOnline: 0, deviceOffline: 0 };
+  try {
+    const response = await getVideoDeviceStatistics(params);
+    if (response.code === 0 && response.data) {
+      return response.data;
+    }
+    return { deviceTotal: 0, deviceOnline: 0, deviceOffline: 0 };
+  } catch (error) {
+    console.error("获取摄像头统计失败:", error);
+    return { deviceTotal: 0, deviceOnline: 0, deviceOffline: 0 };
+  }
 }
 
 /**
