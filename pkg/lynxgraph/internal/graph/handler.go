@@ -11,6 +11,7 @@ import (
 	"github.com/rezeropoint/etcdtrigger"
 
 	"github.com/lib/pq"
+	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/monc"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"go.mongodb.org/mongo-driver/bson"
@@ -24,8 +25,10 @@ type graphRegistry struct {
 	sqlDB      sqlx.SqlConn
 	etcdClient etcdtrigger.EtcdClient
 
-	createBlockFunc core.CreateBlockFunc
-	getTagNamesFunc core.GetTagNamesByIDsFunc
+	createBlockFunc        core.CreateBlockFunc
+	getTagNamesFunc        core.GetTagNamesByIDsFunc
+	scheduleRegisterFunc   core.ScheduleRegisterFunc   // 定时任务注册回调（可选）
+	scheduleUnregisterFunc core.ScheduleUnregisterFunc // 定时任务注销回调（可选）
 
 	graphs map[core.GraphKey]core.LogicGraph
 	mu     sync.RWMutex
@@ -43,6 +46,8 @@ type graphRegistry struct {
 //   - sqlConn: 已建立的 PostgreSQL 连接（外部注入）
 //   - mongoDB: 已建立的 MongoDB Model（外部注入）
 //   - getTagNamesFunc: 根据标签ID获取标签名称的函数（用于标签查询）
+//   - scheduleRegisterFunc: 定时任务注册回调（可选，Engine 模式使用）
+//   - scheduleUnregisterFunc: 定时任务注销回调（可选，Engine 模式使用）
 func newGraphRegistry(
 	ctx context.Context,
 	cancel context.CancelFunc,
@@ -50,7 +55,9 @@ func newGraphRegistry(
 	sqlConn sqlx.SqlConn,
 	mongoDB *monc.Model,
 	createBlockFunc core.CreateBlockFunc,
-	getTagNamesFunc core.GetTagNamesByIDsFunc) (*graphRegistry, error) {
+	getTagNamesFunc core.GetTagNamesByIDsFunc,
+	scheduleRegisterFunc core.ScheduleRegisterFunc,
+	scheduleUnregisterFunc core.ScheduleUnregisterFunc) (*graphRegistry, error) {
 
 	// 创建 Etcd 客户端（包内建立连接）
 	etcdClient, err := etcdtrigger.NewEtcdClient(ctx, cancel, &config.EtcdConfig)
@@ -59,16 +66,18 @@ func newGraphRegistry(
 	}
 
 	registry := &graphRegistry{
-		config:            config,
-		graphs:            make(map[core.GraphKey]core.LogicGraph),
-		mongoDB:           mongoDB,
-		sqlDB:             sqlConn,
-		createBlockFunc:   createBlockFunc,
-		getTagNamesFunc:   getTagNamesFunc,
-		infoAtomTypeIndex: make(map[core.InfoAtomTypeKey]map[core.GraphKey][]string),
-		etcdClient:        etcdClient,
-		ctx:               ctx,
-		cancel:            cancel,
+		config:                 config,
+		graphs:                 make(map[core.GraphKey]core.LogicGraph),
+		mongoDB:                mongoDB,
+		sqlDB:                  sqlConn,
+		createBlockFunc:        createBlockFunc,
+		getTagNamesFunc:        getTagNamesFunc,
+		scheduleRegisterFunc:   scheduleRegisterFunc,
+		scheduleUnregisterFunc: scheduleUnregisterFunc,
+		infoAtomTypeIndex:      make(map[core.InfoAtomTypeKey]map[core.GraphKey][]string),
+		etcdClient:             etcdClient,
+		ctx:                    ctx,
+		cancel:                 cancel,
 	}
 
 	if config.RunMode == core.Engine {
@@ -546,6 +555,14 @@ func (r *graphRegistry) LoadGraph(config core.GraphConfig) error {
 	// 更新信息原子类型索引
 	r.updateInfoAtomTypeIndex(key, graph)
 
+	// 注册定时任务（如果有定时积木且回调函数已设置）
+	if r.scheduleRegisterFunc != nil && core.HasScheduleNodes(config.Nodes) {
+		if err := r.scheduleRegisterFunc(key, config.Nodes); err != nil {
+			// 定时任务注册失败不阻断图加载，只记录错误
+			fmt.Printf("[GraphRegistry] 注册定时任务失败: 图=%s, 错误=%v\n", key.ID, err)
+		}
+	}
+
 	return nil
 }
 
@@ -568,6 +585,11 @@ func (r *graphRegistry) UnregisterGraph(key core.GraphKey) error {
 
 // unregisterGraphLocked 注销逻辑图的内部实现（调用者必须已持有 r.mu 锁）
 func (r *graphRegistry) unregisterGraphLocked(key core.GraphKey) {
+	// 注销定时任务（如果回调函数已设置）
+	if r.scheduleUnregisterFunc != nil {
+		_ = r.scheduleUnregisterFunc(key)
+	}
+
 	// 遍历所有信息原子类型索引
 	for _, graphsMap := range r.infoAtomTypeIndex {
 		// 从每个信息原子类型的图映射中删除该图
@@ -841,6 +863,47 @@ func (r *graphRegistry) GetGraphConfigList(ctx context.Context, params core.Grap
 	// getTagNamesFunc 函数保留供 Phase 2 使用
 
 	return configs, total, int64(params.Page), totalPages, nil
+}
+
+// RegisterAllSchedules 注册所有已加载图的定时任务
+// 用于解决初始化顺序问题：图加载时 scheduleRegistry 尚未创建
+func (r *graphRegistry) RegisterAllSchedules() error {
+	if r.scheduleRegisterFunc == nil {
+		return nil // 没有定时任务回调函数，跳过
+	}
+
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+
+	for graphKey, graph := range r.graphs {
+		// 只需要检查入口节点
+		entryNodes := graph.GetEntryNodes()
+
+		// 转换为 NodeConfig 格式
+		var nodeConfigs []core.NodeConfig
+		for _, node := range entryNodes {
+			block := node.GetBlock()
+			if block == nil {
+				continue
+			}
+			nodeConfigs = append(nodeConfigs, core.NodeConfig{
+				ID:           node.GetID(),
+				BlockType:    block.GetType(),
+				BlockConfig:  block.GetConfigure(),
+				IsEntryPoint: true, // 入口节点
+			})
+		}
+
+		// 检查是否有定时积木并注册
+		if core.HasScheduleNodes(nodeConfigs) {
+			if err := r.scheduleRegisterFunc(graphKey, nodeConfigs); err != nil {
+				logx.Errorf("[GraphRegistry] 注册定时任务失败: 图=%s, 错误=%v", graphKey.ID, err)
+				// 继续注册其他图，不中断
+			}
+		}
+	}
+
+	return nil
 }
 
 // Close 关闭图注册表，清理资源

@@ -69,6 +69,12 @@ const (
 	BlockTypeHolidayCheck         LogicBlockType = "holiday_check"          // 假期检查
 	BlockTypeQueryDatabase        LogicBlockType = "query_database"         // 外部数据库查询
 	BlockTypeDedupCheck           LogicBlockType = "dedup_check"            // 去重检查
+	BlockTypeSchedule             LogicBlockType = "schedule"               // 定时触发器
+	BlockTypeForEach              LogicBlockType = "foreach"                // 遍历数组，对每个元素执行子图
+	BlockTypeGetDedupSet          LogicBlockType = "get_dedup_set"          // 获取当前周期所有已去重记录
+	BlockTypeSetContainsCheck     LogicBlockType = "set_contains_check"     // 集合包含检查
+	BlockTypeClearDedupContext    LogicBlockType = "clear_dedup_context"    // 清空去重记录
+	BlockTypeFilterBySet          LogicBlockType = "filter_by_set"          // 按集合过滤数组
 )
 
 type CreateBlockFunc func(id string, blockKey BlockKey, config map[string]any) (LogicBlock, error)
@@ -142,6 +148,44 @@ func FillConfig(cfg map[string]any, tmpl any) error {
 			if err := FillConfig(subMap, subVal.Addr().Interface()); err != nil {
 				return fmt.Errorf("%w: %s: %w", ErrNestedFieldCheckFailed, configKey, err)
 			}
+			continue
+		}
+
+		// map[string]any 类型支持（如 InitialPayload）
+		if field.Type.Kind() == reflect.Map &&
+			field.Type.Key().Kind() == reflect.String &&
+			field.Type.Elem().Kind() == reflect.Interface {
+			subRaw, ok := cfg[configKey]
+			if !ok || subRaw == nil {
+				if checkTag == "must" {
+					return fmt.Errorf("%w: %s", ErrFieldMissingOrZero, configKey)
+				}
+				continue
+			}
+
+			// 尝试转换为 map[string]any
+			var mapVal map[string]any
+
+			switch val := subRaw.(type) {
+			case map[string]any:
+				mapVal = val
+			case string:
+				// 如果是 JSON 字符串，尝试解析
+				if val == "" {
+					continue // 空字符串跳过
+				}
+				if err := json.Unmarshal([]byte(val), &mapVal); err != nil {
+					return fmt.Errorf("%w: %s: want map[string]interface {}, got string (JSON解析失败: %v)", ErrFieldTypeMismatch, configKey, err)
+				}
+			default:
+				// 尝试通过反射转换
+				mapVal = toStringAnyMap(subRaw)
+				if mapVal == nil {
+					return fmt.Errorf("%w: %s: want map[string]interface {}, got %T", ErrFieldTypeMismatch, configKey, subRaw)
+				}
+			}
+
+			v.Field(i).Set(reflect.ValueOf(mapVal))
 			continue
 		}
 

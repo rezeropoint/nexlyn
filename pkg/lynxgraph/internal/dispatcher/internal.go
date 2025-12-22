@@ -92,7 +92,8 @@ func evaluateSingleCondition(ctx context.Context, cond *ConditionItem, execCtx c
 	// 获取变量值
 	var actualValue any
 	if cond.Source == "atom" {
-		actualValue = execCtx.GetInfoAtom().GetPayload()[cond.Path]
+		// atom 来源：支持多级路径访问
+		actualValue = getNestedValue(execCtx.GetInfoAtom().GetPayload(), cond.Path)
 	} else {
 		// context 来源
 		parts := strings.SplitN(cond.Path, ".", 2)
@@ -104,14 +105,68 @@ func evaluateSingleCondition(ctx context.Context, cond *ConditionItem, execCtx c
 		}
 		payload := graphContext.GetPayload()
 		if len(parts) > 1 {
-			actualValue = payload[parts[1]]
+			// 支持多级路径访问，如 data.on_field_work 或 data.0.field
+			actualValue = getNestedValue(payload, parts[1])
 		} else {
 			actualValue = payload
 		}
 	}
 
+	logx.WithContext(ctx).Debugf("[EdgeCondition] 路径 %s.%s 的值: %v (类型: %T)",
+		cond.Source, cond.Path, actualValue, actualValue)
+
 	// 比较
 	return compareValues(actualValue, cond.Operator, cond.Value)
+}
+
+// getNestedValue 从嵌套结构中获取值
+// 支持多级路径如 "data.on_field_work" 或数组索引如 "data.0.field"
+func getNestedValue(data any, path string) any {
+	if path == "" {
+		return data
+	}
+
+	parts := strings.Split(path, ".")
+	current := data
+
+	for _, part := range parts {
+		if current == nil {
+			return nil
+		}
+
+		switch v := current.(type) {
+		case map[string]any:
+			current = v[part]
+		case []any:
+			// 尝试解析数组索引
+			var idx int
+			if _, err := fmt.Sscanf(part, "%d", &idx); err == nil {
+				if idx >= 0 && idx < len(v) {
+					current = v[idx]
+				} else {
+					return nil
+				}
+			} else {
+				return nil
+			}
+		case []map[string]any:
+			// 尝试解析数组索引
+			var idx int
+			if _, err := fmt.Sscanf(part, "%d", &idx); err == nil {
+				if idx >= 0 && idx < len(v) {
+					current = v[idx]
+				} else {
+					return nil
+				}
+			} else {
+				return nil
+			}
+		default:
+			return nil
+		}
+	}
+
+	return current
 }
 
 // compareValues 比较两个值
@@ -295,6 +350,18 @@ func (r *dispatcherRegistry) processInfoAtom(infoAtom core.InfoAtom) error {
 		return nil
 	}
 
+	return r.processInfoAtomWithGraphs(infoAtom, graphNodesMap)
+}
+
+// processInfoAtomWithGraphs 处理信息原子并分发到指定的图和节点
+// 这个方法是核心执行逻辑，可被 processInfoAtom 和 DispatchScheduled 复用
+func (r *dispatcherRegistry) processInfoAtomWithGraphs(infoAtom core.InfoAtom, graphNodesMap map[core.GraphKey][]core.Node) error {
+	return r.processInfoAtomWithGraphsCtx(r.ctx, infoAtom, graphNodesMap)
+}
+
+// processInfoAtomWithGraphsCtx 处理信息原子并分发到指定的图和节点（支持自定义 context）
+// 用于 DispatchSubGraph 等需要传入自定义 context 的场景
+func (r *dispatcherRegistry) processInfoAtomWithGraphsCtx(ctx context.Context, infoAtom core.InfoAtom, graphNodesMap map[core.GraphKey][]core.Node) error {
 	// 记录已处理的节点，避免重复处理
 	type processingKey struct {
 		graphID string

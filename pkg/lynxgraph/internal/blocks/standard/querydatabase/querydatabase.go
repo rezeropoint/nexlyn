@@ -115,16 +115,22 @@ func (b *QueryDatabaseBlock) Execute(ctx context.Context, execCtx core.Execution
 		results = results[:config.MaxRows]
 	}
 
-	// 构建结果
-	var resultData any
+	// 构建 Payload
+	payload := map[string]any{
+		"rowCount": len(results),
+	}
+
 	if config.SingleRow {
+		// singleRow 模式：将第一行的字段直接提升到顶层，简化边条件访问
+		// 例如：leave_check.on_leave 而不是 leave_check.data.on_leave
 		if len(results) > 0 {
-			resultData = results[0]
-		} else {
-			resultData = nil
+			for k, v := range results[0] {
+				payload[k] = v
+			}
 		}
 	} else {
-		resultData = results
+		// 非 singleRow 模式：结果放在 data 字段中
+		payload["data"] = results
 	}
 
 	// 保存到 GraphContext
@@ -132,10 +138,7 @@ func (b *QueryDatabaseBlock) Execute(ctx context.Context, execCtx core.Execution
 		TenantId:   execCtx.GetTenantId(),
 		GraphKey:   execCtx.GetGraphKey(),
 		ContextKey: config.SaveResultTo,
-		Payload: map[string]any{
-			"data":     resultData,
-			"rowCount": len(results),
-		},
+		Payload:    payload,
 	}
 
 	if err := datastore.SaveGraphContext(ctx, graphContext); err != nil {

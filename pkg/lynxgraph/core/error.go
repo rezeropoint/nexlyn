@@ -39,6 +39,7 @@ var (
 	ErrLockOperationEmpty    = errors.New("锁操作返回空")
 	ErrLockResultType        = errors.New("获取锁结果类型错误")
 	ErrReleaseLock           = errors.New("释放锁失败")
+	ErrScanGraphContextKeys  = errors.New("扫描图上下文键失败")
 
 	// Phase 1 重构：删除约束检查错误
 	ErrGraphInUse        = errors.New("逻辑图正在运行中")

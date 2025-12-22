@@ -10,6 +10,7 @@ import (
 	"github.com/rezeropoint/nexlyn/pkg/lynxgraph/internal/dispatcher"
 	"github.com/rezeropoint/nexlyn/pkg/lynxgraph/internal/graph"
 	"github.com/rezeropoint/nexlyn/pkg/lynxgraph/internal/infoatom"
+	"github.com/rezeropoint/nexlyn/pkg/lynxgraph/internal/scheduler"
 	"github.com/rezeropoint/nexlyn/pkg/lynxgraph/internal/tag"
 
 	"github.com/zeromicro/go-zero/core/stores/monc"
@@ -20,11 +21,12 @@ import (
 type engine struct {
 	config *Config
 
-	infoAtomRegistry   infoatom.InfoAtomRegistry // 信息原子注册表，支持自定义/扩展
-	datastore          core.Store
-	blockRegistry      block.BlockRegistry // 逻辑块注册表，支持自定义/扩展
-	graphRegistry      graph.GraphRegistry // 逻辑图注册表，支持动态加载/卸载
-	dispatcherRegistry dispatcher.DispatcherRegistry
+	infoAtomRegistry   infoatom.InfoAtomRegistry     // 信息原子注册表，支持自定义/扩展
+	datastore          core.Store                    // 数据存储
+	blockRegistry      block.BlockRegistry           // 逻辑块注册表，支持自定义/扩展
+	graphRegistry      graph.GraphRegistry           // 逻辑图注册表，支持动态加载/卸载
+	dispatcherRegistry dispatcher.DispatcherRegistry // 信息原子分发器
+	scheduleRegistry   scheduler.ScheduleRegistry    // 定时调度器（Engine 模式使用）
 
 	stopChan chan struct{} // 停止信号通道
 
@@ -81,37 +83,57 @@ func newwEngine(
 		return nil, ErrInfoAtomRegistryFailed
 	}
 
-	// 注册标准区块（只注册依赖的服务已就绪的逻辑块）
-	if err := block.RegisterStandardBlocks(blockRegistry, service); err != nil {
-		cancel() // 释放 context 资源
-		return nil, ErrStandardBlocksFailed
-	}
-
-	// 创建 GraphRegistry（注入 PostgreSQL、MongoDB 连接、BlockRegistry 函数、标签查询函数）
-	graphRegistry, err := graph.NewGraphRegistry(ctx, cancel, &graph.Config{
-		RunMode:    config.RunMode,
-		EtcdConfig: config.EtcdConfig,
-	}, sqlConn, mongoDB, blockRegistry.CreateBlock, tagManager.GetTagNamesByIDs)
-	if err != nil {
-		cancel() // 释放 context 资源
-		return nil, ErrGraphRegistryFailed
-	}
-
 	// 创建 DataStore（使用配置中的 CacheConf）
 	datastore, err := core.NewBaseStore(config.KeyPrefix, config.GraphContextTTL, config.InfoAtomTTL, infoAtomRegistry.GetInfoAtomType, config.CacheConf)
 	if err != nil {
 		cancel() // 释放 context 资源
 		return nil, ErrDataStoreFailed
 	}
-	dispatcherRegistry, err := dispatcher.NewDispatcherRegistry(
+
+	// 注册 InfoAtomQueryFunc 到 Service（ForEach 积木需要）
+	// 注意：必须显式转换为 core.InfoAtomTypeQueryFunc 类型，否则 method value 存入 interface{} 后类型断言会失败
+	var infoAtomQueryFunc core.InfoAtomTypeQueryFunc = infoAtomRegistry.GetInfoAtomType
+	if err := service.Register(core.ServiceTypeInfoAtomQuery, infoAtomQueryFunc); err != nil {
+		cancel()
+		return nil, fmt.Errorf("注册 InfoAtomQuery 服务失败: %w", err)
+	}
+
+	// 声明变量用于延迟初始化（解决循环依赖）
+	var graphRegistryInstance graph.GraphRegistry
+	var dispatcherRegistryInstance dispatcher.DispatcherRegistry
+	var scheduleRegistryInstance scheduler.ScheduleRegistry
+
+	// 定时任务回调函数（延迟调用 scheduleRegistry 方法）
+	var scheduleRegisterFunc core.ScheduleRegisterFunc
+	var scheduleUnregisterFunc core.ScheduleUnregisterFunc
+
+	// 仅 Engine 模式需要定时调度器
+	if config.RunMode == core.Engine {
+		scheduleRegisterFunc = func(graphKey core.GraphKey, nodes []core.NodeConfig) error {
+			if scheduleRegistryInstance != nil {
+				return scheduleRegistryInstance.RegisterSchedule(graphKey, nodes)
+			}
+			return nil
+		}
+		scheduleUnregisterFunc = func(graphKey core.GraphKey) error {
+			if scheduleRegistryInstance != nil {
+				return scheduleRegistryInstance.UnregisterSchedule(graphKey)
+			}
+			return nil
+		}
+	}
+
+	// 创建 DispatcherRegistry（使用闭包延迟引用 graphRegistryInstance）
+	// 注意：必须在 GraphRegistry 创建之前创建 Dispatcher，以便先注册积木
+	dispatcherRegistryInstance, err = dispatcher.NewDispatcherRegistry(
 		ctx,
 		cancel,
 		&config.DispatcherConfig,
 		func(infoAtom core.InfoAtom) (map[core.GraphKey][]core.Node, error) {
-			return graphRegistry.FindGraphsByInfoAtom(infoAtom)
+			return graphRegistryInstance.FindGraphsByInfoAtom(infoAtom)
 		},
 		func(graphKey core.GraphKey) (core.LogicGraph, error) {
-			return graphRegistry.GetGraph(graphKey)
+			return graphRegistryInstance.GetGraph(graphKey)
 		},
 		datastore,
 		service,
@@ -121,15 +143,74 @@ func newwEngine(
 		return nil, ErrDispatcherRegistryFailed
 	}
 
+	// 注册 Dispatcher 到 Service（ForEach 积木需要）
+	if err := service.Register(core.ServiceTypeDispatcher, dispatcherRegistryInstance); err != nil {
+		cancel()
+		return nil, fmt.Errorf("注册 Dispatcher 服务失败: %w", err)
+	}
+
+	// 注册标准区块（只注册依赖的服务已就绪的逻辑块）
+	// 注意：必须在 GraphRegistry 创建之前调用，因为 GraphRegistry 初始化时会加载图
+	if err := block.RegisterStandardBlocks(blockRegistry, service); err != nil {
+		cancel()
+		return nil, ErrStandardBlocksFailed
+	}
+
+	// 创建 GraphRegistry（注入 PostgreSQL、MongoDB 连接、BlockRegistry 函数、标签查询函数、定时任务回调）
+	// 注意：必须在 RegisterStandardBlocks 之后创建，否则加载图时找不到积木
+	graphRegistryInstance, err = graph.NewGraphRegistry(ctx, cancel, &graph.Config{
+		RunMode:    config.RunMode,
+		EtcdConfig: config.EtcdConfig,
+	}, sqlConn, mongoDB, blockRegistry.CreateBlock, tagManager.GetTagNamesByIDs, scheduleRegisterFunc, scheduleUnregisterFunc)
+	if err != nil {
+		cancel() // 释放 context 资源
+		return nil, ErrGraphRegistryFailed
+	}
+
+	// 仅 Engine 模式创建定时调度器
+	if config.RunMode == core.Engine {
+		// 定时触发回调函数
+		scheduleTriggerFunc := func(graphKey core.GraphKey, scheduleConfig *core.ScheduleConfig) error {
+			// 获取图配置以获取 tenantId
+			logicGraph, err := graphRegistryInstance.GetGraph(graphKey)
+			if err != nil {
+				return fmt.Errorf("获取图失败: %w", err)
+			}
+
+			// 创建虚拟 InfoAtom
+			infoAtom := scheduler.CreateScheduledInfoAtom(
+				logicGraph.GetTenantId(),
+				graphKey,
+				scheduleConfig,
+			)
+
+			// 使用 DispatchScheduled 直接分发到指定图
+			return dispatcherRegistryInstance.DispatchScheduled(graphKey, infoAtom)
+		}
+
+		scheduleRegistryInstance, err = scheduler.NewScheduleRegistry(
+			ctx,
+			cancel,
+			&config.SchedulerConfig,
+			scheduleTriggerFunc,
+			datastore, // 传入 datastore 用于分布式锁
+		)
+		if err != nil {
+			cancel() // 释放 context 资源
+			return nil, ErrSchedulerRegistryFailed
+		}
+	}
+
 	e := &engine{
 		config:    config,
 		stopChan:  make(chan struct{}),
 		isRunning: false,
 
 		infoAtomRegistry:   infoAtomRegistry,
-		graphRegistry:      graphRegistry,
+		graphRegistry:      graphRegistryInstance,
 		blockRegistry:      blockRegistry,
-		dispatcherRegistry: dispatcherRegistry,
+		dispatcherRegistry: dispatcherRegistryInstance,
+		scheduleRegistry:   scheduleRegistryInstance,
 		datastore:          datastore,
 
 		ctx:    ctx,
@@ -155,11 +236,28 @@ func (e *engine) Start() error {
 		return ErrEngineAlreadyRunning
 	}
 
-	// 启动调度器
+	// 启动信息原子调度器
 	if err := e.dispatcherRegistry.Start(); err != nil {
 		// 出错时取消上下文
 		e.cancel()
 		return fmt.Errorf("%w: %v", ErrStartDispatcherFailed, err)
+	}
+
+	// 启动定时调度器（仅 Engine 模式）
+	if e.scheduleRegistry != nil {
+		// 先注册所有已加载图的定时任务（解决初始化顺序问题）
+		if err := e.graphRegistry.RegisterAllSchedules(); err != nil {
+			_ = e.dispatcherRegistry.Close()
+			e.cancel()
+			return fmt.Errorf("注册定时任务失败: %w", err)
+		}
+
+		if err := e.scheduleRegistry.Start(); err != nil {
+			// 定时调度器启动失败，关闭已启动的 dispatcher
+			_ = e.dispatcherRegistry.Close()
+			e.cancel()
+			return fmt.Errorf("%w: %v", ErrStartSchedulerFailed, err)
+		}
 	}
 
 	// 更新引擎状态
@@ -176,7 +274,14 @@ func (e *engine) Stop() error {
 		return ErrEngineNotRunning
 	}
 
-	// 关闭调度器
+	// 先停止定时调度器（避免新的定时任务触发）
+	if e.scheduleRegistry != nil {
+		if err := e.scheduleRegistry.Stop(); err != nil {
+			return fmt.Errorf("%w: %v", ErrStopSchedulerFailed, err)
+		}
+	}
+
+	// 关闭信息原子调度器
 	if err := e.dispatcherRegistry.Close(); err != nil {
 		return fmt.Errorf("%w: %v", ErrCloseDispatcherFailed, err)
 	}

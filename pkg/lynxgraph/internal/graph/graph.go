@@ -23,6 +23,10 @@ type GraphRegistry interface {
 	GetGraph(key core.GraphKey) (core.LogicGraph, error)                                // GetGraph 根据key获取逻辑图
 	FindGraphsByInfoAtom(infoAtom core.InfoAtom) (map[core.GraphKey][]core.Node, error) // FindGraphsByInfoAtom 根据信息原子查找逻辑图
 
+	// RegisterAllSchedules 注册所有已加载图的定时任务
+	// 用于解决初始化顺序问题：图加载时 scheduleRegistry 尚未创建
+	RegisterAllSchedules() error
+
 	Close() error // Close 关闭图注册表，清理资源
 }
 
@@ -34,6 +38,8 @@ type GraphRegistry interface {
 //   - mongoDB: MongoDB Model（外部注入）
 //   - createBlockFunc: 逻辑块创建函数
 //   - getTagNamesFunc: 根据标签ID获取标签名称的函数（用于标签查询）
+//   - scheduleRegisterFunc: 定时任务注册回调（可选，Engine 模式使用，可传 nil）
+//   - scheduleUnregisterFunc: 定时任务注销回调（可选，Engine 模式使用，可传 nil）
 func NewGraphRegistry(
 	ctx context.Context,
 	cancel context.CancelFunc,
@@ -41,10 +47,12 @@ func NewGraphRegistry(
 	sqlConn sqlx.SqlConn,
 	mongoDB *monc.Model,
 	createBlockFunc core.CreateBlockFunc,
-	getTagNamesFunc core.GetTagNamesByIDsFunc) (GraphRegistry, error) {
+	getTagNamesFunc core.GetTagNamesByIDsFunc,
+	scheduleRegisterFunc core.ScheduleRegisterFunc,
+	scheduleUnregisterFunc core.ScheduleUnregisterFunc) (GraphRegistry, error) {
 	if config == nil {
 		return nil, ErrConfigNil
 	}
 
-	return newGraphRegistry(ctx, cancel, config, sqlConn, mongoDB, createBlockFunc, getTagNamesFunc)
+	return newGraphRegistry(ctx, cancel, config, sqlConn, mongoDB, createBlockFunc, getTagNamesFunc, scheduleRegisterFunc, scheduleUnregisterFunc)
 }

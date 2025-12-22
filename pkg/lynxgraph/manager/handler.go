@@ -65,10 +65,11 @@ func newManager(
 	}
 
 	// 创建 GraphRegistry（注入 PostgreSQL、MongoDB 连接、BlockRegistry 函数、标签查询函数）
+	// Manager 模式不需要定时调度器回调，传入 nil
 	graphRegistry, err := graph.NewGraphRegistry(ctx, cancel, &graph.Config{
 		RunMode:    config.RunMode,
 		EtcdConfig: config.EtcdConfig,
-	}, sqlConn, mongoDB, blockRegistry.CreateBlock, tagManager.GetTagNamesByIDs)
+	}, sqlConn, mongoDB, blockRegistry.CreateBlock, tagManager.GetTagNamesByIDs, nil, nil)
 	if err != nil {
 		cancel() // 释放 context 资源
 		return nil, fmt.Errorf("%w: %v", ErrGraphRegistryFailed, err)

@@ -6,6 +6,7 @@ import (
 	"github.com/rezeropoint/nexlyn/pkg/lynxgraph/core"
 	"github.com/rezeropoint/nexlyn/pkg/lynxgraph/internal/blocks/block"
 	"github.com/rezeropoint/nexlyn/pkg/lynxgraph/internal/dispatcher"
+	"github.com/rezeropoint/nexlyn/pkg/lynxgraph/internal/scheduler"
 
 	"github.com/rezeropoint/etcdtrigger"
 	"github.com/zeromicro/go-zero/core/stores/cache"
@@ -25,4 +26,5 @@ type Config struct {
 	EtcdConfig       etcdtrigger.Config // graph 包内创建 etcd
 	BlockConfig      block.Config       // block 配置（空配置）
 	DispatcherConfig dispatcher.Config  // dispatcher 业务配置
+	SchedulerConfig  scheduler.Config   // scheduler 定时调度配置
 }

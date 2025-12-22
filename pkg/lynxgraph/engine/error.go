@@ -4,18 +4,21 @@ import "errors"
 
 // 预定义错误
 var (
-	ErrConfigNil                = errors.New("配置不能为空")
-	ErrGraphRegistryFailed      = errors.New("创建默认图注册表失败")
-	ErrBlockRegistryFailed      = errors.New("创建默认区块注册表失败")
-	ErrDataStoreFailed          = errors.New("创建默认数据存储失败")
-	ErrStandardBlocksFailed     = errors.New("注册标准区块失败")
-	ErrInfoAtomRegistryFailed   = errors.New("创建默认信息原子注册表失败")
-	ErrDispatcherRegistryFailed = errors.New("创建默认调度器注册表失败")
+	ErrConfigNil                 = errors.New("配置不能为空")
+	ErrGraphRegistryFailed       = errors.New("创建默认图注册表失败")
+	ErrBlockRegistryFailed       = errors.New("创建默认区块注册表失败")
+	ErrDataStoreFailed           = errors.New("创建默认数据存储失败")
+	ErrStandardBlocksFailed      = errors.New("注册标准区块失败")
+	ErrInfoAtomRegistryFailed    = errors.New("创建默认信息原子注册表失败")
+	ErrDispatcherRegistryFailed  = errors.New("创建默认调度器注册表失败")
+	ErrSchedulerRegistryFailed   = errors.New("创建定时调度器失败")
 
 	// handler.go 中的错误
 	ErrEngineAlreadyRunning     = errors.New("引擎已经在运行中")
 	ErrEngineNotRunning         = errors.New("引擎未在运行")
 	ErrStartDispatcherFailed    = errors.New("启动调度器失败")
+	ErrStartSchedulerFailed     = errors.New("启动定时调度器失败")
+	ErrStopSchedulerFailed      = errors.New("停止定时调度器失败")
 	ErrCloseDispatcherFailed    = errors.New("关闭调度器失败")
 	ErrCloseGraphRegistryFailed = errors.New("关闭图注册表失败")
 	ErrSaveInfoAtomFailed       = errors.New("保存信息原子失败")

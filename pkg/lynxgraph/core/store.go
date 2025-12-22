@@ -9,6 +9,7 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/cache"
 	"github.com/zeromicro/go-zero/core/stores/monc"
+	"github.com/zeromicro/go-zero/core/stores/redis"
 	"github.com/zeromicro/go-zero/core/syncx"
 )
 
@@ -23,6 +24,9 @@ type Store interface {
 	SaveGraphContext(ctx context.Context, graphContext GraphContext) error
 	GetGraphContext(ctx context.Context, tenantId string, graphKey GraphKey, contextKey string) (GraphContext, error)
 	DeleteGraphContext(ctx context.Context, tenantId string, graphKey GraphKey, contextKey string) error
+	// ScanGraphContextKeys 扫描匹配前缀的图上下文键
+	// 用于 GetDedupSet 积木查询当前周期所有已去重记录
+	ScanGraphContextKeys(ctx context.Context, tenantId string, graphKey GraphKey, prefix string) ([]string, error)
 
 	// 信息原子管理
 	SaveInfoAtom(ctx context.Context, infoAtom InfoAtom) error
@@ -42,15 +46,24 @@ type BaseStore struct {
 	InfoAtomTTL           time.Duration
 	CacheInterface        cache.Cache
 	InfoAtomTypeQueryFunc InfoAtomTypeQueryFunc
+	// RedisClient 用于 SCAN 操作（go-zero cache 不直接暴露 SCAN 方法）
+	RedisClient *redis.Redis
 }
 
 func NewBaseStore(keyPrefix string, graphContextTTL time.Duration, infoAtomTTL time.Duration, infoAtomTypeQueryFunc InfoAtomTypeQueryFunc, cacheConf cache.CacheConf, opts ...cache.Option) (Store, error) {
+	// 从 cacheConf 创建原生 Redis 连接（用于 SCAN 操作）
+	var redisClient *redis.Redis
+	if len(cacheConf) > 0 {
+		redisClient = redis.MustNewRedis(cacheConf[0].RedisConf)
+	}
+
 	return &BaseStore{
 		KeyPrefix:             keyPrefix,
 		GraphContextTTL:       graphContextTTL,
 		InfoAtomTTL:           infoAtomTTL,
 		CacheInterface:        cache.New(cacheConf, singleFlight, stats, monc.ErrNotFound, opts...),
 		InfoAtomTypeQueryFunc: infoAtomTypeQueryFunc,
+		RedisClient:           redisClient,
 	}, nil
 }
 
@@ -364,4 +377,46 @@ func (s *BaseStore) Unlock(ctx context.Context, resourceKey string) error {
 // 生成锁的键
 func (s *BaseStore) lockKey(resourceKey string) string {
 	return fmt.Sprintf("%slock:%s", s.KeyPrefix, resourceKey)
+}
+
+// ScanGraphContextKeys 扫描匹配前缀的图上下文键
+// 使用 Redis SCAN 命令进行非阻塞前缀扫描
+// 返回的键列表只包含 contextKey 部分（去除前缀）
+func (s *BaseStore) ScanGraphContextKeys(ctx context.Context, tenantId string, graphKey GraphKey, prefix string) ([]string, error) {
+	if s.RedisClient == nil {
+		return nil, ErrRedisClientNil
+	}
+
+	if tenantId == "" {
+		return nil, ErrTenantIdEmpty
+	}
+
+	// 构建搜索模式：keyPrefix + graph: + tenantId + graphKey + prefix*
+	pattern := fmt.Sprintf("%sgraph:%s:%v:%s*", s.KeyPrefix, tenantId, graphKey, prefix)
+
+	var allKeys []string
+	cursor := uint64(0)
+	for {
+		keys, nextCursor, err := s.RedisClient.ScanCtx(ctx, cursor, pattern, 100)
+		if err != nil {
+			return nil, fmt.Errorf("SCAN 操作失败: %w", err)
+		}
+		allKeys = append(allKeys, keys...)
+		cursor = nextCursor
+		if cursor == 0 {
+			break
+		}
+	}
+
+	// 提取 contextKey 部分（去除前缀）
+	basePrefix := fmt.Sprintf("%sgraph:%s:%v:", s.KeyPrefix, tenantId, graphKey)
+	result := make([]string, 0, len(allKeys))
+	for _, key := range allKeys {
+		if len(key) > len(basePrefix) {
+			contextKey := key[len(basePrefix):]
+			result = append(result, contextKey)
+		}
+	}
+
+	return result, nil
 }

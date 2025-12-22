@@ -18,22 +18,22 @@ import "fmt"
 //   - Manager 层会调用 GetTagNamesByIDsFunc 将 TagIDs 转换为标签名称并填充到 DTO
 //   - 详见 DEVELOPMENT.md 的"Phase 2: 引入 DTO 模式"章节
 type GraphConfig struct {
-	TenantId    string       `json:"tenantId"`
-	ID          string       `json:"id"`                  // 图的唯一标识符
-	Name        string       `json:"name"`                // 图的名称
-	Version     string       `json:"version"`             // 图的版本
-	Description string       `json:"description"`         // 图的描述
-	TagIDs      []string     `json:"tagIds"`              // 标签ID列表（持久化字段）
-	Enable      bool         `json:"enable"`              // 图是否启用
-	Icon        string       `json:"icon,omitempty"`      // 图标名称（用于前端显示）
-	IconColor   string       `json:"iconColor,omitempty"` // 图标颜色（用于前端显示）
-	Nodes       []NodeConfig `json:"nodes"`               // 图中的节点
-	Edges       []EdgeConfig `json:"edges"`               // 图中的边
-	OrgID       string       `json:"orgId"`               // 所属组织ID（用于权限控制）
-	CreatedBy   string       `json:"createdBy"`           // 创建人用户ID
-	UpdatedBy   string       `json:"updatedBy"`           // 更新人用户ID
-	CreatedAt   int64        `json:"createdAt"`           // 创建时间（Unix时间戳）
-	UpdatedAt   int64        `json:"updatedAt"`           // 更新时间（Unix时间戳）
+	TenantId    string          `json:"tenantId"`
+	ID          string          `json:"id"`                  // 图的唯一标识符
+	Name        string          `json:"name"`                // 图的名称
+	Version     string          `json:"version"`             // 图的版本
+	Description string          `json:"description"`         // 图的描述
+	TagIDs      []string        `json:"tagIds"`              // 标签ID列表（持久化字段）
+	Enable      bool            `json:"enable"`              // 图是否启用
+	Icon        string          `json:"icon,omitempty"`      // 图标名称（用于前端显示）
+	IconColor   string          `json:"iconColor,omitempty"` // 图标颜色（用于前端显示）
+	Nodes       []NodeConfig    `json:"nodes"`               // 图中的节点
+	Edges       []EdgeConfig    `json:"edges"`               // 图中的边
+	OrgID       string          `json:"orgId"`               // 所属组织ID（用于权限控制）
+	CreatedBy   string          `json:"createdBy"`           // 创建人用户ID
+	UpdatedBy   string          `json:"updatedBy"`           // 更新人用户ID
+	CreatedAt   int64           `json:"createdAt"`           // 创建时间（Unix时间戳）
+	UpdatedAt   int64           `json:"updatedAt"`           // 更新时间（Unix时间戳）
 }
 
 // NodeConfig 节点配置
@@ -136,6 +136,26 @@ func ScanConfig(config *GraphConfig) error {
 		// 检查目标节点是否存在
 		if _, exists := nodeMap[edge.TargetID]; !exists {
 			return fmt.Errorf("边 %s 的目标节点 %s 不存在", edge.ID, edge.TargetID)
+		}
+	}
+
+	// 验证定时积木的约束
+	// 1. 定时积木必须是入口节点
+	// 2. 定时积木不能有上游边
+	scheduleNodeIDs := make(map[string]struct{})
+	for _, node := range config.Nodes {
+		if node.BlockType == BlockTypeSchedule {
+			if !node.IsEntryPoint {
+				return fmt.Errorf("定时积木 %s 必须设置为入口节点", node.ID)
+			}
+			scheduleNodeIDs[node.ID] = struct{}{}
+		}
+	}
+
+	// 检查定时积木不能作为边的目标节点
+	for _, edge := range config.Edges {
+		if _, isSchedule := scheduleNodeIDs[edge.TargetID]; isSchedule {
+			return fmt.Errorf("定时积木 %s 不能有上游边", edge.TargetID)
 		}
 	}
 

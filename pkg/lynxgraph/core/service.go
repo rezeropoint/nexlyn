@@ -10,9 +10,11 @@ type ServiceType string
 
 // 预定义服务类型常量
 const (
-	ServiceTypeSkylarkEngine ServiceType = "skylark_engine" // Skylark流程引擎
-	ServiceTypeSensorData    ServiceType = "sensor_data"    // 传感器历史数据查询服务
-	ServiceTypeExternalDB    ServiceType = "external_db"    // 外部数据库查询服务（用于QueryDatabase积木）
+	ServiceTypeSkylarkEngine  ServiceType = "skylark_engine"   // Skylark流程引擎
+	ServiceTypeSensorData     ServiceType = "sensor_data"      // 传感器历史数据查询服务
+	ServiceTypeExternalDB     ServiceType = "external_db"      // 外部数据库查询服务（用于QueryDatabase积木）
+	ServiceTypeDispatcher     ServiceType = "dispatcher"       // 图调度器服务（用于ForEach积木调用子图）
+	ServiceTypeInfoAtomQuery  ServiceType = "info_atom_query"  // 信息原子类型查询服务（用于ForEach创建信息原子）
 )
 
 type Service interface {

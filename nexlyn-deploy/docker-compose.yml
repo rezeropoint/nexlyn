@@ -96,7 +96,7 @@ services:
     networks:
       - nexlyn-network
     healthcheck:
-      test: ["CMD", "mosquitto_sub", "-t", "$$SYS/#", "-C", "1", "-i", "healthcheck", "-W", "3"]
+      test: ["CMD-SHELL", "timeout 3 mosquitto_pub -t 'healthcheck' -m 'ping' -q 0"]
       interval: 30s
       timeout: 10s
       retries: 3

@@ -115,3 +115,94 @@ func (r *dispatcherRegistry) Close() error {
 	r.started = false
 	return nil
 }
+
+// DispatchScheduled 分发定时触发的信息原子到指定图
+// 与 Dispatch 不同，此方法只触发 schedule 类型的入口节点，不经过 InfoAtom 类型匹配
+func (r *dispatcherRegistry) DispatchScheduled(graphKey core.GraphKey, infoAtom core.InfoAtom) error {
+	r.startMu.Lock()
+	started := r.started
+	r.startMu.Unlock()
+
+	if !started {
+		return fmt.Errorf("调度器未启动")
+	}
+
+	// 检查是否已关闭
+	select {
+	case <-r.stopChan:
+		return fmt.Errorf("调度器已关闭")
+	default:
+		// 继续执行
+	}
+
+	// 直接获取指定图
+	graph, err := r.getFunc(graphKey)
+	if err != nil {
+		return fmt.Errorf("获取图失败: %w", err)
+	}
+
+	// 获取入口节点
+	entryNodes := graph.GetEntryNodes()
+
+	// 只选择 schedule 类型的入口节点，避免触发其他入口（如信息原子订阅入口）
+	var scheduleEntryNodes []core.Node
+	for _, node := range entryNodes {
+		block := node.GetBlock()
+		if block == nil {
+			continue
+		}
+		if block.GetType() == core.BlockTypeSchedule {
+			scheduleEntryNodes = append(scheduleEntryNodes, node)
+		}
+	}
+
+	if len(scheduleEntryNodes) == 0 {
+		return fmt.Errorf("图没有 schedule 类型的入口节点 (共 %d 个入口节点)", len(entryNodes))
+	}
+
+	// 构造 graphNodesMap 并使用复用的处理逻辑
+	graphNodesMap := map[core.GraphKey][]core.Node{
+		graphKey: scheduleEntryNodes,
+	}
+
+	return r.processInfoAtomWithGraphs(infoAtom, graphNodesMap)
+}
+
+// DispatchSubGraph 同步执行子图（用于 ForEach 积木）
+// 与 DispatchScheduled 不同，此方法触发子图的所有入口节点，不限定节点类型
+func (r *dispatcherRegistry) DispatchSubGraph(ctx context.Context, graphKey core.GraphKey, infoAtom core.InfoAtom) error {
+	r.startMu.Lock()
+	started := r.started
+	r.startMu.Unlock()
+
+	if !started {
+		return fmt.Errorf("调度器未启动")
+	}
+
+	// 检查是否已关闭
+	select {
+	case <-r.stopChan:
+		return fmt.Errorf("调度器已关闭")
+	default:
+		// 继续执行
+	}
+
+	// 获取子图
+	graph, err := r.getFunc(graphKey)
+	if err != nil {
+		return fmt.Errorf("获取子图失败: %w", err)
+	}
+
+	// 获取所有入口节点（不限定类型）
+	entryNodes := graph.GetEntryNodes()
+	if len(entryNodes) == 0 {
+		return fmt.Errorf("子图没有入口节点")
+	}
+
+	// 构造 graphNodesMap 并使用复用的处理逻辑
+	graphNodesMap := map[core.GraphKey][]core.Node{
+		graphKey: entryNodes,
+	}
+
+	return r.processInfoAtomWithGraphsCtx(ctx, infoAtom, graphNodesMap)
+}

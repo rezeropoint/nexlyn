@@ -100,7 +100,7 @@ LynxEngine:
   # 逻辑块注册表配置（目前为空）
   BlockConfig: {}
 
-  # 调度器配置
+  # 分发器配置
   DispatcherConfig:
     # 并行执行不同图的处理
     ParallelExecution: true
@@ -114,6 +114,13 @@ LynxEngine:
     NumWorkers: 20
     # 工作队列大小
     WorkerQueueSize: 1000
+
+  # 定时调度器配置
+  SchedulerConfig:
+    # 默认时区
+    DefaultTimezone: "Asia/Shanghai"
+    # 是否启用秒级精度（默认false，使用分钟级）
+    EnableSeconds: false
 
 # Skylark引擎配置（可选，用于SkylarkJourneyCreate逻辑块）
 SkylarkConfig:
