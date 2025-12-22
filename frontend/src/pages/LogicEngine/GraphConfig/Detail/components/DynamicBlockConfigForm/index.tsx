@@ -25,8 +25,8 @@ import {
 } from "antd";
 import dayjs from "dayjs";
 import { parseFirst } from "pgsql-ast-parser";
-import React, { useEffect, useMemo } from "react";
-import type { InfoAtomType } from "@/services/lynxmanager/types";
+import React, { useEffect, useMemo, useState } from "react";
+import type { InfoAtomType, NodeConfig } from "@/services/lynxmanager/types";
 import styles from "./style.less";
 
 interface ConfigField {
@@ -41,9 +41,18 @@ interface ConfigField {
   properties?: Record<string, ConfigField>;
   items?: ConfigField;
   required?: string[];
-  source?: string; // 数据源：infoAtomFields 表示从信息原子字段列表获取
+  source?: string; // 数据源：infoAtomFields, infoAtomTypeSelector, dedupCheckNodeSelector, contextKeys
   format?: string; // 格式校验：sql 表示 SQL 查询
   itemAddable?: boolean; // 数组项是否支持动态添加（渲染为列表而非逗号分隔）
+  hideWhen?: {
+    field: string;
+    hasValue?: boolean; // 当指定字段有值时隐藏
+    value?: any; // 当指定字段等于特定值时隐藏
+  };
+  showWhen?: {
+    field: string;
+    value?: any; // 当指定字段等于特定值时显示
+  };
 }
 
 interface ConfigSchema {
@@ -63,6 +72,8 @@ interface Props {
   infoAtomTypes?: InfoAtomType[];
   /** 当前节点订阅的信息原子类型 ID 列表 */
   selectedInfoAtomTypeIds?: string[];
+  /** 当前图的所有节点（用于 source: "dedupCheckNodeSelector" 和 "contextKeys"） */
+  nodes?: NodeConfig[];
 }
 
 /**
@@ -75,9 +86,12 @@ const DynamicBlockConfigForm: React.FC<Props> = ({
   onChange,
   infoAtomTypes = [],
   selectedInfoAtomTypeIds = [],
+  nodes = [],
 }) => {
   const [internalForm] = Form.useForm();
   const activeForm = form?.current || internalForm;
+  // 用于触发 hideWhen/showWhen 的重新渲染
+  const [formValues, setFormValues] = useState<Record<string, any>>({});
 
   // 从选中的信息原子类型中提取所有字段名（用于 source: "infoAtomFields"）
   const infoAtomFieldOptions = useMemo(() => {
@@ -103,12 +117,74 @@ const DynamicBlockConfigForm: React.FC<Props> = ({
     }));
   }, [infoAtomTypes, selectedInfoAtomTypeIds]);
 
+  // 提取图中所有 DedupCheck 节点（用于 source: "dedupCheckNodeSelector"）
+  const dedupCheckNodes = useMemo(() => {
+    if (!nodes || nodes.length === 0) return [];
+    return nodes.filter((node) => node.blockType === "dedup_check");
+  }, [nodes]);
+
+  // 提取图中所有节点的 resultKey/saveResultTo（用于 source: "contextKeys"）
+  const contextKeyOptions = useMemo(() => {
+    if (!nodes || nodes.length === 0) return [];
+    const keys = new Set<string>();
+    nodes.forEach((node) => {
+      try {
+        const config = JSON.parse(node.blockConfig || "{}");
+        if (config.resultKey) keys.add(config.resultKey);
+        if (config.saveResultTo) keys.add(config.saveResultTo);
+      } catch {
+        // 忽略解析错误
+      }
+    });
+    return Array.from(keys).map((key) => ({ label: key, value: key }));
+  }, [nodes]);
+
   // 初始化表单值
   useEffect(() => {
     if (initialValues) {
-      activeForm.setFieldsValue(initialValues);
+      // 确保 dedupFields 是数组格式（兼容旧数据）
+      const processedValues = { ...initialValues };
+      if (processedValues.dedupFields !== undefined) {
+        if (typeof processedValues.dedupFields === "string") {
+          processedValues.dedupFields = processedValues.dedupFields
+            .split(",")
+            .map((s: string) => s.trim())
+            .filter(Boolean);
+        } else if (!Array.isArray(processedValues.dedupFields)) {
+          processedValues.dedupFields = [];
+        }
+      }
+      activeForm.setFieldsValue(processedValues);
+      setFormValues(processedValues);
     }
   }, [initialValues, activeForm]);
+
+  // 判断字段是否应该隐藏（hideWhen 条件）
+  const shouldHideField = (fieldSchema: ConfigField): boolean => {
+    if (!fieldSchema.hideWhen) return false;
+    const { field, hasValue, value } = fieldSchema.hideWhen;
+    const fieldValue = formValues[field];
+    if (hasValue) {
+      // 当指定字段有值时隐藏
+      return fieldValue !== undefined && fieldValue !== null && fieldValue !== "";
+    }
+    if (value !== undefined) {
+      // 当指定字段等于特定值时隐藏
+      return fieldValue === value;
+    }
+    return false;
+  };
+
+  // 判断字段是否应该显示（showWhen 条件）
+  const shouldShowField = (fieldSchema: ConfigField): boolean => {
+    if (!fieldSchema.showWhen) return true;
+    const { field, value } = fieldSchema.showWhen;
+    const fieldValue = formValues[field];
+    if (value !== undefined) {
+      return fieldValue === value;
+    }
+    return true;
+  };
 
   // 解析 schema，生成表单字段
   // 支持两种格式：
@@ -559,6 +635,118 @@ const DynamicBlockConfigForm: React.FC<Props> = ({
             </Form.Item>
           );
         }
+        // 信息原子类型选择器（用于 ForEach 等积木选择迭代信息原子类型）
+        if (fieldSchema.source === "infoAtomTypeSelector") {
+          return (
+            <Form.Item
+              key={fieldName}
+              name={fieldName}
+              label={label}
+              rules={rules}
+            >
+              <Select
+                placeholder={fieldSchema.placeholder || "请选择信息原子类型"}
+                showSearch
+                optionFilterProp="label"
+                allowClear
+                options={infoAtomTypes.map((type) => ({
+                  label: `${type.name} (v${type.version})`,
+                  value: type.id,
+                }))}
+              />
+            </Form.Item>
+          );
+        }
+        // DedupCheck 节点选择器（用于 GetDedupSet、ClearDedupContext 关联去重节点）
+        if (fieldSchema.source === "dedupCheckNodeSelector") {
+          return (
+            <Form.Item
+              key={fieldName}
+              name={fieldName}
+              label={label}
+              rules={rules}
+              tooltip={dedupCheckNodes.length === 0 ? "请先在图中添加 DedupCheck 节点" : undefined}
+            >
+              <Select
+                placeholder={dedupCheckNodes.length > 0
+                  ? (fieldSchema.placeholder || "选择关联的去重节点")
+                  : "图中暂无 DedupCheck 节点"}
+                allowClear
+                disabled={dedupCheckNodes.length === 0}
+                options={dedupCheckNodes.map((node) => ({
+                  label: `DedupCheck (${node.id.slice(0, 8)})`,
+                  value: node.id,
+                }))}
+                onChange={(nodeId) => {
+                  if (nodeId) {
+                    // 选择节点后，自动复制其配置
+                    const selectedNode = dedupCheckNodes.find((n) => n.id === nodeId);
+                    if (selectedNode) {
+                      try {
+                        const nodeConfig = typeof selectedNode.blockConfig === "string"
+                          ? JSON.parse(selectedNode.blockConfig || "{}")
+                          : selectedNode.blockConfig || {};
+                        // 确保 dedupFields 是数组格式
+                        let dedupFields = nodeConfig.dedupFields;
+                        if (typeof dedupFields === "string") {
+                          // 如果是逗号分隔的字符串，转换为数组
+                          dedupFields = dedupFields.split(",").map((s: string) => s.trim()).filter(Boolean);
+                        } else if (!Array.isArray(dedupFields)) {
+                          dedupFields = [];
+                        }
+                        activeForm.setFieldsValue({
+                          [fieldName]: nodeId,
+                          dedupFields,
+                          resetMode: nodeConfig.resetMode || "daily",
+                          resetTime: nodeConfig.resetTime || "00:00",
+                          timezone: nodeConfig.timezone || "Asia/Shanghai",
+                        });
+                        // 更新 formValues 以触发 hideWhen 重新计算
+                        setFormValues((prev) => ({
+                          ...prev,
+                          [fieldName]: nodeId,
+                          dedupFields,
+                          resetMode: nodeConfig.resetMode || "daily",
+                          resetTime: nodeConfig.resetTime || "00:00",
+                          timezone: nodeConfig.timezone || "Asia/Shanghai",
+                        }));
+                      } catch {
+                        // 忽略解析错误
+                      }
+                    }
+                  } else {
+                    // 清空时重置 formValues
+                    setFormValues((prev) => ({
+                      ...prev,
+                      [fieldName]: undefined,
+                    }));
+                  }
+                }}
+              />
+            </Form.Item>
+          );
+        }
+        // 上下文键选择器（用于 SetContainsCheck 选择 GetDedupSet 的输出）
+        if (fieldSchema.source === "contextKeys") {
+          return (
+            <Form.Item
+              key={fieldName}
+              name={fieldName}
+              label={label}
+              rules={rules}
+              tooltip={contextKeyOptions.length === 0 ? "请先在图中配置有输出的积木" : undefined}
+            >
+              <Select
+                placeholder={contextKeyOptions.length > 0
+                  ? (fieldSchema.placeholder || "选择上下文键")
+                  : "图中暂无可用的上下文键"}
+                allowClear
+                disabled={contextKeyOptions.length === 0}
+                options={contextKeyOptions}
+              />
+            </Form.Item>
+          );
+        }
         // 否则使用 Input
         return (
           <Form.Item
@@ -714,12 +902,16 @@ const DynamicBlockConfigForm: React.FC<Props> = ({
         layout="vertical"
         component={false}
         onValuesChange={(_, values) => {
+          setFormValues(values);
           onChange?.(values);
         }}
       >
-        {formFields.map(({ name, schema: fieldSchema, isRequired }) =>
-          renderField(name, fieldSchema, isRequired)
-        )}
+        {formFields.map(({ name, schema: fieldSchema, isRequired }) => {
+          // 检查 hideWhen 和 showWhen 条件
+          if (shouldHideField(fieldSchema)) return null;
+          if (!shouldShowField(fieldSchema)) return null;
+          return renderField(name, fieldSchema, isRequired);
+        })}
 
         {/* 配置验证提示 */}
         {hasMultiSourceFields && (

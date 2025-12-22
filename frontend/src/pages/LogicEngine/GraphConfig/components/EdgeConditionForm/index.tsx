@@ -32,6 +32,8 @@ export interface ContextOutputInfo {
   } | null;
   // 动态键的实际值（从节点配置解析）
   dynamicKeys?: string[];
+  // QueryDatabase 的 singleRow 模式：字段直接在顶层，不在 data 下
+  singleRow?: boolean;
 }
 
 /** 单个条件配置 */
@@ -221,6 +223,12 @@ const EdgeConditionForm: React.FC<EdgeConditionFormProps> = ({
 
       const options: { label: string; value: string }[] = [];
 
+      // singleRow 模式：QueryDatabase 的字段直接在顶层，不在 data 下
+      // 返回空数组让用户手动输入字段名（如 on_field_work）
+      if (info.singleRow) {
+        return [];
+      }
+
       // 处理 dynamic-keys 类型（如 TimeWindowCheck）
       if (info.outputSchema.type === 'dynamic-keys' && info.dynamicKeys) {
         info.dynamicKeys.forEach((key) => {
@@ -241,15 +249,18 @@ const EdgeConditionForm: React.FC<EdgeConditionFormProps> = ({
     [contextOutputMap],
   );
 
-  // 获取指定路径的值类型
-  const getValueType = useCallback(
-    (path: string): string | null => {
-      if (!path) return null;
-      const [contextKey, subfield] = path.split('.');
+  // 获取指定子字段的类型（用于判断是否需要深层路径输入）
+  const getSubfieldType = useCallback(
+    (contextKey: string, subfield: string): string | null => {
       if (!contextKey || !subfield) return null;
 
       const info = contextOutputMap.get(contextKey);
       if (!info?.outputSchema) return null;
+
+      // singleRow 模式：字段直接在顶层，假设是布尔类型（大多数 EXISTS 查询返回布尔值）
+      if (info.singleRow && subfield !== 'rowCount') {
+        return 'boolean';
+      }
 
       // dynamic-keys 类型
       if (info.outputSchema.type === 'dynamic-keys') {
@@ -264,6 +275,27 @@ const EdgeConditionForm: React.FC<EdgeConditionFormProps> = ({
       return null;
     },
     [contextOutputMap],
+  );
+
+  // 获取指定路径的值类型（支持深层路径）
+  const getValueType = useCallback(
+    (path: string): string | null => {
+      if (!path) return null;
+      const parts = path.split('.');
+      if (parts.length < 2) return null;
+
+      const [contextKey, subfield] = parts;
+      const subfieldType = getSubfieldType(contextKey, subfield);
+
+      // 如果有深层路径且子字段类型是 query-result，假设最终值是布尔类型
+      // （因为 query-result 的字段类型无法在编译时确定）
+      if (parts.length > 2 && subfieldType === 'query-result') {
+        return 'boolean'; // 默认假设深层路径是布尔值，显示 true/false 选择
+      }
+
+      return subfieldType;
+    },
+    [getSubfieldType],
   );
 
   // 当外部 value 变化时同步
@@ -386,7 +418,7 @@ const EdgeConditionForm: React.FC<EdgeConditionFormProps> = ({
                     }}
                   />
                 ) : (
-                  <Flex gap={4} align="center" className={styles.contextPathRow}>
+                  <Flex gap={4} align="center" className={styles.contextPathRow} wrap="wrap">
                     <ProFormSelect
                       noStyle
                       fieldProps={{
@@ -405,41 +437,78 @@ const EdgeConditionForm: React.FC<EdgeConditionFormProps> = ({
                     />
                     <Text type="secondary">.</Text>
                     {(() => {
-                      const contextKey = condition.path?.split('.')[0] || '';
+                      const pathParts = condition.path?.split('.') || [];
+                      const contextKey = pathParts[0] || '';
+                      const subfield = pathParts[1] || '';
+                      const deepPath = pathParts.slice(2).join('.') || '';
                       const subfieldOptions = getSubfieldOptions(contextKey);
-                      // 如果有子字段选项，显示下拉选择；否则显示文本输入
-                      if (subfieldOptions.length > 0) {
-                        return (
-                          <ProFormSelect
-                            noStyle
-                            fieldProps={{
-                              value: condition.path?.split('.')[1] || undefined,
-                              onChange: (v) => {
-                                handleUpdateCondition(index, 'path', contextKey ? `${contextKey}.${v}` : v);
-                              },
-                              options: subfieldOptions,
-                              size: 'small',
-                              placeholder: '选择子字段',
-                              className: styles.subfieldInput,
-                              showSearch: true,
-                            }}
-                          />
-                        );
-                      }
+                      const subfieldType = getSubfieldType(contextKey, subfield);
+                      const needsDeepPath = subfieldType === 'query-result' || subfieldType === 'object' || subfieldType === 'array';
+
+                      // 构建路径更新函数
+                      const updatePath = (newContextKey: string, newSubfield: string, newDeepPath: string) => {
+                        let path = newContextKey;
+                        if (newSubfield) {
+                          path += `.${newSubfield}`;
+                          if (newDeepPath) {
+                            path += `.${newDeepPath}`;
+                          }
+                        }
+                        handleUpdateCondition(index, 'path', path);
+                      };
+
                       return (
-                        <ProFormText
-                          noStyle
-                          fieldProps={{
-                            value: condition.path?.split('.')[1] || '',
-                            onChange: (e) => {
-                              const subfield = e.target.value;
-                              handleUpdateCondition(index, 'path', contextKey ? `${contextKey}.${subfield}` : subfield);
-                            },
-                            size: 'small',
-                            placeholder: '子字段',
-                            className: styles.subfieldInput,
-                          }}
-                        />
+                        <>
+                          {/* 子字段选择 */}
+                          {subfieldOptions.length > 0 ? (
+                            <ProFormSelect
+                              noStyle
+                              fieldProps={{
+                                value: subfield || undefined,
+                                onChange: (v) => {
+                                  // 切换子字段时清空深层路径
+                                  updatePath(contextKey, v, '');
+                                },
+                                options: subfieldOptions,
+                                size: 'small',
+                                placeholder: '选择子字段',
+                                className: styles.subfieldInput,
+                                showSearch: true,
+                              }}
+                            />
+                          ) : (
+                            <ProFormText
+                              noStyle
+                              fieldProps={{
+                                value: subfield,
+                                onChange: (e) => {
+                                  updatePath(contextKey, e.target.value, deepPath);
+                                },
+                                size: 'small',
+                                placeholder: '子字段',
+                                className: styles.subfieldInput,
+                              }}
+                            />
+                          )}
+                          {/* 深层路径输入（当子字段类型是 query-result/object/array 时显示） */}
+                          {needsDeepPath && subfield && (
+                            <>
+                              <Text type="secondary">.</Text>
+                              <ProFormText
+                                noStyle
+                                fieldProps={{
+                                  value: deepPath,
+                                  onChange: (e) => {
+                                    updatePath(contextKey, subfield, e.target.value);
+                                  },
+                                  size: 'small',
+                                  placeholder: '深层路径 (如 on_leave)',
+                                  className: styles.deepPathInput,
+                                }}
+                              />
+                            </>
+                          )}
+                        </>
                       );
                     })()}
                   </Flex>

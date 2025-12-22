@@ -3,7 +3,7 @@
  * @description 显示和编辑选中节点/边的属性
  */
 
-import { getBlockSpecs, listInfoAtomTypes } from "@/services/lynxmanager/api";
+import { getBlockSpecs, listGraphConfigs, listInfoAtomTypes } from "@/services/lynxmanager/api";
 import type {
   BlockSpec,
   EdgeConfig,
@@ -110,11 +110,15 @@ const extractContextOutputInfos = (
         }
       }
 
+      // 提取 singleRow 配置（QueryDatabase 特有）
+      const singleRow = config.singleRow === true;
+
       infos.push({
         contextKey,
         blockType: node.blockType,
         outputSchema,
         dynamicKeys,
+        singleRow,
       });
     } catch {
       // 忽略解析错误
@@ -421,6 +425,7 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
                       }}
                       infoAtomTypes={infoAtomTypes}
                       selectedInfoAtomTypeIds={subscribedInfoAtomTypeIds}
+                      nodes={nodes}
                     />
                   </Spin>
                 );
