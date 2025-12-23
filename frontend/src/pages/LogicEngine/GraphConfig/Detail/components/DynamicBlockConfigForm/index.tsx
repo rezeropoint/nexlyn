@@ -796,6 +796,10 @@ const DynamicBlockConfigForm: React.FC<Props> = ({
           </Form.Item>
         );
 
+      case "object":
+        // object 类型使用 JSON 编辑器
+        return renderJsonEditor(fieldName, fieldSchema, isRequired);
+
       case "array":
         // 如果 items 是对象类型，使用动态列表
         if (fieldSchema.items?.type === "object" && fieldSchema.items?.properties) {

@@ -24,6 +24,7 @@
 | FilterBySet | 按集合过滤数组 | `blocks/standard/filterbyset/` |
 | SetContainsCheck | 集合包含检查（已弃用，推荐使用 FilterBySet） | `blocks/standard/setcontainscheck/` |
 | ClearDedupContext | 清空去重记录 | `blocks/standard/cleardedupcontext/` |
+| LateTimeCalculate | 计算迟到分钟数 | `blocks/standard/latetimecalculate/` |
 
 ---
 
@@ -216,7 +217,30 @@ config:
     time: "{{atom.time}}"
 ```
 
-### 7. 迟到打卡（Flow 189）
+### 7. 迟到时间计算
+
+在时间窗口判断后、Skylark 流程触发前，使用此积木计算迟到分钟数。
+
+```yaml
+type: "late_time_calculate"
+config:
+  timeSource: "atom"           # 时间来源：atom（信息原子时间戳）或 now（当前时间）
+  workStartTime: "09:30"       # 上班时间，HH:MM 格式
+  timezone: "Asia/Shanghai"    # 时区
+  saveResultTo: "late_time"    # 保存到 GraphContext 的键名
+```
+
+**输出格式**（保存到 GraphContext）：
+```json
+{
+  "lateMinutes": 15,      // 迟到分钟数（整数，不迟到为0）
+  "isLate": true,         // 是否迟到
+  "checkTime": "09:45",   // 打卡时间（HH:MM）
+  "workStartTime": "09:30" // 上班时间（HH:MM）
+}
+```
+
+### 8. 迟到打卡（Flow 189）
 
 ```yaml
 type: "skylark_journey_create"
@@ -227,7 +251,17 @@ config:
   data:
     name: "{{atom.person_name}}"
     time: "{{atom.time}}"
+    lateMinutes: "{{context.late_time.lateMinutes}}"  # 从 GraphContext 获取迟到分钟数
 ```
+
+### SkylarkJourneyCreate 变量语法
+
+除了 `{{atom.xxx}}` 语法，现在还支持 `{{context.xxx.yyy}}` 从 GraphContext 获取数据：
+
+| 语法 | 说明 | 示例 |
+|------|------|------|
+| `{{atom.xxx}}` | 信息原子 Payload 字段 | `{{atom.person_name}}` |
+| `{{context.key.field}}` | 图上下文字段 | `{{context.late_time.lateMinutes}}` |
 
 ---
 
@@ -601,5 +635,7 @@ config:
 - [x] 实现去重积木配置联动（GetDedupSet/ClearDedupContext 可关联 DedupCheck 节点，2025-12-17）
 - [x] 前端 `dedupCheckNodeSelector` 和 `contextKeys` 支持（2025-12-17）
 - [x] 实现 `FilterBySet` 按集合过滤积木（2025-12-18，替代 SetContainsCheck）
+- [x] 实现 `LateTimeCalculate` 迟到时间计算积木（2025-12-23）
+- [x] 扩展 `SkylarkJourneyCreate` 支持 `{{context.xxx}}` 变量语法（2025-12-23）
 - [ ] 创建打卡逻辑图（一个图两个入口节点）
 - [ ] 定时任务端到端测试

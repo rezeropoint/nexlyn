@@ -11,6 +11,7 @@ import (
 	"github.com/rezeropoint/nexlyn/pkg/lynxgraph/internal/blocks/standard/foreach"
 	"github.com/rezeropoint/nexlyn/pkg/lynxgraph/internal/blocks/standard/getdedupset"
 	"github.com/rezeropoint/nexlyn/pkg/lynxgraph/internal/blocks/standard/holidaycheck"
+	"github.com/rezeropoint/nexlyn/pkg/lynxgraph/internal/blocks/standard/latetimecalculate"
 	"github.com/rezeropoint/nexlyn/pkg/lynxgraph/internal/blocks/standard/httprequest"
 	"github.com/rezeropoint/nexlyn/pkg/lynxgraph/internal/blocks/standard/log"
 	"github.com/rezeropoint/nexlyn/pkg/lynxgraph/internal/blocks/standard/querydatabase"
@@ -355,6 +356,23 @@ func RegisterStandardBlocks(reg BlockRegistry, service core.Service) error {
 			core.BlockKey{BlockType: core.BlockTypeFilterBySet, Version: filterBySetSpec.Version()},
 			filterbyset.NewFilterBySetBlock,
 			filterBySetSpec,
+		)
+		if err != nil {
+			logx.Must(core.ErrRegisterStandardBlock)
+		}
+	}
+
+	// 注册 LateTimeCalculateBlock（迟到时间计算）
+	lateTimeCalculateSpec := latetimecalculate.GetLateTimeCalculateSpec()
+	if !checkServiceDependencies(lateTimeCalculateSpec, service) {
+		logx.Infof("跳过注册 %s: 缺少服务依赖 %v",
+			core.BlockTypeLateTimeCalculate,
+			lateTimeCalculateSpec.RequiredServiceTypes())
+	} else {
+		err := reg.Register(
+			core.BlockKey{BlockType: core.BlockTypeLateTimeCalculate, Version: lateTimeCalculateSpec.Version()},
+			latetimecalculate.NewLateTimeCalculateBlock,
+			lateTimeCalculateSpec,
 		)
 		if err != nil {
 			logx.Must(core.ErrRegisterStandardBlock)

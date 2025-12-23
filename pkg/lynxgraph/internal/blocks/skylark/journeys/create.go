@@ -2,8 +2,10 @@ package journeys
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"regexp"
+	"strings"
 
 	"github.com/rezeropoint/nexlyn/pkg/lynxgraph/core"
 
@@ -13,12 +15,18 @@ import (
 
 const SkylarkJourneyCreateVersion = "v1"
 
+// DataMapping 字段映射配置
+type DataMapping struct {
+	Key   string `json:"key"`   // 目标字段名（Skylark 表单字段）
+	Value string `json:"value"` // 源字段表达式，支持 {{atom.xxx}} 和 {{context.xxx.yyy}}
+}
+
 type Config struct {
-	App        string            `json:"app" check:"must"`    // Skylark实例，一般是域名
-	FlowId     int64             `json:"flowId" check:"must"` // 流程ID
-	UserID     int64             `json:"userId" check:"must"` // 用户ID
-	AuthHeader string            `json:"authHeader"`          // 认证头（可选，用于外部调用）
-	Data       map[string]string `json:"data"`                // 字段映射，key=目标字段名，value=源字段（支持 {{atom.xxx}}）
+	App        string        `json:"app" check:"must"`    // Skylark实例，一般是域名
+	FlowId     int64         `json:"flowId" check:"must"` // 流程ID
+	UserID     int64         `json:"userId" check:"must"` // 用户ID
+	AuthHeader string        `json:"authHeader"`          // 认证头（可选，用于外部调用）
+	Data       []DataMapping `json:"data"`                // 字段映射列表
 }
 
 // SkylarkJourneyCreateBlock 实现一个动作逻辑块
@@ -47,8 +55,65 @@ func (b *SkylarkJourneyCreateBlock) SetConfigure(config map[string]any) error {
 		return err
 	}
 
+	// 兼容旧格式：如果 data 是 map[string]string 或 JSON 字符串，转换为 []DataMapping
+	if rawData, ok := config["data"]; ok && cfg.Data == nil {
+		cfg.Data = convertToDataMappings(rawData)
+	}
+
 	b.TypedConfig = &cfg
 	return nil
+}
+
+// convertToDataMappings 将各种格式的 data 转换为 []DataMapping
+// 支持：map[string]string、map[string]any、JSON 字符串
+func convertToDataMappings(rawData any) []DataMapping {
+	var result []DataMapping
+
+	switch v := rawData.(type) {
+	case []DataMapping:
+		return v
+	case []any:
+		// 标准数组格式 [{key: "x", value: "y"}, ...]
+		for _, item := range v {
+			if m, ok := item.(map[string]any); ok {
+				key, _ := m["key"].(string)
+				value, _ := m["value"].(string)
+				if key != "" {
+					result = append(result, DataMapping{Key: key, Value: value})
+				}
+			}
+		}
+	case map[string]any:
+		// 旧格式 map[string]any
+		for k, val := range v {
+			if strVal, ok := val.(string); ok {
+				result = append(result, DataMapping{Key: k, Value: strVal})
+			}
+		}
+	case map[string]string:
+		// 旧格式 map[string]string
+		for k, val := range v {
+			result = append(result, DataMapping{Key: k, Value: val})
+		}
+	case string:
+		// JSON 字符串格式，尝试解析
+		if v != "" {
+			// 尝试解析为数组格式
+			var arr []DataMapping
+			if err := json.Unmarshal([]byte(v), &arr); err == nil {
+				return arr
+			}
+			// 尝试解析为 map 格式
+			var m map[string]string
+			if err := json.Unmarshal([]byte(v), &m); err == nil {
+				for k, val := range m {
+					result = append(result, DataMapping{Key: k, Value: val})
+				}
+			}
+		}
+	}
+
+	return result
 }
 
 // Execute 执行动作逻辑
@@ -76,8 +141,8 @@ func (b *SkylarkJourneyCreateBlock) Execute(ctx context.Context, execCtx core.Ex
 	// 4. 将InfoAtom的Payload转换为TypedValue格式
 	var data map[string]skylarkCore.TypedValue
 	if len(config.Data) > 0 {
-		// 使用配置的字段映射
-		data = convertWithMapping(config.Data, infoAtom)
+		// 使用配置的字段映射（支持 {{atom.xxx}} 和 {{context.xxx}} 语法）
+		data = convertWithMapping(ctx, config.Data, infoAtom, datastore, execCtx)
 	} else {
 		// 默认行为：使用全部 Payload
 		data = convertPayloadToTypedValue(infoAtom)
@@ -133,11 +198,29 @@ func GetSkylarkJourneyCreateSpec() core.BlockSpec {
 				"placeholder": "Bearer xxx",
 			},
 			"data": map[string]any{
-				"type":        "object",
+				"type":        "array",
 				"title":       "字段映射",
-				"description": "自定义字段映射，key=目标字段名，value=源字段（支持 {{atom.xxx}}）。不配置则使用全部 InfoAtom 数据",
-				"additionalProperties": map[string]any{
-					"type": "string",
+				"description": "自定义字段映射列表。支持 {{atom.xxx}}（信息原子字段）和 {{context.xxx.yyy}}（图上下文字段）。不配置则使用全部 InfoAtom 数据",
+				"items": map[string]any{
+					"type":  "object",
+					"title": "映射",
+					"properties": map[string]any{
+						"key": map[string]any{
+							"type":        "string",
+							"title":       "目标字段",
+							"description": "Skylark 表单字段名",
+							"placeholder": "name",
+							"check":       "must",
+						},
+						"value": map[string]any{
+							"type":        "string",
+							"title":       "值表达式",
+							"description": "支持 {{atom.xxx}} 或 {{context.xxx.yyy}}",
+							"placeholder": "{{atom.person_name}}",
+							"check":       "must",
+						},
+					},
+					"required": []string{"key", "value"},
 				},
 			},
 		},
@@ -221,8 +304,9 @@ func convertWithInference(payload map[string]any) map[string]skylarkCore.TypedVa
 }
 
 // convertWithMapping 根据配置的字段映射转换数据
-// mapping: key=目标字段名, value=源字段表达式（支持 {{atom.xxx}}）
-func convertWithMapping(mapping map[string]string, infoAtom core.InfoAtom) map[string]skylarkCore.TypedValue {
+// mappings: 字段映射列表，每项包含 key（目标字段名）和 value（源字段表达式）
+// 支持 {{atom.xxx}}（信息原子字段）和 {{context.xxx.yyy}}（图上下文字段）
+func convertWithMapping(ctx context.Context, mappings []DataMapping, infoAtom core.InfoAtom, datastore core.Store, execCtx core.ExecutionContext) map[string]skylarkCore.TypedValue {
 	result := make(map[string]skylarkCore.TypedValue)
 	payload := infoAtom.GetPayload()
 	atomType := infoAtom.GetType()
@@ -236,11 +320,20 @@ func convertWithMapping(mapping map[string]string, infoAtom core.InfoAtom) map[s
 	}
 
 	// 匹配 {{atom.xxx}} 格式的变量
-	re := regexp.MustCompile(`^\{\{atom\.(\w+)\}\}$`)
+	reAtom := regexp.MustCompile(`^\{\{atom\.(\w+)\}\}$`)
+	// 匹配 {{context.xxx.yyy}} 格式的变量（支持多级路径）
+	reContext := regexp.MustCompile(`^\{\{context\.([a-zA-Z0-9_.]+)\}\}$`)
 
-	for targetKey, sourceExpr := range mapping {
-		// 检查是否是简单变量引用
-		if match := re.FindStringSubmatch(sourceExpr); match != nil {
+	for _, mapping := range mappings {
+		targetKey := mapping.Key
+		sourceExpr := mapping.Value
+
+		if targetKey == "" {
+			continue
+		}
+
+		// 1. 检查是否是 {{atom.xxx}} 变量引用
+		if match := reAtom.FindStringSubmatch(sourceExpr); match != nil {
 			fieldName := match[1]
 			if value, ok := payload[fieldName]; ok {
 				// 确定类型
@@ -253,13 +346,27 @@ func convertWithMapping(mapping map[string]string, infoAtom core.InfoAtom) map[s
 					Value: value,
 				}
 			}
-		} else {
-			// 字符串模板替换
-			value := replaceVariables(sourceExpr, payload)
-			result[targetKey] = skylarkCore.TypedValue{
-				Type:  "string",
-				Value: value,
+			continue
+		}
+
+		// 2. 检查是否是 {{context.xxx.yyy}} 变量引用
+		if match := reContext.FindStringSubmatch(sourceExpr); match != nil {
+			path := match[1] // e.g., "late_time.lateMinutes"
+			value, err := getValueFromContext(ctx, path, datastore, execCtx)
+			if err == nil && value != nil {
+				result[targetKey] = skylarkCore.TypedValue{
+					Type:  inferType(value),
+					Value: value,
+				}
 			}
+			continue
+		}
+
+		// 3. 字符串模板替换（支持混合变量）
+		value := replaceVariablesExtended(ctx, sourceExpr, payload, datastore, execCtx)
+		result[targetKey] = skylarkCore.TypedValue{
+			Type:  "string",
+			Value: value,
 		}
 	}
 
@@ -292,4 +399,74 @@ func inferType(value any) string {
 	default:
 		return "string"
 	}
+}
+
+// getValueFromContext 从 GraphContext 获取值
+// path 格式: "contextKey.field" 或 "contextKey.field1.field2"
+func getValueFromContext(ctx context.Context, path string, datastore core.Store, execCtx core.ExecutionContext) (any, error) {
+	parts := strings.SplitN(path, ".", 2)
+	if len(parts) < 2 {
+		return nil, fmt.Errorf("context 路径格式无效: %s (应为 contextKey.field 格式)", path)
+	}
+
+	contextKey := parts[0]
+	fieldPath := parts[1]
+
+	// 从 datastore 获取 GraphContext
+	graphContext, err := datastore.GetGraphContext(ctx, execCtx.GetTenantId(), execCtx.GetGraphKey(), contextKey)
+	if err != nil {
+		return nil, fmt.Errorf("获取 GraphContext 失败: %w", err)
+	}
+
+	payload := graphContext.GetPayload()
+
+	// 解析字段路径（支持 nested.field 格式）
+	return getNestedValue(payload, fieldPath)
+}
+
+// getNestedValue 获取嵌套字段值
+func getNestedValue(data map[string]any, path string) (any, error) {
+	parts := strings.Split(path, ".")
+	current := any(data)
+
+	for _, part := range parts {
+		switch v := current.(type) {
+		case map[string]any:
+			val, ok := v[part]
+			if !ok {
+				return nil, fmt.Errorf("字段 %s 不存在", part)
+			}
+			current = val
+		default:
+			return nil, fmt.Errorf("无法访问 %s 的子字段", part)
+		}
+	}
+
+	return current, nil
+}
+
+// replaceVariablesExtended 替换字符串中的 {{atom.xxx}} 和 {{context.xxx.yyy}} 变量
+func replaceVariablesExtended(ctx context.Context, template string, payload map[string]any, datastore core.Store, execCtx core.ExecutionContext) string {
+	// 替换 {{atom.xxx}}
+	reAtom := regexp.MustCompile(`\{\{atom\.(\w+)\}\}`)
+	result := reAtom.ReplaceAllStringFunc(template, func(match string) string {
+		fieldName := reAtom.FindStringSubmatch(match)[1]
+		if value, ok := payload[fieldName]; ok {
+			return fmt.Sprintf("%v", value)
+		}
+		return match
+	})
+
+	// 替换 {{context.xxx.yyy}}
+	reContext := regexp.MustCompile(`\{\{context\.([a-zA-Z0-9_.]+)\}\}`)
+	result = reContext.ReplaceAllStringFunc(result, func(match string) string {
+		path := reContext.FindStringSubmatch(match)[1]
+		value, err := getValueFromContext(ctx, path, datastore, execCtx)
+		if err == nil && value != nil {
+			return fmt.Sprintf("%v", value)
+		}
+		return match
+	})
+
+	return result
 }

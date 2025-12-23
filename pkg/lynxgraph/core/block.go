@@ -75,6 +75,7 @@ const (
 	BlockTypeSetContainsCheck     LogicBlockType = "set_contains_check"     // 集合包含检查
 	BlockTypeClearDedupContext    LogicBlockType = "clear_dedup_context"    // 清空去重记录
 	BlockTypeFilterBySet          LogicBlockType = "filter_by_set"          // 按集合过滤数组
+	BlockTypeLateTimeCalculate    LogicBlockType = "late_time_calculate"    // 迟到时间计算
 )
 
 type CreateBlockFunc func(id string, blockKey BlockKey, config map[string]any) (LogicBlock, error)
