@@ -213,7 +213,7 @@ config:
   flowId: 135
   userId: 97
   data:                           # 可选，不配置则使用全部 InfoAtom 数据
-    name: "{{atom.person_name}}"
+    name: "{{atom.name}}"
     time: "{{atom.time}}"
 ```
 
@@ -249,9 +249,8 @@ config:
   flowId: 189
   userId: 97
   data:
-    name: "{{atom.person_name}}"
-    time: "{{atom.time}}"
-    lateMinutes: "{{context.late_time.lateMinutes}}"  # 从 GraphContext 获取迟到分钟数
+    name: "{{atom.name}}"
+    time: "{{context.late_time.lateMinutes}}"  # 从 GraphContext 获取迟到分钟数
 ```
 
 ### SkylarkJourneyCreate 变量语法
@@ -260,7 +259,7 @@ config:
 
 | 语法 | 说明 | 示例 |
 |------|------|------|
-| `{{atom.xxx}}` | 信息原子 Payload 字段 | `{{atom.person_name}}` |
+| `{{atom.xxx}}` | 信息原子 Payload 字段 | `{{atom.name}}` |
 | `{{context.key.field}}` | 图上下文字段 | `{{context.late_time.lateMinutes}}` |
 
 ---

@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/rezeropoint/nexlyn/pkg/lynxgraph/core"
+	"github.com/zeromicro/go-zero/core/logx"
 
 	skylarkCore "github.com/rezeropoint/go-skylark/v2/core"
 	"github.com/rezeropoint/go-skylark/v2/engine"
@@ -149,6 +150,10 @@ func (b *SkylarkJourneyCreateBlock) Execute(ctx context.Context, execCtx core.Ex
 	}
 
 	// 5. 调用Skylark引擎创建流程
+	logx.Infof("[SkylarkJourneyCreate] flowId=%d, mappings=%+v, payload=%+v", config.FlowId, config.Data, infoAtom.GetPayload())
+	for k, v := range data {
+		logx.Infof("[SkylarkJourneyCreate] field=%s, type=%s, valueType=%T, value=%v", k, v.Type, v.Value, v.Value)
+	}
 	err = skylarkEngine.CreateFlow(
 		ctx,
 		config.App,
@@ -229,74 +234,15 @@ func GetSkylarkJourneyCreateSpec() core.BlockSpec {
 }
 
 // convertPayloadToTypedValue 将InfoAtom的Payload转换为Skylark的TypedValue格式
+// Skylark TypedValue.Type 只支持 string/imageURL/imageBase64，所有值都转为字符串
 func convertPayloadToTypedValue(infoAtom core.InfoAtom) map[string]skylarkCore.TypedValue {
 	payload := infoAtom.GetPayload()
-	atomType := infoAtom.GetType()
-
-	// 如果没有类型信息，尝试推断类型
-	if atomType == nil {
-		return convertWithInference(payload)
-	}
-
-	dataFormat := atomType.GetDataFormat()
-	result := make(map[string]skylarkCore.TypedValue)
-
-	// 根据DataFormat中的字段配置进行转换
-	for _, fieldConfig := range dataFormat.Fields {
-		value, exists := payload[fieldConfig.FieldKey]
-		if !exists {
-			continue
-		}
-
-		// 根据FieldType转换为skylark的类型字符串
-		skylarkType := convertFieldType(fieldConfig.FieldType)
-		result[fieldConfig.FieldKey] = skylarkCore.TypedValue{
-			Type:  skylarkType,
-			Value: value,
-		}
-	}
-
-	return result
-}
-
-// convertFieldType 将core.FieldType转换为Skylark的类型字符串
-func convertFieldType(ft core.FieldType) string {
-	switch ft {
-	case core.FieldTypeString:
-		return "string"
-	case core.FieldTypeInt:
-		return "int"
-	case core.FieldTypeFloat:
-		return "float"
-	case core.FieldTypeBool:
-		return "bool"
-	default:
-		return "string"
-	}
-}
-
-// convertWithInference 当InfoAtomType为nil时，通过类型推断转换Payload
-func convertWithInference(payload map[string]any) map[string]skylarkCore.TypedValue {
 	result := make(map[string]skylarkCore.TypedValue)
 
 	for key, value := range payload {
-		var typeName string
-		switch value.(type) {
-		case string:
-			typeName = "string"
-		case int, int32, int64:
-			typeName = "int"
-		case float32, float64:
-			typeName = "float"
-		case bool:
-			typeName = "bool"
-		default:
-			typeName = "string"
-		}
-
 		result[key] = skylarkCore.TypedValue{
-			Type:  typeName,
-			Value: value,
+			Type:  "string",
+			Value: fmt.Sprintf("%v", value),
 		}
 	}
 
@@ -336,14 +282,11 @@ func convertWithMapping(ctx context.Context, mappings []DataMapping, infoAtom co
 		if match := reAtom.FindStringSubmatch(sourceExpr); match != nil {
 			fieldName := match[1]
 			if value, ok := payload[fieldName]; ok {
-				// 确定类型
-				typeName := inferType(value)
-				if ft, ok := fieldTypes[fieldName]; ok {
-					typeName = convertFieldType(ft)
-				}
+				// Skylark TypedValue.Type 只支持 string/imageURL/imageBase64
+				// 默认使用 string，Value 必须转为字符串
 				result[targetKey] = skylarkCore.TypedValue{
-					Type:  typeName,
-					Value: value,
+					Type:  "string",
+					Value: fmt.Sprintf("%v", value),
 				}
 			}
 			continue
@@ -354,9 +297,11 @@ func convertWithMapping(ctx context.Context, mappings []DataMapping, infoAtom co
 			path := match[1] // e.g., "late_time.lateMinutes"
 			value, err := getValueFromContext(ctx, path, datastore, execCtx)
 			if err == nil && value != nil {
+				// Skylark TypedValue.Type 只支持 string/imageURL/imageBase64
+				// 默认使用 string，Value 必须转为字符串
 				result[targetKey] = skylarkCore.TypedValue{
-					Type:  inferType(value),
-					Value: value,
+					Type:  "string",
+					Value: fmt.Sprintf("%v", value),
 				}
 			}
 			continue
@@ -383,22 +328,6 @@ func replaceVariables(template string, payload map[string]any) string {
 		}
 		return match
 	})
-}
-
-// inferType 推断值的类型
-func inferType(value any) string {
-	switch value.(type) {
-	case string:
-		return "string"
-	case int, int32, int64:
-		return "int"
-	case float32, float64:
-		return "float"
-	case bool:
-		return "bool"
-	default:
-		return "string"
-	}
 }
 
 // getValueFromContext 从 GraphContext 获取值
