@@ -2,6 +2,7 @@ package core
 
 // ScheduleConfig 定时配置
 type ScheduleConfig struct {
+	NodeID         string         `json:"nodeId"`                   // 定时积木节点 ID，用于精确触发
 	CronExpr       string         `json:"cronExpr"`                 // cron 表达式，如 "31 9 * * 1-5"
 	Timezone       string         `json:"timezone,omitempty"`       // 时区，默认 Asia/Shanghai
 	InitialPayload map[string]any `json:"initialPayload,omitempty"` // 初始载荷

@@ -53,8 +53,9 @@ func CreateScheduledInfoAtom(
 		"scheduler:"+graphKey.ID,
 		now.UnixMilli(),
 		map[string]string{
-			"trigger_type": "schedule",
-			"graph_id":     graphKey.ID,
+			"trigger_type":      "schedule",
+			"graph_id":          graphKey.ID,
+			"schedule_node_id":  scheduleConfig.NodeID, // 用于精确触发对应的 schedule 节点
 		},
 		payload,
 	)

@@ -125,6 +125,9 @@ func (r *scheduleRegistry) RegisterSchedule(graphKey core.GraphKey, nodes []core
 	var registeredJobs []scheduleJob
 
 	for nodeID, scheduleConfig := range scheduleConfigs {
+		// 设置节点 ID，用于后续精确触发
+		scheduleConfig.NodeID = nodeID
+
 		// 解析时区
 		loc, err := parseTimezone(scheduleConfig.Timezone, r.config.DefaultTimezone)
 		if err != nil {

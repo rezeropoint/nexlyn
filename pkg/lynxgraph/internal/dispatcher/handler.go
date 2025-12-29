@@ -144,7 +144,14 @@ func (r *dispatcherRegistry) DispatchScheduled(graphKey core.GraphKey, infoAtom 
 	// 获取入口节点
 	entryNodes := graph.GetEntryNodes()
 
+	// 从 InfoAtom labels 中获取触发的 schedule 节点 ID
+	targetNodeID := ""
+	if labels := infoAtom.GetLabels(); labels != nil {
+		targetNodeID = labels["schedule_node_id"]
+	}
+
 	// 只选择 schedule 类型的入口节点，避免触发其他入口（如信息原子订阅入口）
+	// 如果指定了 targetNodeID，则只触发该节点
 	var scheduleEntryNodes []core.Node
 	for _, node := range entryNodes {
 		block := node.GetBlock()
@@ -152,11 +159,18 @@ func (r *dispatcherRegistry) DispatchScheduled(graphKey core.GraphKey, infoAtom 
 			continue
 		}
 		if block.GetType() == core.BlockTypeSchedule {
+			// 如果指定了目标节点 ID，则只匹配该节点
+			if targetNodeID != "" && block.GetID() != targetNodeID {
+				continue
+			}
 			scheduleEntryNodes = append(scheduleEntryNodes, node)
 		}
 	}
 
 	if len(scheduleEntryNodes) == 0 {
+		if targetNodeID != "" {
+			return fmt.Errorf("图没有匹配的 schedule 入口节点: %s", targetNodeID)
+		}
 		return fmt.Errorf("图没有 schedule 类型的入口节点 (共 %d 个入口节点)", len(entryNodes))
 	}
 

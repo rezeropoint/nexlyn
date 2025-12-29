@@ -82,6 +82,7 @@ Internal 层负责具体实现，采用 **Manager 模式**：
 | **Tag Manager** | 标签定义 CRUD | PostgreSQL | `internal/tag/` |
 | **Block Registry** | 逻辑块注册表 | 内存 | `internal/blocks/` |
 | **Dispatcher** | 信息原子调度 | 内存工作队列 | `internal/dispatcher/` |
+| **Schedule Registry** | 定时任务调度 | 内存 + 分布式锁 | `internal/scheduler/` |
 
 **文件组织规范**（所有 Manager 必须遵守）：
 - `<manager>.go` - 接口定义和核心类型
@@ -382,6 +383,69 @@ Manager.CreateGraphConfig()
 
 ---
 
+## ⏰ 定时调度机制
+
+### 概述
+
+LynxGraph 支持在逻辑图中配置定时触发积木（`schedule`），实现按 cron 表达式周期性执行逻辑图。
+
+**核心组件**：
+
+| 组件 | 位置 | 说明 |
+|------|------|------|
+| `ScheduleConfig` | `core/schedule.go` | 定时配置结构（NodeID、CronExpr、Timezone、InitialPayload） |
+| `ScheduleRegistry` | `internal/scheduler/` | 定时调度管理器（cron 调度、分布式锁） |
+| `ScheduleBlock` | `internal/blocks/standard/schedule/` | 定时触发积木（画布可视化） |
+
+### 多 Schedule 节点精确触发
+
+**设计要点**：一个逻辑图可以包含多个 `schedule` 入口节点，每个节点有独立的 cron 表达式。当某个 schedule 触发时，只执行该节点对应的后续链路，不影响其他 schedule 节点。
+
+**实现机制**：
+
+1. **注册阶段**：`ScheduleConfig.NodeID` 保存触发节点的 ID
+2. **触发阶段**：创建 InfoAtom 时将 `schedule_node_id` 写入 labels
+3. **分发阶段**：`DispatchScheduled` 根据 `schedule_node_id` 只触发对应节点
+
+```
+注册 schedule 任务
+  └─> RegisterSchedule(graphKey, nodes)
+      └─> 遍历所有 schedule 类型节点
+          └─> scheduleConfig.NodeID = nodeID
+              └─> cronRunner.Schedule(cron, job)
+
+定时触发
+  └─> cron 触发 job
+      └─> scheduleTriggerFunc(graphKey, scheduleConfig)
+          └─> CreateScheduledInfoAtom() // labels["schedule_node_id"] = NodeID
+              └─> DispatchScheduled(graphKey, infoAtom)
+                  └─> 只选择 block.GetID() == targetNodeID 的节点
+```
+
+**示例配置**（一个图两个定时器）：
+
+```json
+{
+  "nodes": [
+    {"id": "node-morning", "blockType": "schedule", "blockConfig": {"cronExpr": "31 9 * * 1-5"}},
+    {"id": "node-evening", "blockType": "schedule", "blockConfig": {"cronExpr": "30 17 * * 1-5"}}
+  ]
+}
+```
+
+- 09:31 触发时：只执行 `node-morning` 后续链路
+- 17:30 触发时：只执行 `node-evening` 后续链路
+
+### 分布式锁
+
+多副本部署时，使用 Redis 分布式锁确保同一时刻只有一个实例执行定时任务：
+
+- **锁 Key 格式**：`schedule:{graphID}:{cronExpr}`
+- **锁 TTL**：5 分钟（防止异常时锁无法释放）
+- **获取失败**：跳过本次执行，等待下次触发
+
+---
+
 ## 🛠️ 常见开发任务
 
 ### 添加新的逻辑块
@@ -460,6 +524,8 @@ db.graph.aggregate([
 | | `internal/tag/handler.go` | 标签 CRUD 实现 |
 | | `internal/blocks/block/handler.go` | 逻辑块注册表 |
 | | `internal/dispatcher/handler.go` | 信息原子调度器 |
+| | `internal/scheduler/handler.go` | 定时任务调度器 |
+| | `internal/scheduler/helpers.go` | 定时调度辅助函数 |
 | **对外接口** | `manager/manager.go` | Manager 模式接口定义 |
 | | `engine/engine.go` | Engine 模式接口定义 |
 | **逻辑块** | `internal/blocks/standard/` | 标准逻辑块实现 |
@@ -481,7 +547,7 @@ db.graph.aggregate([
 
 ---
 
-**文档版本**：v2.1
-**最后更新**：2025-12-04
-**修订说明**：新增 MongoDB DefaultDocumentM 配置说明
+**文档版本**：v2.2
+**最后更新**：2025-12-29
+**修订说明**：新增定时调度机制章节，说明多 schedule 节点精确触发设计
 **维护者**：LynxGraph 引擎开发团队
