@@ -146,7 +146,11 @@ func (b *DedupCheckBlock) Execute(ctx context.Context, execCtx core.ExecutionCon
 		},
 	}
 
-	if err := datastore.SaveGraphContext(ctx, newContext); err != nil {
+	// 6. 根据 resetMode 计算合适的 TTL
+	ttl := calculateTTL(now, config.ResetMode, config.ResetTime)
+	logx.WithContext(ctx).Debugf("[DedupCheck] 计算 TTL: %v (resetMode=%s)", ttl, config.ResetMode)
+
+	if err := datastore.SaveGraphContextWithTTL(ctx, newContext, ttl); err != nil {
 		return false, fmt.Errorf("[DedupCheck] 保存图上下文失败: %w", err)
 	}
 
@@ -154,6 +158,45 @@ func (b *DedupCheckBlock) Execute(ctx context.Context, execCtx core.ExecutionCon
 	logx.WithContext(ctx).Infof("[DedupCheck] 首次处理: %s", contextKey)
 
 	return true, nil
+}
+
+// calculateTTL 根据重置模式计算合适的 TTL
+// 确保去重记录在整个周期内有效，不会提前过期
+func calculateTTL(now time.Time, mode ResetMode, resetTime string) time.Duration {
+	switch mode {
+	case ResetModeDaily:
+		// 计算到下一个重置时间的剩余时间，再加 1 小时缓冲
+		resetHour, resetMin := 0, 0
+		fmt.Sscanf(resetTime, "%d:%d", &resetHour, &resetMin)
+
+		// 计算今天的重置时间
+		resetToday := time.Date(now.Year(), now.Month(), now.Day(), resetHour, resetMin, 0, 0, now.Location())
+		var nextReset time.Time
+		if now.Before(resetToday) {
+			// 今天的重置时间还没到
+			nextReset = resetToday
+		} else {
+			// 今天的重置时间已过，下一个是明天
+			nextReset = resetToday.Add(24 * time.Hour)
+		}
+
+		ttl := nextReset.Sub(now) + time.Hour // 加 1 小时缓冲
+		if ttl < 2*time.Hour {
+			ttl = 2 * time.Hour // 最少 2 小时
+		}
+		return ttl
+
+	case ResetModeHourly:
+		// 1 小时 10 分钟，确保覆盖整个小时周期
+		return 70 * time.Minute
+
+	case ResetModeNone:
+		// 不自动重置，使用 7 天
+		return 7 * 24 * time.Hour
+
+	default:
+		return 25 * time.Hour
+	}
 }
 
 // getTimePeriod 根据重置模式计算时间周期标识

@@ -22,6 +22,9 @@ var (
 type Store interface {
 	// 图上下文管理
 	SaveGraphContext(ctx context.Context, graphContext GraphContext) error
+	// SaveGraphContextWithTTL 保存图上下文，使用自定义 TTL
+	// 用于需要特殊过期时间的场景（如 DedupCheck 的 daily 模式需要保存到第二天）
+	SaveGraphContextWithTTL(ctx context.Context, graphContext GraphContext, ttl time.Duration) error
 	GetGraphContext(ctx context.Context, tenantId string, graphKey GraphKey, contextKey string) (GraphContext, error)
 	DeleteGraphContext(ctx context.Context, tenantId string, graphKey GraphKey, contextKey string) error
 	// ScanGraphContextKeys 扫描匹配前缀的图上下文键
@@ -72,8 +75,13 @@ func (s *BaseStore) GetGraphContextTTL() time.Duration { return s.GraphContextTT
 func (s *BaseStore) GetInfoAtomTTL() time.Duration     { return s.InfoAtomTTL }
 func (s *BaseStore) GetCacheInterface() cache.Cache    { return s.CacheInterface }
 
-// SaveGraphContext 保存图上下文
+// SaveGraphContext 保存图上下文（使用默认 TTL）
 func (s *BaseStore) SaveGraphContext(ctx context.Context, graphContext GraphContext) error {
+	return s.SaveGraphContextWithTTL(ctx, graphContext, s.GraphContextTTL)
+}
+
+// SaveGraphContextWithTTL 保存图上下文，使用自定义 TTL
+func (s *BaseStore) SaveGraphContextWithTTL(ctx context.Context, graphContext GraphContext, ttl time.Duration) error {
 	if s.CacheInterface == nil {
 		return ErrRedisClientNil
 	}
@@ -104,7 +112,7 @@ func (s *BaseStore) SaveGraphContext(ctx context.Context, graphContext GraphCont
 	}
 
 	key := s.graphContextKey(tenantId, gk.GetGraphKey(), ck.GetContextKey())
-	err = s.CacheInterface.SetWithExpire(key, string(data), s.GraphContextTTL)
+	err = s.CacheInterface.SetWithExpire(key, string(data), ttl)
 	if err != nil {
 		return fmt.Errorf("%w: %v", ErrSaveGraphContext, err)
 	}
